@@ -765,7 +765,9 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .leaflet-tile{filter:inherit;visibility:hidden}
 .leaflet-tile-loaded{visibility:inherit}
 .leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important}
-.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.92) saturate(.55)}
+.raster .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.92) saturate(.55)}
+#glmap.glmap{position:absolute!important;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.glmap canvas{outline:none}
 .leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}
 .leaflet-interactive{cursor:pointer}
 .leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:grabbing}
@@ -1057,7 +1059,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .segset button{border:0;background:none;border-radius:7px;padding:6px 8px;font-size:.82rem;font-weight:600;cursor:pointer}
 .segset button[aria-pressed="true"]{background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.12)}
 .maplight #map{background-color:#EAE6DF;background-image:none}
-.maplight .leaflet-tile-pane{filter:saturate(.9) brightness(1.02)}
+.raster.maplight .leaflet-tile-pane{filter:saturate(.9) brightness(1.02)}
 .mapnote{padding:9px 14px;font-size:.78rem;text-align:center;max-width:440px;color:#FFE780;border-radius:14px}
 @keyframes ping{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.7);opacity:0}}
 
@@ -1343,7 +1345,9 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<link rel="stylesheet" href="maplibre-gl.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="maplibre-gl.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1764,7 +1768,34 @@ function openSharedFromHash(){const m=/^#s=(.+)$/.exec(location.hash||"");if(!m)
 
 /* ---------- Mapa claro / oscuro ---------- */
 function isLightMap(){const m=S.mapStyle||"auto";if(m==="light")return true;if(m==="dark")return false;const h=new Date().getHours();return h>=8&&h<20;}
-function applyMapStyle(){document.body.classList.toggle("maplight",isLightMap());if(typeof drawFog==="function")drawFog();}
+function applyMapStyle(){document.body.classList.toggle("maplight",isLightMap());if(gl&&gl.__url!==glStyleURL()){gl.__url=glStyleURL();gl.__tuned=null;gl.setStyle(gl.__url);gl.once("idle",tuneStyle);}if(typeof drawFog==="function")drawFog();}
+/* ---------- Mapa vectorial minimalista (OpenFreeMap + MapLibre) con plan B ---------- */
+let gl=null,glOk=false,rasterLayer=null;
+const STY={light:"https://tiles.openfreemap.org/styles/positron",dark:"https://tiles.openfreemap.org/styles/dark"};
+function glStyleURL(){return isLightMap()?STY.light:STY.dark;}
+function useRaster(){
+  if(rasterLayer||!map)return;if(gl){try{gl.remove();}catch(e){}gl=null;}const d=$("#glmap");if(d)d.remove();document.body.classList.add("raster");
+  rasterLayer=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+  rasterLayer.on("tileload",()=>{tilesOk++;});rasterLayer.on("tileerror",()=>{tilesErr++;if(!tilesOk&&tilesErr>=4)$("#mapNote").hidden=false;});
+  setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},7000);
+}
+function syncGL(){if(!gl||map._animatingZoom)return;const c=map.getCenter();gl.jumpTo({center:[c.lng,c.lat],zoom:map.getZoom()-1});}
+function tuneStyle(){if(!gl||gl.__tuned===gl.__url)return;try{const st=gl.getStyle();if(!st||!st.layers)return;st.layers.forEach(l=>{if(/poi|housenum|aeroway|transit|rail_station|mountain_peak|building-3d/i.test(l.id))gl.setLayoutProperty(l.id,"visibility","none");});gl.__tuned=gl.__url;}catch(e){}}
+function initGL(){
+  let ok=false;try{ok=!!(window.maplibregl&&document.createElement("canvas").getContext("webgl"));}catch(e){}
+  if(!ok){useRaster();return;}
+  const box=document.createElement("div");box.id="glmap";box.className="glmap";box.setAttribute("aria-hidden","true");map.getContainer().insertBefore(box,map.getContainer().firstChild);
+  const c=map.getCenter();
+  try{gl=new maplibregl.Map({container:box,style:glStyleURL(),interactive:false,attributionControl:false,center:[c.lng,c.lat],zoom:map.getZoom()-1,fadeDuration:120,pixelRatio:Math.min(window.devicePixelRatio||1,2),maxTileCacheSize:200});gl.__url=glStyleURL();}catch(e){box.remove();gl=null;useRaster();return;}
+  const to=setTimeout(()=>{if(!glOk)useRaster();},10000);
+  gl.on("load",()=>{glOk=true;clearTimeout(to);tuneStyle();});
+  gl.on("idle",tuneStyle);
+  gl.on("webglcontextlost",()=>{useRaster();});
+  map.on("move zoom",syncGL);
+  map.on("zoomanim",e=>{if(gl)gl.easeTo({center:[e.center.lng,e.center.lat],zoom:e.zoom-1,duration:250,easing:t=>1-Math.pow(1-t,3)});});
+  map.on("zoomend",syncGL);map.on("resize",()=>{if(gl)gl.resize();});
+  map.attributionControl.addAttribution('<a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>');
+}
 
 /* ---------- Foto al valorar ---------- */
 function readRatePhoto(file){const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const k=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
@@ -2060,9 +2091,6 @@ function start(){
   if(typeof L==="undefined"){$("#map").innerHTML='<p style="padding:200px 20px;text-align:center;color:#8E8E93">No se ha podido cargar el mapa.</p>';return;}
   brush=makeBrush();clouds=makeClouds();
   map=L.map("map",{zoomControl:false,zoomAnimation:true,fadeAnimation:true,markerZoomAnimation:true,zoomSnap:.25,zoomDelta:1,wheelPxPerZoomLevel:90,inertia:true,bounceAtZoomLimits:false,attributionControl:true,minZoom:3,maxZoom:19,worldCopyJump:true});
-  const tl=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
-  tl.on("tileload",()=>{tilesOk++;});tl.on("tileerror",()=>{tilesErr++;if(!tilesOk&&tilesErr>=4)$("#mapNote").hidden=false;});
-  setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},7000);
   map.createPane("zone");map.getPane("zone").style.zIndex=460;map.getPane("zone").style.pointerEvents="none";
   map.createPane("fog");map.getPane("fog").style.zIndex=450;map.getPane("fog").style.pointerEvents="none";
   fogCanvas=L.DomUtil.create("canvas","leaflet-zoom-animated",map.getPane("fog"));
@@ -2070,6 +2098,7 @@ function start(){
   const st=W();if(!st.pos){st.pos=START.slice();addPoint(st.pos,true);}
   if(!st.big.length)bigReveal(st.pos,START_R);
   map.setView(st.pos,17);
+  initGL();
   meMk=L.marker(st.pos,{icon:L.divIcon({html:meHTML(),iconSize:[44,44],iconAnchor:[22,22]}),interactive:false,zIndexOffset:1000}).addTo(map);
   buildMarkers();buildFriends();updateZoneRect(st.pos);
   map.on("move zoomend resize viewreset",drawFog);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
