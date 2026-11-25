@@ -17,6 +17,670 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;1,800&display=swap" rel="stylesheet">
 <style>
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+</style>
+<style>
 :root{
   /* Urbano con toque iOS: mapa nocturno bajo nubes, cristal translúcido, listas agrupadas, amarillo de señalización y cifras condensadas. */
   --k:#0E0E0E;
@@ -135,7 +799,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .stats3 b{display:block;font-size:2rem;line-height:1}
 .stats3 small{display:block;margin-top:3px;font-size:.68rem;font-weight:600;color:#A1A1A6;text-transform:uppercase;letter-spacing:.05em}
 .stats3 .hl b{color:var(--y)}
-.hud.right{top:calc(150px + env(safe-area-inset-top));right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.hud.right{top:calc(196px + env(safe-area-inset-top));right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .ctl{display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
 .ctl button{width:46px;height:46px;border:0;background:none;color:#fff;font-size:1.4rem;font-weight:500;cursor:pointer;display:grid;place-items:center}
 .ctl button + button{border-top:.5px solid rgba(255,255,255,.14)}
@@ -287,6 +951,80 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .envlist button small{display:block;font-weight:500;color:var(--label2);font-size:.76rem;margin-top:2px}
 .envlist button[aria-pressed="true"]{background:#0E0E0E;color:#fff}.envlist button[aria-pressed="true"] small{color:#FFD60A}
 .envlist button:disabled{opacity:.4;cursor:default}
+/* Sitios útiles */
+.pin{position:relative;width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--pc);border:2.5px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.45);display:grid;place-items:center;transition:transform .2s}
+.pin span{transform:rotate(45deg);font-size:16px;line-height:1}
+.pin em{position:absolute;right:-14px;top:-8px;transform:rotate(45deg);font:800 .6rem/1 var(--sf);font-style:normal;background:#fff;color:#0E0E0E;padding:3px 5px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.35);white-space:nowrap}
+.pin em::before{content:"★ ";color:#FF9F0A}
+.pin.vis{box-shadow:0 0 0 3px #FFD60A,0 4px 10px rgba(0,0,0,.45)}
+.pin.sm{width:24px;height:24px;border-width:2px;margin:10px 0 0 6px}.pin.sm span{font-size:11px}
+.leaflet-marker-icon:hover .pin{transform:rotate(-45deg) scale(1.12)}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:8px -10px 0;padding:0 10px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 12px;border-radius:16px;border:.5px solid rgba(255,255,255,.14);background:rgba(22,22,24,.72);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);color:#fff;font-size:.8rem;font-weight:600;cursor:pointer}
+.chips button span{font-size:.95rem}
+.chips button[aria-pressed="true"]{background:#fff;color:#0E0E0E;border-color:#fff}
+.fab{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 16px 0 12px;border-radius:23px;border:0;background:#0A84FF;color:#fff;font-weight:700;font-size:.92rem;box-shadow:0 8px 22px rgba(10,132,255,.45);cursor:pointer}
+.fab span{font-size:1.25rem}
+.fabrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.poistat{font-size:.78rem;padding:7px 12px;border-radius:12px;color:#E5E5EA}
+.cdot{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;background:var(--pc);font-size:.8rem}
+.rate-sum{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.rate-sum b{font-size:2rem;line-height:1}
+.rate-sum small{width:100%;color:var(--label2);font-size:.8rem}
+.stars{display:inline-flex;gap:1px;font-size:.95rem;line-height:1;vertical-align:-1px}
+.stars i{font-style:normal;background:linear-gradient(90deg,#FF9F0A var(--f),#D1D1D6 var(--f));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stars.big{font-size:1.4rem}
+.ctags,.facts2{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ctags span,.facts2 span{font-size:.78rem;font-weight:600;background:var(--ios);border-radius:9px;padding:5px 9px}
+.ctags em{font-style:normal;color:#30A14E}
+.facts2 span{background:#E8F2FF;color:#0060DF}
+.shp.mine{background:#FFF8D6;border-radius:12px;padding:9px 12px}
+.rateform{margin-top:14px;padding-top:12px;border-top:.5px solid var(--sep)}
+.rf-t{margin:12px 0 6px;font-size:.82rem;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.04em}
+.rateform .rf-t:first-child{margin-top:0}
+.starpick{display:flex;gap:6px}
+.starpick button{border:0;background:none;font-size:2.3rem;line-height:1;color:#D1D1D6;cursor:pointer;padding:0 2px;transition:transform .15s,color .15s}
+.starpick button.on{color:#FF9F0A}.starpick button:active{transform:scale(1.25)}
+.tagpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tagpick button{border:0;border-radius:16px;padding:7px 12px;background:var(--ios);font-weight:600;font-size:.84rem;cursor:pointer}
+.tagpick button[aria-pressed="true"]{background:#0E0E0E;color:#fff}
+.rateform textarea{width:100%;margin-top:10px;border:0;border-radius:12px;background:var(--ios);padding:10px 12px;font:inherit;font-size:16px;resize:none}
+.rep{display:block;margin:12px auto 0;color:#FF3B30!important;font-size:.85rem}
+.addgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.addgrid button{border:0;border-radius:16px;background:var(--ios);padding:12px 6px;font-size:.76rem;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px}
+.addgrid button span{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:1.3rem}
+.av{display:inline-grid;place-items:center;border-radius:50%;overflow:hidden;flex:none;line-height:1}
+.av img{width:100%;height:100%;object-fit:cover}
+.me i{width:auto!important;height:auto!important;margin:0!important;transform:translate(-50%,-50%);background:none!important;border:0!important;box-shadow:none!important;font-style:normal}
+.me i .av{border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,.55)}
+.me span{inset:-8px!important}
+.edav{display:flex;justify-content:center;margin:12px 0}
+.edav .av{box-shadow:0 0 0 4px #fff,0 8px 24px rgba(0,0,0,.2)}
+.avgrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.avgrid button{aspect-ratio:1;border:0;border-radius:12px;background:var(--ios);font-size:1.35rem;cursor:pointer;padding:0}
+.avgrid button[aria-pressed="true"]{background:#FFF2B0;box-shadow:inset 0 0 0 2px #FFD60A}
+.colgrid{display:flex;gap:10px;flex-wrap:wrap}
+.colgrid button{width:34px;height:34px;border-radius:50%;border:2px solid rgba(0,0,0,.08);cursor:pointer}
+.colgrid button[aria-pressed="true"]{box-shadow:0 0 0 3px #fff,0 0 0 5px #0E0E0E}
+.nmrow{display:flex;align-items:center;background:var(--ios);border-radius:12px;padding:0 12px}
+.nmrow span{color:var(--label2);font-weight:600}
+.nmrow input{flex:1;border:0;background:none;padding:12px 4px;font:inherit;font-size:16px;font-weight:600;outline:none}
+.ptitle{display:inline-block;margin-top:4px;font-size:.78rem;font-weight:700;color:#FFD60A}
+.editbtn{margin-left:auto;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:14px;padding:7px 12px;font-weight:600;font-size:.82rem;cursor:pointer}
+.catgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.catcard{background:#fff;border-radius:16px;padding:12px;text-align:center}
+.catcard span{display:grid;place-items:center;width:40px;height:40px;margin:0 auto;border-radius:13px;font-size:1.2rem}
+.catcard b{display:block;font-size:1.5rem;margin-top:6px;line-height:1}
+.catcard small{display:block;font-size:.7rem;color:var(--label2);font-weight:600;margin-top:3px}
+.toplist .row{gap:10px}
+.toplist .pos{width:26px;font-size:1.3rem;text-align:center;flex:none}
+.toplist .nm{flex:1;min-width:0}
+.toplist .nm b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toplist .nm small{color:var(--label2);font-size:.78rem}
+.st-pins{position:absolute;left:50%;top:52%;width:230px;height:230px;margin:-115px;pointer-events:none}
+.st-pins .pin{position:absolute;animation:stbob 2.4s ease-in-out infinite}
+@keyframes stbob{50%{translate:0 -8px}}
 .mapnote{padding:9px 14px;font-size:.78rem;text-align:center;max-width:440px;color:#FFE780;border-radius:14px}
 @keyframes ping{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.7);opacity:0}}
 
@@ -496,7 +1234,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
     <div class="glass">
       <div class="trow">
         <button class="lvl" id="playerBtn" type="button" aria-label="Ver tu perfil"><span class="ava" data-icon="compass"></span><span><b id="lvlTxt">Nivel 1</b><span class="xp"><i id="xpFill" style="width:0%"></i></span></span></button>
-        <div class="wtag"><span id="regTxt">Mundo abierto</span><button class="envbtn" type="button" id="envBtn" aria-label="Cambiar entorno">Ciudad ▾</button><b id="relTxt" hidden></b></div>
+        <div class="wtag"><span id="regTxt">Mundo abierto</span><b id="zoneTxt" style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></b><b id="relTxt" hidden></b></div>
       </div>
       <div class="stats3">
         <div class="hl"><b class="num" id="zpct">0 %</b><small>de esta zona</small></div>
@@ -504,14 +1242,17 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
         <div><b class="num" id="area">0,00</b><small>km² totales</small></div>
       </div>
     </div>
+    <div class="chips" id="filters" role="group" aria-label="Filtrar sitios"></div>
   </div>
   <div class="hud right">
     <div class="glass ctl"><button type="button" id="zin" aria-label="Acercar">+</button><button type="button" id="zout" aria-label="Alejar">−</button><button type="button" id="zme" aria-label="Centrar en mí" data-icon="target"></button></div>
     <button class="glass pillb" id="gpsBtn" type="button" aria-pressed="false" aria-label="Explorar con el GPS"><i></i>GPS</button>
+    <button class="glass pillb" id="addBtn" type="button" aria-label="Añadir un sitio útil aquí"><span style="font-size:1.1rem;line-height:1">＋</span>Añadir</button>
     <button class="glass pillb" id="flareBtn" type="button" aria-label="Usar una bengala: despeja 200 metros"><span data-icon="flare"></span>Bengala<span class="cnt" id="flareN">1</span></button>
   </div>
   <div class="hud bottom">
-    <button class="glass daypill" type="button" id="dayPill" hidden></button>
+    <div class="fabrow"><button class="fab" type="button" id="wcBtn"><span>🚻</span>Baño más cercano</button></div>
+    <div class="glass poistat" id="poiStatus" role="status" hidden></div>
     <div class="glass radar" id="radar" hidden role="status"><span class="rdish" id="rdish" data-icon="gem"></span><div><b id="rdTxt">Frío</b><small id="rdSub">Hay una reliquia oculta cerca</small></div></div>
     <div class="glass hint" id="hint"></div>
     <div class="glass mapnote" id="mapNote" hidden>Dentro de Claude no cargan las calles: abre el archivo en el navegador para ver el mapa real. Las nubes funcionan igual.</div>
@@ -524,7 +1265,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 
 <nav class="glass tabbar" aria-label="Secciones"><div>
   <button class="tab" type="button" data-t="mapa"><span data-icon="map"></span>Mapa</button>
-  <button class="tab" type="button" data-t="album"><span data-icon="card"></span>Colección</button>
+  <button class="tab" type="button" data-t="album"><span data-icon="card"></span>Guía</button>
   <button class="tab" type="button" data-t="retos"><span data-icon="flag"></span>Retos</button>
   <button class="tab" type="button" data-t="perfil"><span data-icon="user"></span>Perfil</button>
 </div></nav>
@@ -544,11 +1285,11 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
     <g stroke="#1D1D20" stroke-width="4" fill="none"><path d="M-20 230 L420 190"/><path d="M-20 420 L420 370"/><path d="M160 -20 L200 820"/><path d="M300 -20 L330 820"/></g>
   </svg>
   <span class="st-cloud sc1"></span><span class="st-cloud sc2"></span><span class="st-cloud sc3"></span><span class="st-cloud sc4"></span>
-  <span class="st-fog" aria-hidden="true"></span><canvas class="st-stage" id="stStage" aria-hidden="true"></canvas><span class="st-name" id="stName" aria-hidden="true"></span>
+  <span class="st-fog" aria-hidden="true"></span><div class="st-pins" id="stPins" aria-hidden="true"></div><span class="st-name" aria-hidden="true">Baños · Fuentes · WiFi · Desfibriladores…</span>
   <div class="st-in">
     <span class="st-k">Mundo abierto · a pie</span>
     <div class="wordmark">Explo<br>rador<span>.</span></div>
-    <p class="tagline">El mundo está cubierto de nubes. Despéjalo caminando, fotografía la fauna de cada sitio, caza reliquias y pica a tus amigos por el 100 % de tu zona.</p>
+    <p class="tagline">El mundo está cubierto de nubes. Despéjalo caminando y encuentra baños, fuentes, WiFi y más, valorados por la gente.</p>
     <div class="glass st-panel">
       <p>Usa tu ubicación solo mientras la app está abierta. Tu recorrido se guarda en este móvil.</p>
       <button class="btn full" id="startGps" type="button">Empezar a explorar</button>
@@ -557,683 +1298,10 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
   </div>
 </div>
 
-<div class="cam" id="snap" role="dialog" aria-label="Cámara" hidden>
-  <div class="cam-top"><button class="cam-x" type="button" id="snapX" aria-label="Dejarlo ir">✕</button><span class="cam-chip" id="camChip"></span><span class="cam-tries" id="tries"></span></div>
-  <div class="cam-vf" id="camVf"><canvas id="camCv"></canvas><div class="cam-grid"></div><div class="cam-tip" id="snTip"></div><div class="cam-flash" id="camFlash"></div></div>
-  <div class="cam-low">
-    <div class="cam-zoom" aria-hidden="true"><span>,5</span><span class="on">1×</span><span>3</span></div>
-    <div class="cam-modes" aria-hidden="true"><span>VÍDEO</span><span class="on">FOTO</span><span>RETRATO</span></div>
-    <div class="cam-bar"><span class="cam-last" id="camLast"></span><button class="cam-shutter" type="button" id="shoot" aria-label="Disparar"></button><span class="cam-rot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></span></div>
-  </div>
-</div>
+<input class="vh" type="file" id="avIn" accept="image/*" tabindex="-1" aria-hidden="true">
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script>
-/* ---------- Motor 3D propio (low-poly, canvas 2D) ---------- */
-const A3=(function(){
-const TAU=Math.PI*2;
-const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul=(a,s)=>[a[0]*s,a[1]*s,a[2]*s],
-  dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],
-  nrm=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];};
-const hex=h=>{const n=parseInt(h,16);return [n>>16&255,n>>8&255,n&255];};
-const dk=(c,f)=>[c[0]*f,c[1]*f,c[2]*f];
-const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
-const BLACK=[18,18,22],WHITE=[250,250,250],PINK=[226,150,150];
-function Mesh(){this.t=[];}
-Mesh.prototype.tri=function(a,b,c,col,ref,ds){
-  if(!ds&&ref){const n=cross(sub(b,a),sub(c,a)),g=[(a[0]+b[0]+c[0])/3,(a[1]+b[1]+c[1])/3,(a[2]+b[2]+c[2])/3];if(dot(n,sub(g,ref))<0){const t=b;b=c;c=t;}}
-  this.t.push({p:[a,b,c],c:col,ds:!!ds});return this;};
-Mesh.prototype.ell=function(c,r,col,seg){
-  seg=seg||12;const st=Math.max(3,Math.round(seg/2)),P=[];
-  for(let i=0;i<=st;i++){const th=Math.PI*i/st,row=[];for(let j=0;j<seg;j++){const ph=TAU*j/seg;row.push([c[0]+r[0]*Math.sin(th)*Math.cos(ph),c[1]+r[1]*Math.cos(th),c[2]+r[2]*Math.sin(th)*Math.sin(ph)]);}P.push(row);}
-  for(let i=0;i<st;i++)for(let j=0;j<seg;j++){const a=P[i][j],b=P[i][(j+1)%seg],d=P[i+1][(j+1)%seg],e=P[i+1][j];if(i>0)this.tri(a,b,d,col,c);if(i<st-1)this.tri(a,d,e,col,c);}
-  return this;};
-Mesh.prototype.limb=function(a,b,ra,rb,col,seg){
-  seg=seg||8;const d=nrm(sub(b,a)),up=Math.abs(d[1])<.9?[0,1,0]:[1,0,0],u=nrm(cross(d,up)),w=cross(d,u);
-  const R=(o,r)=>{const out=[];for(let j=0;j<seg;j++){const ph=TAU*j/seg;out.push(add(o,add(mul(u,Math.cos(ph)*r),mul(w,Math.sin(ph)*r))));}return out;};
-  const A=R(a,ra),B=R(b,rb);
-  for(let j=0;j<seg;j++){const k=(j+1)%seg,g=mul(add(add(A[j],A[k]),B[k]),1/3),ref=add(a,mul(d,dot(sub(g,a),d)));
-    this.tri(A[j],A[k],B[k],col,ref);if(rb>0)this.tri(A[j],B[k],B[j],col,ref);
-    if(ra>0)this.tri(a,A[k],A[j],col,add(a,mul(d,.02)));if(rb>0)this.tri(b,B[j],B[k],col,sub(b,mul(d,.02)));}
-  return this;};
-Mesh.prototype.chain=function(pts,rs,col,seg){for(let i=0;i<pts.length-1;i++){this.limb(pts[i],pts[i+1],rs[i],rs[i+1],col,seg);if(i>0&&rs[i]>0)this.ell(pts[i],[rs[i],rs[i],rs[i]],col,seg);}return this;};
-Mesh.prototype.flat=function(pts,col){for(let i=1;i<pts.length-1;i++)this.tri(pts[0],pts[i],pts[i+1],col,null,true);return this;};
-Mesh.prototype.mirror=function(fn){fn(1);fn(-1);return this;};
-Mesh.prototype.done=function(){
-  const seen=new Set(),pts=[];this.t.forEach(t=>t.p.forEach(p=>{if(!seen.has(p)){seen.add(p);pts.push(p);}}));
-  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;pts.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);z0=Math.min(z0,p[2]);z1=Math.max(z1,p[2]);});
-  const cx=(x0+x1)/2,cz=(z0+z1)/2;pts.forEach(p=>{p[0]-=cx;p[1]-=y0;p[2]-=cz;});
-  this.h=y1-y0;this.ext=Math.max(x1-x0,z1-z0,this.h)/2;this.foot=Math.max(x1-x0,z1-z0)/2;return this;};
-function eyes(m,x,y,z,r,col){m.mirror(s=>{m.ell([x,y,s*z],[r,r,r],col||BLACK,6);m.ell([x+r*.45,y+r*.45,s*(z+r*.45)],[r*.33,r*.33,r*.33],WHITE,4);});}
-function spotsOn(m,c,r,col,n,seed,onlyTop){let s=seed||7;const R=()=>{s=(s*16807)%2147483647;return s/2147483647;};
-  for(let i=0;i<n;i++){const th=(onlyTop?.15+R()*.45:.15+R()*.7)*Math.PI,ph=R()*TAU,p=[c[0]+r[0]*Math.sin(th)*Math.cos(ph)*.99,c[1]+r[1]*Math.cos(th)*.99,c[2]+r[2]*Math.sin(th)*Math.sin(ph)*.99],k=.13+R()*.07;
-    m.ell(p,[r[0]*k,r[1]*k,r[2]*k],col,6);}}
-function stripesOn(m,c,r,col,n,x0,x1){for(let i=0;i<n;i++){const x=x0+(x1-x0)*(i+.5)/n,t=(x-c[0])/r[0];if(Math.abs(t)>=.97)continue;const k=Math.sqrt(1-t*t)*1.025;m.ell([x,c[1],c[2]],[r[0]*.045,r[1]*k,r[2]*k],col,10);}}
-
-/* ----- Aves ----- */
-function bird(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f;
-  const B=o.B||.55,H=o.H||.42,W=o.W||.36,leg=o.leg!=null?o.leg:.26,by=o.swim?H*.55:leg+H*.82;
-  m.ell([0,by,0],[B,H,W],c1,14);
-  if(!o.nobelly)m.ell([B*.22,by-H*.16,0],[B*.78,H*.78,W*.9],c2,12);
-  let hr=o.hr||.27,hx,hy;
-  if(o.neck){const n0=[B*.65,by+H*.35,0],n1=[B*.65+o.neck*.28,by+H*.35+o.neck,0];m.limb(n0,n1,o.nr||.11,(o.nr||.11)*.85,o.neckc?P[o.neckc]:c1,8);hx=n1[0]+hr*.25;hy=n1[1]+hr*.1;}
-  else if(o.up){hx=B*.3;hy=by+H*.92;}
-  else{hx=B*.78;hy=by+H*.62;}
-  m.ell([hx,hy,0],[hr*1.05,hr,hr*.95],f.has("headc2")?c2:(o.headc?P[o.headc]:c1),12);
-  const bl=o.bl||.22,br=o.br||.07,bs=[hx+hr*.82,hy-hr*.08,0];
-  if(o.flatbeak)m.ell([bs[0]+bl*.45,bs[1]-hr*.12,0],[bl*.6,.05,br],c3,8);
-  else{const be=[bs[0]+bl,bs[1]-(o.hook?.12:.03)-(o.bdown||0),0];m.limb(bs,be,br,o.hook?.012:.01,c3,8);
-    if(f.has("pouch"))m.ell([bs[0]+bl*.45,bs[1]-.12,0],[bl*.45,.09,br*.9],mix(c3,c2,.4),8);}
-  if(o.owl){m.ell([hx+hr*.55,hy,0],[hr*.45,hr*.85,hr*.92],c2,10);m.mirror(s=>{m.ell([hx+hr*.82,hy+hr*.12,s*hr*.38],[hr*.18,hr*.24,hr*.24],c3,8);});eyes(m,hx+hr*.95,hy+hr*.12,hr*.38,hr*.13);
-    if(f.has("tufts"))m.mirror(s=>m.limb([hx,hy+hr*.75,s*hr*.5],[hx-.05,hy+hr*1.25,s*hr*.62],.06,.01,c1,5));}
-  else eyes(m,hx+hr*.42,hy+hr*.25,hr*.72,hr*.15);
-  if(f.has("crest")){const cc=f.has("crestc3")?c3:c1;for(let i=0;i<4;i++)m.limb([hx-hr*.1*i,hy+hr*.8,0],[hx-hr*.35-i*.12,hy+hr*.8+.3-.05*i,0],.055,.01,cc,5);}
-  if(!o.nowing){if(o.wup){m.mirror(s=>m.flat([[0,by+H*.4,s*W*.5],[-B*.6,by+H*2.2,s*W*.9],[B*.5,by+H*2.0,s*W*.9]],dk(c1,.85)));}
-    else m.mirror(s=>m.ell([-B*.08,by+H*.12,s*W*.93],[B*.85*(o.wl||1),H*.62,.07],dk(c1,.8),10));}
-  if(f.has("fan")){const R=o.fanR||1.15,cx=-B*.85,N=14;for(let i=0;i<N;i++){const a0=-1.6+3.2*i/N,a1=-1.6+3.2*(i+1)/N;m.flat([[cx,by,0],[cx-.15,by+R*Math.cos(a0),R*Math.sin(a0)],[cx-.15,by+R*Math.cos(a1),R*Math.sin(a1)]],i%2?c2:dk(c2,.85));}
-    for(let i=1;i<N;i+=2){const a=-1.6+3.2*(i+.5)/N;m.ell([cx-.16,by+R*.82*Math.cos(a),R*.82*Math.sin(a)],[.03,.08,.08],c3,6);}}
-  else if(o.tail){const tl=o.tail*(f.has("long")?2:1);m.limb([-B*.75,by+H*.05,0],[-B*.75-tl,by+H*.05+(o.tup||-.08),0],.13,.035,dk(c1,.88),6);}
-  if(leg>.03&&!o.swim)m.mirror(s=>{m.limb([B*.05,by-H*.55,s*W*.35],[B*.1,.03,s*W*.35],o.lr||.035,(o.lr||.035)*.85,c3,6);m.limb([B*.1,.03,s*W*.35],[B*.1+.15,.015,s*W*.38],.026,.018,c3,5);m.limb([B*.1,.03,s*W*.35],[B*.1-.08,.015,s*W*.35],.022,.015,c3,4);});
-}
-function penguin(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f,s=o.s||1;
-  m.ell([0,.62*s,0],[.36*s,.62*s,.34*s],c1,14);m.ell([.13*s,.55*s,0],[.27*s,.52*s,.27*s],c2,12);
-  m.ell([.04*s,1.18*s,0],[.25*s,.25*s,.24*s],c1,12);
-  if(f.has("puffin")){m.mirror(z=>m.ell([.15*s,1.17*s,z*.13*s],[.12*s,.12*s,.08*s],c2,8));m.ell([.32*s,1.13*s,0],[.14*s,.13*s,.06*s],c3,8);}
-  else m.limb([.26*s,1.15*s,0],[.46*s,1.1*s,0],.06*s,.01,c3,6);
-  if(f.has("emp"))m.mirror(z=>m.ell([.06*s,1.05*s,z*.22*s],[.1*s,.12*s,.05*s],c3,8));
-  eyes(m,.2*s,1.24*s,.17*s,.035*s);
-  m.mirror(z=>{m.ell([-.02*s,.7*s,z*.36*s],[.12*s,.42*s,.05*s],c1,8);m.ell([.12*s,.02*s,z*.14*s],[.15*s,.03*s,.08*s],o.feet||c3,6);});
-}
-/* ----- Cuadrúpedos ----- */
-function quad(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f;
-  const L=o.L||.8,H=o.H||.38,W=o.W||.34,leg=o.leg||.5,lr=o.lr||.09,by=leg+H*.72;
-  const bodyc=c1,legc=f.has("legsc3")?c3:dk(c1,.88);
-  m.ell([0,by,0],[L,H,W],bodyc,16);
-  if(o.belly!==0)m.ell([L*.05,by-H*.28,0],[L*.85,H*.68,W*.86],c2,12);
-  if(f.has("stripes"))stripesOn(m,[0,by,0],[L,H,W],c3,o.ns||7,-L*.85,L*.75);
-  if(f.has("spots"))spotsOn(m,[0,by,0],[L,H,W],c3,o.nsp||16,11,true);
-  if(f.has("shell")){m.ell([0,by+H*.12,0],[L*1.04,H*.95,W*1.06],c2,14);stripesOn(m,[0,by+H*.12,0],[L*1.04,H*.95,W*1.06],dk(c2,.75),6,-L*.7,L*.7);}
-  if(f.has("hump"))m.ell([-L*.05,by+H*.75,0],[L*.38,H*.6,W*.6],c1,10);
-  if(f.has("hump2")){m.ell([-L*.35,by+H*.75,0],[L*.25,H*.55,W*.55],c1,10);m.ell([L*.25,by+H*.75,0],[L*.25,H*.55,W*.55],c1,10);}
-  if(f.has("withers"))m.ell([L*.45,by+H*.45,0],[L*.45,H*.75,W*.8],c1,12);
-  if(f.has("spikes")){let s=3;const R=()=>{s=(s*16807)%2147483647;return s/2147483647;};for(let i=0;i<46;i++){const th=(.08+R()*.5)*Math.PI,ph=R()*TAU;if(Math.cos(ph)>.75)continue;const p=[L*.95*Math.sin(th)*Math.cos(ph),by+H*Math.cos(th),W*Math.sin(th)*Math.sin(ph)],n=nrm([p[0]/L,(p[1]-by)/H,p[2]/W]);m.limb(p,add(p,mul(n,.2)),.035,.005,c3,4);}}
-  m.mirror(s=>[L*.58,-L*.58].forEach((x,i)=>{const z=s*W*.58;m.limb([x,by-H*.25,z],[x+(o.legslant&&i?-.1:0),.05,z],lr*(i?1.15:1),lr*.8,legc,8);m.ell([x+.02,.05,z],[lr*1.1,.06,lr*1.05],o.hoof?c3:legc,6);}));
-  let hx=L*.95,hy=by+H*.35;const hr=o.hr||.3;
-  if(o.neck){const n0=[L*.72,by+H*.35,0],n1=[L*.72+o.neck*(o.nslant||.35),by+H*.35+o.neck,0];m.limb(n0,n1,o.nr||.16,(o.nr||.16)*.8,c1,10);if(f.has("spots"))for(let i=1;i<5;i++){const p=add(n0,mul(sub(n1,n0),i/5));m.mirror(s=>m.ell(add(p,[0,0,s*(o.nr||.16)*.85]),[.06,.06,.03],c3,6));}
-    if(f.has("mane"))m.limb([n0[0]-.05,n0[1]+.1,0],[n1[0]-.1,n1[1],0],.06,.04,c3,6);hx=n1[0]+hr*.35;hy=n1[1]+hr*.1;}
-  if(f.has("mane")&&!o.neck)m.ell([hx-hr*.2,hy-hr*.1,0],[hr*1.15,hr*1.35,hr*1.3],c3,12);
-  m.ell([hx,hy,0],[hr*1.08,hr,hr*.92],c1,12);
-  if(f.has("mask"))m.ell([hx+hr*.3,hy+hr*.18,0],[hr*.72,hr*.3,hr*.86],c3,10);
-  if(f.has("panda"))m.mirror(s=>m.ell([hx+hr*.55,hy+hr*.18,s*hr*.42],[hr*.25,hr*.3,hr*.25],c2,8));
-  const sl=o.snout||0;
-  if(sl>0){const s0=[hx+hr*.7,hy-hr*.15,0],s1=[hx+hr*.7+sl,hy-hr*(o.sdrop||.3),0];m.limb(s0,s1,hr*(o.sr||.5),hr*(o.sr2||.32),o.snc?P[o.snc]:c1,10);
-    if(f.has("duckbill"))m.ell([s1[0]+.08,s1[1],0],[.2,.05,.17],BLACK,8);else m.ell(s1,[hr*.16,hr*.14,hr*.2],o.nosec||BLACK,6);}
-  if(o.trunk){const pts=[[hx+hr*.85,hy-hr*.1,0],[hx+hr*1.15,hy-hr*.75,0],[hx+hr*1.2,hy-hr*1.6,0],[hx+hr*1.35,hy-hr*2.15,0]];m.chain(pts,[hr*.3,hr*.24,hr*.18,hr*.15],c1,8);}
-  if(f.has("tusks"))m.mirror(s=>m.chain([[hx+hr*.75,hy-hr*.45,s*hr*.35],[hx+hr*1.15,hy-hr*.9,s*hr*.38],[hx+hr*1.5,hy-hr*.75,s*hr*.32]],[hr*.09,hr*.07,.01],[245,240,225],6));
-  if(f.has("tusk"))m.mirror(s=>m.limb([hx+hr*.9+sl*.6,hy-hr*.35,s*hr*.3],[hx+hr*.95+sl*.6,hy-hr*.05,s*hr*.42],.04,.008,[245,240,225],5));
-  eyes(m,hx+hr*.55,hy+hr*.28,hr*.5,hr*(o.er||.13));
-  const ear=o.ear||"punta";
-  if(ear==="punta")m.mirror(s=>{m.limb([hx-hr*.15,hy+hr*.62,s*hr*.45],[hx-hr*.3,hy+hr*.62+(o.el||.22),s*hr*.6],hr*.22,.01,c1,6);if(f.has("tufts"))m.limb([hx-hr*.3,hy+hr*.62+(o.el||.22),s*hr*.6],[hx-hr*.32,hy+hr*.75+(o.el||.22)+.12,s*hr*.62],.02,.004,BLACK,4);});
-  else if(ear==="redonda")m.mirror(s=>m.ell([hx-hr*.25,hy+hr*.78,s*hr*.62],[hr*.12,hr*(o.ers||.26),hr*(o.ers||.26)],f.has("panda")?c2:c1,8));
-  else if(ear==="larga")m.mirror(s=>m.limb([hx-hr*.3,hy+hr*.6,s*hr*.3],[hx-hr*.55,hy+hr*.6+(o.el||.45),s*hr*.45],hr*.25,hr*.18,c1,8));
-  else if(ear==="grande")m.mirror(s=>m.ell([hx-hr*.35,hy+hr*.05,s*hr*.95],[hr*.12,hr*(o.ers||1.05),hr*(o.ers||1.05)*.85],dk(c1,.95),12));
-  if(o.horns==="astas")m.mirror(s=>{const b0=[hx-hr*.2,hy+hr*.8,s*hr*.35],b1=[hx-hr*.35,hy+hr*.8+.45,s*hr*.9],b2=[hx-hr*.5,hy+hr*.8+.8,s*hr*1.15];m.chain([b0,b1,b2],[.035,.03,.015],c3,5);m.limb(b1,[b1[0]+.22,b1[1]+.22,b1[2]],.025,.008,c3,4);m.limb(add(b0,mul(sub(b1,b0),.5)),[b0[0]+.2,b0[1]+.3,b0[2]+s*.1],.022,.006,c3,4);
-    if(f.has("palm"))m.ell([b2[0],b2[1]-.1,b2[2]],[.22,.14,.04],c3,8);});
-  else if(o.horns==="cuernos")m.mirror(s=>m.chain([[hx-hr*.1,hy+hr*.65,s*hr*.5],[hx-hr*.05,hy+hr*.75,s*hr*1.05],[hx+hr*.1,hy+hr*1.25,s*hr*1.2]],[.06,.045,.008],c3,6));
-  else if(o.horns==="rectos")m.mirror(s=>m.limb([hx-hr*.1,hy+hr*.7,s*hr*.25],[hx-hr*.7,hy+hr*.7+(o.hl||.7),s*hr*.35],.04,.006,c3,5));
-  else if(o.horns==="curvos")m.mirror(s=>m.chain([[hx-hr*.05,hy+hr*.7,s*hr*.3],[hx-hr*.4,hy+hr*1.5,s*hr*.45],[hx-hr*1.2,hy+hr*1.6,s*hr*.55],[hx-hr*1.5,hy+hr*1.0,s*hr*.6]],[.07,.06,.045,.015],c3,6));
-  else if(o.horns==="osiconos")m.mirror(s=>{m.limb([hx-hr*.2,hy+hr*.7,s*hr*.25],[hx-hr*.25,hy+hr*1.25,s*hr*.3],.035,.03,c1,5);m.ell([hx-hr*.25,hy+hr*1.27,s*hr*.3],[.05,.05,.05],c3,5);});
-  else if(o.horns==="nasal"){const sx=hx+hr*.7+sl*.8,sy=hy-hr*.3*.8+hr*.35;m.limb([sx,sy,0],[sx-.05,sy+hr*1.1,0],hr*.24,.01,c3,7);m.limb([sx-sl*.55,sy+hr*.1,0],[sx-sl*.6,sy+hr*.6,0],hr*.17,.01,c3,6);}
-  const tail=o.tail||"fina",tb=[-L*.95,by+H*.25,0];
-  if(tail==="fina"){const tl=o.tl||.55;m.chain([tb,[tb[0]-tl*.6,tb[1]-(o.tup?-.15:.25),0],[tb[0]-tl,tb[1]+(o.tup?.35:-.45),0]],[.05,.04,.02],c1,6);if(f.has("tuft"))m.ell([tb[0]-tl,tb[1]+(o.tup?.35:-.45),0],[.07,.09,.07],c3,6);}
-  else if(tail==="tupida"){m.ell([tb[0]-.32,tb[1]-.12,0],[.42,.15,.15],c1,10);m.ell([tb[0]-.68,tb[1]-.16,0],[.12,.1,.1],f.has("ringtail")?c3:c2,8);if(f.has("ringtail"))stripesOn(m,[tb[0]-.32,tb[1]-.12,0],[.42,.15,.15],c3,3,-.1+tb[0]-.32-.25,tb[0]-.32+.25);}
-  else if(tail==="ardilla"){m.ell([tb[0]-.08,tb[1]+.45,0],[.22,.55,.18],c1,10);m.ell([tb[0]-.2,tb[1]+.92,0],[.2,.18,.16],c1,8);}
-  else if(tail==="corta")m.ell([tb[0]+.03,tb[1],0],[.09,.08,.08],c1,6);
-  else if(tail==="pompon")m.ell([tb[0]+.02,tb[1]+.02,0],[.12,.12,.12],c2,8);
-  else if(tail==="plana")m.ell([tb[0]-.32,.12,0],[.36,.05,.22],c3,10);
-  else if(tail==="gruesa")m.chain([tb,[tb[0]-.45,tb[1]-.3,0],[tb[0]-.8,.12,0]],[.13,.09,.03],c1,8);
-}
-/* ----- Erguidos ----- */
-function primate(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f,s=o.s||1;
-  m.ell([0,.55*s,0],[.33*s,.45*s,.3*s],c1,14);m.ell([.12*s,.5*s,0],[.24*s,.34*s,.23*s],c2,10);
-  const hx=.1*s,hy=1.12*s,hr=.26*s;m.ell([hx,hy,0],[hr,hr,hr*.95],c1,12);
-  m.ell([hx+hr*.55,hy-hr*.1,0],[hr*.5,hr*.62,hr*.68],c3,10);
-  if(f.has("snout"))m.limb([hx+hr*.7,hy-hr*.25,0],[hx+hr*1.4,hy-hr*.45,0],hr*.35,hr*.28,c3,8);
-  eyes(m,hx+hr*.88,hy+hr*.12,hr*.28,hr*.11);
-  m.mirror(z=>m.ell([hx-hr*.05,hy+hr*.05,z*hr*.95],[hr*.1,hr*.24,hr*.2],c3,8));
-  m.mirror(z=>{m.chain([[.05*s,.85*s,z*.3*s],[.2*s,.45*s,z*.38*s],[.3*s,.06*s,z*.3*s]],[.09*s,.08*s,.07*s],dk(c1,.9),8);
-    m.ell([.05*s,.18*s,z*.22*s],[.28*s,.16*s,.14*s],dk(c1,.92),10);m.ell([.28*s,.04*s,z*.24*s],[.14*s,.05*s,.08*s],c3,6);});
-  if(!f.has("ape")){const lt=f.has("long")?1:.7;m.chain([[-.3*s,.25*s,0],[-.75*s*lt,.1*s,0],[-1.0*s*lt,.45*s,0],[-.85*s*lt,.75*s,0]],[.06*s,.05*s,.045*s,.03*s],f.has("ringtail")?c2:c1,6);
-    if(f.has("ringtail"))[[-.75*s*lt,.1*s,0],[-1.0*s*lt,.45*s,0]].forEach(p=>m.ell(p,[.07*s,.07*s,.07*s],c3,6));}
-}
-function kangaroo(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,s=o.s||1;
-  m.ell([0,.75*s,0],[.38*s,.55*s,.3*s],c1,14);m.ell([.12*s,.68*s,0],[.26*s,.42*s,.22*s],c2,10);
-  m.ell([-.05*s,.4*s,0],[.42*s,.3*s,.34*s],c1,12);
-  const hx=.28*s,hy=1.38*s,hr=.2*s;m.limb([.15*s,1.1*s,0],[hx,hy,0],.15*s,.12*s,c1,8);m.ell([hx,hy,0],[hr*1.1,hr,hr*.9],c1,10);
-  m.limb([hx+hr*.6,hy-hr*.1,0],[hx+hr*1.6,hy-hr*.45,0],hr*.45,hr*.28,c1,8);m.ell([hx+hr*1.62,hy-hr*.45,0],[hr*.14,hr*.12,hr*.16],BLACK,6);
-  eyes(m,hx+hr*.55,hy+hr*.3,hr*.55,hr*.13);
-  m.mirror(z=>{m.limb([hx-hr*.2,hy+hr*.6,z*hr*.4],[hx-hr*.45,hy+hr*1.9,z*hr*.6],hr*.3,hr*.06,c1,6);
-    m.chain([[.22*s,1.05*s,z*.2*s],[.38*s,.85*s,z*.22*s],[.42*s,.72*s,z*.2*s]],[.05*s,.045*s,.035*s],c1,6);
-    m.limb([-.05*s,.06*s,z*.2*s],[.5*s,.03*s,z*.22*s],.08*s,.05*s,dk(c1,.85),6);});
-  m.chain([[-.38*s,.4*s,0],[-.85*s,.18*s,0],[-1.35*s,.04*s,0]],[.14*s,.09*s,.03*s],c1,8);
-}
-function meerkat(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3;
-  m.ell([0,.62,0],[.19,.48,.17],c1,12);m.ell([.07,.55,0],[.13,.38,.12],c2,10);
-  const hx=.06,hy=1.18,hr=.15;m.ell([hx,hy,0],[hr*1.1,hr,hr],c1,10);m.limb([hx+hr*.6,hy-hr*.1,0],[hx+hr*1.5,hy-hr*.3,0],hr*.42,hr*.2,c1,8);m.ell([hx+hr*1.52,hy-hr*.3,0],[hr*.12,hr*.1,hr*.12],BLACK,5);
-  m.mirror(z=>{m.ell([hx+hr*.45,hy+hr*.25,z*hr*.55],[hr*.25,hr*.18,hr*.22],c3,6);});eyes(m,hx+hr*.6,hy+hr*.25,hr*.6,hr*.11);
-  m.mirror(z=>{m.chain([[.12,.95,z*.12],[.2,.82,z*.13],[.16,.7,z*.1]],[.04,.035,.03],c1,5);m.ell([.02,.15,z*.12],[.2,.15,.1],c1,8);m.ell([.18,.03,z*.12],[.1,.03,.05],c3,5);});
-  m.chain([[-.12,.25,0],[-.45,.08,0],[-.75,.05,0]],[.06,.04,.015],c1,6);
-}
-function koala(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3;
-  m.ell([0,.48,0],[.4,.45,.38],c1,14);m.ell([.15,.45,0],[.28,.33,.28],c2,10);
-  const hx=.12,hy=1.0,hr=.32;m.ell([hx,hy,0],[hr,hr*.92,hr*1.05],c1,12);
-  m.ell([hx+hr*.88,hy-hr*.05,0],[hr*.25,hr*.38,hr*.28],BLACK,8);eyes(m,hx+hr*.75,hy+hr*.28,hr*.45,hr*.1);
-  m.mirror(z=>{m.ell([hx-hr*.1,hy+hr*.55,z*hr*.95],[hr*.18,hr*.45,hr*.45],c1,10);m.ell([hx-hr*.02,hy+hr*.55,z*hr*.95],[hr*.1,hr*.32,hr*.32],c2,8);
-    m.chain([[.12,.75,z*.3],[.38,.5,z*.32],[.45,.2,z*.25]],[.1,.09,.08],c1,8);m.ell([.1,.12,z*.24],[.3,.13,.14],c1,8);});
-}
-/* ----- Reptiles y anfibios ----- */
-function lizard(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f,s=o.s||1,H=(o.H||.14)*s,by=(o.by||.2)*s;
-  m.ell([0,by,0],[.52*s,H,.2*s],c1,14);m.ell([0,by-H*.35,0],[.46*s,H*.7,.18*s],c2,10);
-  if(f.has("spots"))spotsOn(m,[0,by,0],[.52*s,H,.2*s],c3,12,5,true);
-  const hx=.62*s,hy=by+.03*s;
-  if(o.snout){m.ell([hx-.02*s,hy,0],[.18*s,.11*s,.15*s],c1,10);m.limb([hx+.1*s,hy-.02*s,0],[hx+.1*s+o.snout*s,hy-.05*s,0],.1*s,.06*s,c1,8);m.mirror(z=>m.ell([hx+.02*s,hy+.09*s,z*.08*s],[.05*s,.05*s,.04*s],c1,6));eyes(m,hx+.03*s,hy+.12*s,.08*s,.03*s,[200,170,60]);}
-  else{m.ell([hx,hy,0],[.2*s,.12*s,.14*s],c1,10);eyes(m,hx+.08*s,hy+.05*s,.12*s,.03*s);}
-  if(f.has("casque"))m.limb([hx-.05*s,hy+.08*s,0],[hx-.2*s,hy+.25*s,0],.08*s,.01,c1,6);
-  if(f.has("crest")||o.scutes){const n=o.scutes||10;for(let i=0;i<n;i++){const x=.45*s-i*.13*s;if(x<-1.3*s)break;const yy=x>-.45*s?by+H*.9:by+H*.6*(1+x/(1.4*s));m.limb([x,yy-.02,0],[x-.03,yy+(f.has("crest")?.12:.05)*s,0],.035*s,.004,f.has("crest")?c3:dk(c1,.8),4);}}
-  const tl=(o.tl||1.25)*s;
-  if(f.has("curl")){m.chain([[-.45*s,by,0],[-.8*s,by-.02*s,0],[-1.0*s,by+.15*s,0],[-.92*s,by+.32*s,0],[-.78*s,by+.25*s,0]],[.1*s,.07*s,.05*s,.04*s,.03*s],c1,6);}
-  else m.chain([[-.45*s,by,0],[-.45*s-tl*.5,by-.07*s,0],[-.45*s-tl,.03*s,0]],[.11*s,.06*s,.012],c1,6);
-  m.mirror(z=>[[.32*s,1],[-.3*s,-1]].forEach(a=>{const x=a[0],sh=[x,by-.02*s,z*.16*s],kn=[x+a[1]*.05*s,by*.5,z*.36*s],ft=[x+a[1]*.12*s,.02*s,z*.38*s];m.chain([sh,kn,ft],[.06*s,.05*s,.04*s],dk(c1,.9),5);}));
-}
-function snake(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f,s=o.s||1,pts=[],rs=[],N=14;
-  for(let i=0;i<N;i++){const t=i/(N-1),x=.9*s-t*1.9*s,z=Math.sin(t*Math.PI*2.2)*.42*s;pts.push([x,.09*s,z]);rs.push((.1-.075*t*t)*s);}
-  if(f.has("hood")){pts[0]=[.75*s,.65*s,.05*s];pts[1]=[.72*s,.4*s,.2*s];pts[2]=[.6*s,.15*s,.35*s];}
-  m.chain(pts.reverse(),rs.reverse(),c1,8);
-  const h=pts[pts.length-1];m.ell([h[0]+.08*s,h[1]+.02*s,h[2]],[.15*s,.08*s,.11*s],c1,10);eyes(m,h[0]+.13*s,h[1]+.06*s,.07*s,.022*s);
-  if(f.has("hood"))m.ell([h[0]-.08*s,h[1]-.15*s,h[2]],[.05*s,.22*s,.2*s],c1,10);
-  if(f.has("spots"))pts.forEach((p,i)=>{if(i%2)m.ell([p[0],p[1]+rs[i]*.85,p[2]],[rs[i]*.55,rs[i]*.25,rs[i]*.55],c3,6);});
-}
-function turtle(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f,s=o.s||1,sea=f.has("marina");
-  m.ell([0,.32*s,0],[.58*s,.32*s,.48*s],c1,16);m.ell([0,.18*s,0],[.62*s,.07*s,.52*s],c2,14);
-  spotsOn(m,[0,.32*s,0],[.58*s,.32*s,.48*s],dk(c1,.75),9,13,true);
-  const hx=.72*s,hy=.3*s;m.limb([.45*s,.22*s,0],[hx,hy,0],.11*s,.1*s,c3,8);m.ell([hx+.05*s,hy+.02*s,0],[.15*s,.11*s,.11*s],c3,10);eyes(m,hx+.12*s,hy+.06*s,.08*s,.025*s);
-  m.mirror(z=>[[.35*s],[-.35*s]].forEach(a=>{const x=a[0];if(sea)m.ell([x,.15*s,z*.58*s],[.22*s,.035*s,.13*s],c3,8);else m.limb([x,.18*s,z*.38*s],[x,.02*s,z*.45*s],.09*s,.08*s,c3,6);}));
-  m.limb([-.55*s,.2*s,0],[-.72*s,.12*s,0],.05*s,.01,c3,5);
-}
-function frog(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f;
-  m.ell([0,.28,0],[.38,.24,.32],c1,14);m.ell([.06,.2,0],[.32,.16,.28],c2,10);
-  m.ell([.25,.38,0],[.22,.15,.28],c1,10);
-  if(f.has("spots"))spotsOn(m,[0,.28,0],[.38,.24,.32],c3,10,9,true);
-  m.mirror(z=>{m.ell([.3,.5,z*.15],[.08,.08,.08],c1,8);m.ell([.35,.53,z*.17],[.045,.045,.045],BLACK,6);
-    m.ell([-.18,.17,z*.3],[.25,.13,.11],c1,10);m.limb([-.02,.08,z*.36],[.2,.02,z*.42],.05,.04,c1,5);m.limb([.22,.18,z*.18],[.3,.02,z*.22],.04,.035,c1,5);});
-}
-/* ----- Otros ----- */
-function bat(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,s=o.s||1;
-  m.ell([0,.9*s,0],[.14*s,.24*s,.13*s],c1,10);const hy=1.18*s;m.ell([.03*s,hy,0],[.12*s,.11*s,.11*s],c1,10);
-  m.limb([.1*s,hy-.02*s,0],[.22*s,hy-.04*s,0],.06*s,.035*s,c1,6);eyes(m,.13*s,hy+.04*s,.06*s,.02*s);
-  m.mirror(z=>{m.limb([.0,hy+.06*s,z*.07*s],[-.02*s,hy+.22*s,z*.11*s],.05*s,.005,c1,5);
-    const w=dk(c3,.9),sh=[0,1.0*s,z*.1*s],el=[.05*s,1.25*s,z*.5*s],tip=[-.05*s,1.25*s,z*1.0*s],f1=[-.1*s,.95*s,z*.95*s],f2=[-.1*s,.7*s,z*.7*s],hip=[-.05*s,.72*s,z*.08*s];
-    m.flat([sh,el,tip,f1],w);m.flat([sh,f1,f2,hip],dk(w,.9));m.chain([sh,el,tip],[.025*s,.02*s,.005],c1,4);});
-  m.mirror(z=>m.limb([-.02*s,.7*s,z*.06*s],[-.02*s,.5*s,z*.07*s],.025*s,.02*s,c1,4));
-}
-function butterfly(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3;
-  m.limb([.35,.62,0],[-.35,.6,0],.05,.03,c3,6);m.ell([.38,.63,0],[.06,.06,.06],c3,6);
-  m.mirror(z=>{m.limb([.4,.67,z*.02],[.6,.95,z*.15],.012,.008,c3,4);m.ell([.6,.95,z*.15],[.025,.025,.025],c3,4);
-    m.flat([[.12,.64,z*.04],[.62,.95,z*.62],[.12,1.02,z*1.0],[-.12,.8,z*.58]],c1);
-    m.flat([[-.04,.62,z*.04],[-.14,.76,z*.58],[-.58,.74,z*.78],[-.48,.56,z*.38]],dk(c1,.9));
-    m.flat([[.3,.86,z*.5],[.42,.92,z*.66],[.18,.95,z*.78]],c2);m.flat([[-.3,.7,z*.55],[-.46,.71,z*.66],[-.4,.64,z*.5]],c2);
-    m.flat([[.5,.92,z*.62],[.62,.95,z*.62],[.4,.98,z*.82]],c3);});
-}
-function fish(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f;
-  m.ell([0,.5,0],[.6,.3,.16],c1,14);m.ell([.05,.42,0],[.5,.2,.14],c2,10);
-  if(f.has("spots"))spotsOn(m,[0,.5,0],[.6,.3,.16],c3,8,17,false);
-  m.flat([[-.52,.5,0],[-.95,.85,0],[-.85,.5,0],[-.95,.15,0]],dk(c1,.85));m.flat([[.1,.78,0],[-.25,.98,0],[-.35,.74,0]],dk(c1,.85));
-  m.mirror(z=>m.flat([[.25,.42,z*.13],[.0,.3,z*.3],[.05,.48,z*.14]],dk(c1,.85)));eyes(m,.42,.58,.12,.045);
-  if(f.has("teeth"))m.ell([.58,.42,0],[.06,.05,.1],[245,240,230],6);
-}
-function seal(m,P,o){
-  const c1=P.c1,c2=P.c2,c3=P.c3,f=P.f,s=o.s||1;
-  m.ell([0,.32*s,0],[.62*s,.3*s,.32*s],c1,16);m.ell([-.6*s,.18*s,0],[.4*s,.17*s,.22*s],c1,12);m.ell([.05*s,.22*s,0],[.5*s,.2*s,.26*s],c2,10);
-  const hx=.72*s,hy=.62*s,hr=.21*s;m.limb([.5*s,.4*s,0],[hx,hy,0],.22*s,.17*s,c1,10);m.ell([hx,hy,0],[hr*1.1,hr,hr*.95],c1,12);
-  m.limb([hx+hr*.6,hy-hr*.15,0],[hx+hr*1.25,hy-hr*.3,0],hr*.55,hr*.38,c1,8);m.ell([hx+hr*1.27,hy-hr*.28,0],[hr*.14,hr*.12,hr*.18],BLACK,6);
-  eyes(m,hx+hr*.55,hy+hr*.3,hr*.55,hr*.15);
-  if(f.has("tusks"))m.mirror(z=>m.limb([hx+hr*1.0,hy-hr*.55,z*hr*.25],[hx+hr*1.1,hy-hr*2.2,z*hr*.3],.035*s,.012*s,[245,240,225],5));
-  if(f.has("tail"))m.limb([-.62*s,.32*s,0],[-1.05*s,.25*s,0],.12*s,.06*s,c1,8);
-  m.mirror(z=>{m.ell([.35*s,.12*s,z*.36*s],[.2*s,.04*s,.12*s],dk(c1,.85),8);m.flat([[-.92*s,.16*s,z*.04*s],[-1.25*s,.05*s,z*.28*s],[-1.2*s,.3*s,z*.1*s]],dk(c1,.8));});
-}
-
-/* ----- Catálogo de arquetipos ----- */
-const ARCH={
-  pajaro:(m,P)=>bird(m,P,{tail:.35}),
-  cuervo:(m,P)=>bird(m,P,{B:.62,H:.42,tail:.45,bl:.28,br:.09,leg:.3}),
-  paloma:(m,P)=>bird(m,P,{B:.62,H:.46,hr:.22,bl:.12,br:.05,tail:.32,leg:.18}),
-  loro:(m,P)=>bird(m,P,{bl:.14,br:.11,hook:1,tail:.55,leg:.18,hr:.3,tup:-.25}),
-  gaviota:(m,P)=>bird(m,P,{B:.66,wl:1.35,bl:.26,br:.07,tail:.3,leg:.26}),
-  rapaz:(m,P)=>bird(m,P,{B:.45,H:.62,W:.38,up:1,hook:1,bl:.14,br:.09,leg:.2,lr:.05,tail:.42,tup:-.4,hr:.26,wl:1.1}),
-  buho:(m,P)=>bird(m,P,{B:.45,H:.62,W:.42,up:1,owl:1,hook:1,bl:.07,br:.05,leg:.08,tail:.2,tup:-.3,hr:.38,nobelly:0}),
-  zancuda:(m,P)=>bird(m,P,{leg:.95,neck:.55,bl:.42,br:.05,tail:.22,hr:.2,lr:.03}),
-  flamenco:(m,P)=>bird(m,P,{leg:1.2,neck:.85,nr:.07,bl:.22,br:.06,hook:1,bdown:.08,tail:.18,hr:.17,lr:.028}),
-  pato:(m,P)=>bird(m,P,{swim:1,leg:0,B:.66,H:.36,bl:.22,br:.09,flatbeak:1,tail:.18,tup:.15,hr:.24}),
-  cisne:(m,P)=>bird(m,P,{swim:1,leg:0,B:.75,H:.38,neck:.7,nr:.08,bl:.2,br:.06,tail:.2,tup:.2,hr:.17}),
-  pelicano:(m,P)=>bird(m,P,{swim:1,leg:0,B:.72,H:.42,neck:.25,bl:.75,br:.07,tail:.2,hr:.22}),
-  cormoran:(m,P)=>bird(m,P,{B:.55,H:.42,leg:.12,neck:.35,nr:.09,bl:.25,br:.05,hook:1,tail:.4,hr:.18,up:0}),
-  gallinacea:(m,P)=>bird(m,P,{B:.6,H:.5,W:.42,bl:.12,br:.07,leg:.35,lr:.045,tail:.5,tup:.35,hr:.22}),
-  corredora:(m,P)=>bird(m,P,{B:.7,H:.55,W:.5,leg:1.05,lr:.07,neck:.8,nr:.08,bl:.18,br:.07,tail:.2,tup:.25,hr:.2,wl:.6}),
-  kiwi:(m,P)=>bird(m,P,{B:.52,H:.42,W:.4,leg:.18,lr:.05,hr:.18,bl:.5,br:.03,bdown:.15,tail:0,nowing:1}),
-  colibri:(m,P)=>bird(m,P,{B:.35,H:.24,W:.22,hr:.2,bl:.6,br:.025,leg:.08,tail:.3,wup:1}),
-  tucan:(m,P)=>bird(m,P,{bl:.62,br:.15,hr:.27,tail:.45,leg:.2}),
-  pinguino:(m,P)=>penguin(m,P,{}),
-  frailecillo:(m,P)=>penguin(m,P,{s:.8}),
-  gato:(m,P)=>quad(m,P,{L:.55,H:.25,W:.22,leg:.32,lr:.06,hr:.24,snout:.07,sr:.45,sr2:.38,nosec:PINK,ear:"punta",el:.18,tail:"fina",tl:.65,tup:1}),
-  felino:(m,P)=>quad(m,P,{L:.9,H:.38,W:.32,leg:.58,lr:.11,hr:.33,snout:.12,sr:.55,sr2:.45,ear:"redonda",ers:.22,tail:"fina",tl:.85,tup:1,ns:8,nsp:22}),
-  zorro:(m,P)=>quad(m,P,{L:.6,H:.27,W:.22,leg:.42,lr:.06,hr:.24,snout:.3,sr:.42,sr2:.18,ear:"punta",el:.24,tail:"tupida"}),
-  lobo:(m,P)=>quad(m,P,{L:.78,H:.34,W:.28,leg:.58,lr:.08,hr:.28,snout:.32,sr:.45,sr2:.25,ear:"punta",el:.22,tail:"tupida"}),
-  hiena:(m,P)=>quad(m,P,{L:.75,H:.36,W:.3,leg:.55,lr:.09,hr:.3,snout:.25,sr:.5,sr2:.35,ear:"redonda",ers:.24,tail:"fina",tl:.35,legslant:1,nsp:20}),
-  ardilla:(m,P)=>quad(m,P,{L:.38,H:.24,W:.2,leg:.16,lr:.05,hr:.21,snout:.08,sr:.5,sr2:.35,ear:"punta",el:.12,tail:"ardilla"}),
-  roedor:(m,P)=>quad(m,P,{L:.5,H:.25,W:.22,leg:.12,lr:.05,hr:.2,snout:.14,sr:.5,sr2:.25,nosec:PINK,ear:"redonda",ers:.24,tail:"fina",tl:.6}),
-  capibara:(m,P)=>quad(m,P,{L:.78,H:.42,W:.36,leg:.28,lr:.09,hr:.3,snout:.2,sr:.7,sr2:.55,ear:"redonda",ers:.14,tail:"corta"}),
-  castor:(m,P)=>quad(m,P,{L:.6,H:.32,W:.3,leg:.14,lr:.07,hr:.24,snout:.1,sr:.6,sr2:.5,ear:"redonda",ers:.14,tail:"plana"}),
-  marmota:(m,P)=>quad(m,P,{L:.5,H:.32,W:.28,leg:.14,lr:.07,hr:.22,snout:.08,sr:.6,sr2:.5,ear:"redonda",ers:.14,tail:"corta"}),
-  conejo:(m,P)=>quad(m,P,{L:.42,H:.3,W:.26,leg:.12,lr:.06,hr:.21,snout:.05,sr:.55,sr2:.45,nosec:PINK,ear:"larga",el:.45,tail:"pompon"}),
-  erizo:(m,P)=>quad(m,P,{L:.42,H:.28,W:.32,leg:.07,lr:.05,hr:.16,snout:.16,sr:.55,sr2:.25,ear:"redonda",ers:.2,tail:"corta"}),
-  ciervo:(m,P)=>quad(m,P,{L:.7,H:.3,W:.24,leg:.85,lr:.055,neck:.45,nr:.13,hr:.2,snout:.16,sr:.55,sr2:.38,ear:"punta",el:.16,tail:"corta",hoof:1,horns:"astas"}),
-  antilope:(m,P)=>quad(m,P,{L:.65,H:.28,W:.22,leg:.8,lr:.05,neck:.4,nr:.11,hr:.18,snout:.16,sr:.55,sr2:.38,ear:"punta",el:.14,tail:"corta",hoof:1,horns:"rectos",hl:.55}),
-  jabali:(m,P)=>quad(m,P,{L:.72,H:.38,W:.3,leg:.3,lr:.08,hr:.3,snout:.3,sr:.5,sr2:.38,nosec:[90,70,70],ear:"punta",el:.14,tail:"fina",tl:.25,withers:0}),
-  oso:(m,P)=>quad(m,P,{L:.8,H:.5,W:.45,leg:.4,lr:.16,hr:.34,snout:.16,sr:.55,sr2:.45,ear:"redonda",ers:.24,tail:"corta"}),
-  elefante:(m,P)=>quad(m,P,{L:1,H:.72,W:.6,leg:.8,lr:.25,hr:.5,ear:"grande",trunk:1,tail:"fina",tl:.45,belly:0}),
-  jirafa:(m,P)=>quad(m,P,{L:.6,H:.35,W:.28,leg:1.35,lr:.07,neck:1.45,nslant:.42,nr:.12,hr:.17,snout:.18,sr:.6,sr2:.45,ear:"punta",el:.12,horns:"osiconos",tail:"fina",tl:.6,hoof:1,nsp:20}),
-  equino:(m,P)=>quad(m,P,{L:.75,H:.36,W:.28,leg:.82,lr:.07,neck:.5,nslant:.5,nr:.16,hr:.2,snout:.3,sr:.6,sr2:.45,ear:"punta",el:.14,tail:"fina",tl:.6,hoof:1,ns:9}),
-  bovino:(m,P)=>quad(m,P,{L:.85,H:.45,W:.38,leg:.6,lr:.11,hr:.3,snout:.14,sr:.6,sr2:.5,ear:"redonda",ers:.18,horns:"cuernos",tail:"fina",tl:.55,hoof:1}),
-  cabra:(m,P)=>quad(m,P,{L:.6,H:.32,W:.26,leg:.55,lr:.07,neck:.2,hr:.22,snout:.16,sr:.55,sr2:.4,ear:"punta",el:.12,horns:"curvos",tail:"corta",hoof:1}),
-  rino:(m,P)=>quad(m,P,{L:1,H:.55,W:.5,leg:.5,lr:.2,hr:.38,snout:.3,sr:.6,sr2:.5,ear:"punta",el:.18,horns:"nasal",tail:"corta",belly:0}),
-  hipo:(m,P)=>quad(m,P,{L:1,H:.6,W:.56,leg:.32,lr:.22,hr:.45,snout:.28,sr:.8,sr2:.75,ear:"redonda",ers:.12,tail:"corta"}),
-  camello:(m,P)=>quad(m,P,{L:.75,H:.38,W:.3,leg:1.05,lr:.08,neck:.65,nslant:.55,nr:.13,hr:.2,snout:.22,sr:.55,sr2:.42,ear:"redonda",ers:.14,tail:"fina",tl:.4}),
-  mapache:(m,P)=>quad(m,P,{L:.5,H:.3,W:.27,leg:.22,lr:.07,hr:.25,snout:.16,sr:.45,sr2:.22,ear:"punta",el:.12,tail:"tupida"}),
-  mustelido:(m,P)=>quad(m,P,{L:.65,H:.2,W:.18,leg:.14,lr:.06,hr:.19,snout:.12,sr:.55,sr2:.35,ear:"redonda",ers:.18,tail:"gruesa"}),
-  oso_hormiguero:(m,P)=>quad(m,P,{L:.78,H:.36,W:.28,leg:.42,lr:.1,hr:.17,snout:.65,sr:.5,sr2:.18,sdrop:.6,ear:"redonda",ers:.15,tail:"tupida"}),
-  armadillo:(m,P)=>quad(m,P,{L:.5,H:.28,W:.26,leg:.1,lr:.06,hr:.15,snout:.18,sr:.5,sr2:.25,ear:"punta",el:.12,tail:"fina",tl:.5,belly:0}),
-  tapir:(m,P)=>quad(m,P,{L:.85,H:.45,W:.36,leg:.5,lr:.11,hr:.3,snout:.35,sr:.5,sr2:.3,sdrop:.5,ear:"redonda",ers:.18,tail:"corta"}),
-  mono:(m,P)=>primate(m,P,{}),
-  gran_simio:(m,P)=>primate(m,P,{s:1.25}),
-  canguro:(m,P)=>kangaroo(m,P,{}),
-  suricata:(m,P)=>meerkat(m,P,{}),
-  koala:(m,P)=>koala(m,P,{}),
-  lagarto:(m,P)=>lizard(m,P,{}),
-  varano:(m,P)=>lizard(m,P,{s:1.1,snout:.2,tl:1.3}),
-  cocodrilo:(m,P)=>lizard(m,P,{s:1.1,H:.13,by:.18,snout:.55,tl:1.4,scutes:12}),
-  camaleon:(m,P)=>lizard(m,P,{H:.25,by:.3}),
-  salamandra:(m,P)=>lizard(m,P,{s:1.1,H:.12,by:.15,tl:.8}),
-  serpiente:(m,P)=>snake(m,P,{}),
-  tortuga:(m,P)=>turtle(m,P,{}),
-  rana:(m,P)=>frog(m,P,{}),
-  murcielago:(m,P)=>bat(m,P,{}),
-  mariposa:(m,P)=>butterfly(m,P,{}),
-  pez:(m,P)=>fish(m,P,{}),
-  foca:(m,P)=>seal(m,P,{})
-};
-const cache=new Map();
-function build(sp){
-  if(cache.has(sp.k))return cache.get(sp.k);
-  const m=new Mesh(),P={c1:hex(sp.c[0]),c2:hex(sp.c[1]),c3:hex(sp.c[2]),f:sp.f};
-  try{(ARCH[sp.a]||ARCH.pajaro)(m,P);}catch(e){console.warn(sp.k,e);}
-  m.done();cache.set(sp.k,m);return m;
-}
-const L=nrm([-.45,.75,-.55]);
-function render(ctx,m,o){
-  const S=o.scale,cx=o.cx,cy=o.cy,cyw=Math.cos(o.yaw),syw=Math.sin(o.yaw),cp=Math.cos(o.pitch),sp=Math.sin(o.pitch),D=7,yc=m.h*.48,bob=o.bob||0;
-  const T=p=>{const x=p[0]*cyw+p[2]*syw,z=-p[0]*syw+p[2]*cyw,y=p[1]-yc+bob;return [x,y*cp-z*sp,y*sp+z*cp];};
-  const P2=q=>{const k=D/(D+q[2]);return [cx+q[0]*k*S,cy-q[1]*k*S];};
-  if(o.shadow!==false){const g=P2(T([0,-bob,0])),r=m.foot*S*.8;ctx.save();ctx.fillStyle=o.shadowCol||"rgba(0,0,0,.22)";ctx.beginPath();ctx.ellipse(g[0],g[1],r,r*Math.max(.18,Math.abs(sp)*.9),0,0,TAU);ctx.fill();ctx.restore();}
-  const list=[],cam=[0,0,-D];
-  for(const t of m.t){const A=T(t.p[0]),B=T(t.p[1]),C=T(t.p[2]);let n=cross(sub(B,A),sub(C,A));const g=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3,(A[2]+B[2]+C[2])/3],fa=dot(n,sub(g,cam));
-    if(fa>=0){if(!t.ds)continue;n=mul(n,-1);}
-    const nn=nrm(n),lam=Math.max(0,dot(nn,L)),rim=Math.pow(1-Math.abs(dot(nn,nrm(sub(cam,g)))),3)*.25;
-    let col=o.sil?o.sil:t.c,k=o.sil?(.85+.25*lam):(.52+.62*lam+rim);
-    list.push({z:g[2],a:P2(A),b:P2(B),c:P2(C),f:"rgb("+Math.min(255,col[0]*k|0)+","+Math.min(255,col[1]*k|0)+","+Math.min(255,col[2]*k|0)+")"});}
-  list.sort((a,b)=>b.z-a.z);
-  ctx.lineJoin="round";ctx.lineWidth=o.lw||.8;
-  for(const q of list){ctx.beginPath();ctx.moveTo(q.a[0],q.a[1]);ctx.lineTo(q.b[0],q.b[1]);ctx.lineTo(q.c[0],q.c[1]);ctx.closePath();ctx.fillStyle=q.f;ctx.strokeStyle=q.f;ctx.fill();ctx.stroke();}
-}
-function fit(m,w,h,pad){return Math.min(w,h)*(pad||.4)/Math.max(.6,m.ext);}
-const thumbs=new Map();
-function thumb(sp,size,sil){
-  const key=sp.k+"|"+size+"|"+(sil?1:0);if(thumbs.has(key))return thumbs.get(key);
-  const c=document.createElement("canvas");c.width=c.height=size;const g=c.getContext("2d"),m=build(sp);
-  render(g,m,{scale:fit(m,size,size,.42),cx:size/2,cy:size*.55,yaw:.62,pitch:.3,sil:sil?[58,58,64]:null,shadowCol:sil?"rgba(0,0,0,.06)":"rgba(0,0,0,.12)"});
-  const url=c.toDataURL("image/png");thumbs.set(key,url);return url;
-}
-/* Visor que gira solo y se arrastra */
-const viewers=new Set();let vraf=0;
-function tick(){vraf=0;const now=performance.now();viewers.forEach(v=>{if(!v.cv.isConnected){viewers.delete(v);return;}v.draw(now);});if(viewers.size)vraf=requestAnimationFrame(tick);}
-function viewer(cv,sp,opt){
-  opt=opt||{};const dpr=Math.min(window.devicePixelRatio||1,2),w=cv.clientWidth||cv.width,h=cv.clientHeight||cv.height;cv.width=w*dpr;cv.height=h*dpr;
-  const g=cv.getContext("2d"),m=build(sp),v={cv:cv,yaw:.6,vel:.5,drag:false,last:0,
-    draw(now){const dt=Math.min(.05,(now-(this.last||now))/1000);this.last=now;if(!this.drag)this.yaw+=this.vel*dt;this.vel+= (.5-this.vel)*dt*1.5;
-      g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);const bob=opt.bob?Math.abs(Math.sin(now/260))*.08*m.h:0;
-      render(g,m,{scale:fit(m,w,h,opt.pad||.4),cx:w/2+(opt.dx?opt.dx(now):0),cy:h*(opt.cy||.55),yaw:this.yaw,pitch:opt.pitch!=null?opt.pitch:.28,sil:opt.sil?[40,40,46]:null,bob:bob,shadowCol:opt.shadowCol});
-      if(opt.after)opt.after(g,w,h,now);}};
-  let px=0;cv.style.touchAction="none";
-  cv.addEventListener("pointerdown",e=>{v.drag=true;px=e.clientX;try{cv.setPointerCapture(e.pointerId);}catch(_){}});
-  cv.addEventListener("pointermove",e=>{if(!v.drag)return;const d=(e.clientX-px)/90;v.yaw+=d;v.vel=d*20;px=e.clientX;});
-  const up=()=>{v.drag=false;};cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
-  viewers.add(v);if(!vraf)vraf=requestAnimationFrame(tick);return v;
-}
-return {build,render,thumb,viewer,fit,hex};
-})();
-
-/* ---------- Catálogo de especies: clave|nombre|científico|forma|colores|rareza|regiones|hábitats|rasgos ----------
-   Regiones: ib España y Portugal · can Canarias · eu Europa · naf Norte de África · me Oriente Medio · af África · as Sur y Sudeste de Asia
-             ea Asia oriental · ru Rusia y Asia central · na Norteamérica · ca Centroamérica y Caribe · sa Sudamérica · au Australia · nz Nueva Zelanda
-             ar Ártico · an Antártida · * casi todo el mundo habitado · @lugar solo en ese lugar concreto
-   Hábitats: u ciudad · p parques · w ríos, lagos y puertos · k costa · n de noche · b bosque · c campo · m montaña · d desierto · s sabana · j selva · h hielo */
-const SPECIES_RAW=`
-paloma|Paloma bravía|Columba livia|paloma|8a93a3 b9c0cc d98a7a|c|*|uc|
-gorrion|Gorrión común|Passer domesticus|pajaro|8a5a3a d9cbb5 3a2a22|c|ib,can,eu,naf,me,as,ru,na,ca,sa,au,nz,af|uc|
-rata|Rata parda|Rattus norvegicus|roedor|6e5e52 a39484 e8a0a0|c|*|unw|
-gato|Gato callejero|Felis catus|gato|e09a4a f4e6d0 2a2a2a|c|*|un|stripes
-estornino|Estornino pinto|Sturnus vulgaris|pajaro|2a2a35 3b3b4a e8c23a|c|eu,ru,na,au,nz,af|upc|spots
-estornino_negro|Estornino negro|Sturnus unicolor|pajaro|1c1c22 3a3a44 e8c23a|c|ib,naf|uc|
-cotorra|Cotorra argentina|Myiopsitta monachus|loro|6fbf3f c4ccd0 e89a3a|c|ib,eu,na,sa|up|
-kramer|Cotorra de Kramer|Psittacula krameri|loro|56c23e 7ddb5a d8323a|r|ib,eu,as,me,naf|up|long
-mirlo|Mirlo común|Turdus merula|pajaro|1e1e1e 2a2a2a f2a516|c|ib,eu,naf,can,au,nz|pu|
-urraca|Urraca|Pica pica|pajaro|141414 f4f4f4 1e1e1e|c|ib,eu,ru,ea|upc|long
-tortola_turca|Tórtola turca|Streptopelia decaocto|paloma|cbb8a6 e4d8ca 2a2a2a|c|ib,eu,naf,me,as,na|up|
-vencejo|Vencejo común|Apus apus|pajaro|2b2622 3a332e 1a1a1a|r|ib,eu,naf,me,ru|u|
-golondrina|Golondrina común|Hirundo rustica|pajaro|1b2f6b f1e3d0 b8432c|c|ib,eu,naf,me,as,ea,ru,na,sa,af|uc|long
-avion|Avión común|Delichon urbicum|pajaro|152040 ffffff 1a1a1a|c|ib,eu,ru,naf|u|
-lavandera|Lavandera blanca|Motacilla alba|pajaro|2a2a2a ffffff 1a1a1a|c|ib,eu,naf,ru,ea,me|uw|long
-colirrojo|Colirrojo tizón|Phoenicurus ochruros|pajaro|3a3a40 4a4a50 e0662a|c|ib,eu,naf,me|u|
-verdecillo|Verdecillo|Serinus serinus|pajaro|c9d43a f1e86a 5a5a2a|c|ib,eu,naf|p|
-jilguero|Jilguero europeo|Carduelis carduelis|pajaro|b08a5a f4efe6 d42a2a|r|ib,eu,naf,me,ru,au,nz|pc|
-carbonero|Carbonero común|Parus major|pajaro|e9d24a 2d5a3a 1a1a1a|c|ib,eu,ru,ea,naf,me|pb|
-herrerillo|Herrerillo común|Cyanistes caeruleus|pajaro|f0d84a 4a86d8 2a2a2a|c|ib,eu,can|pb|
-petirrojo|Petirrojo europeo|Erithacus rubecula|pajaro|8a6a48 ef7a2e e8e0d2|c|ib,eu,naf,can|pb|
-gorrion_moruno|Gorrión moruno|Passer hispaniolensis|pajaro|8a4a2a e8e0d4 1a1a1a|c|naf,ib,me,can|uc|
-gorrion_molinero|Gorrión molinero|Passer montanus|pajaro|8a5a3a e8e0d4 1a1a1a|c|ea,ib,eu,as,ru|uc|
-abubilla|Abubilla|Upupa epops|pajaro|d99a5a f0c09a 1a1a1a|r|ib,eu,naf,af,me,as,ea|pc|crest
-gaviota|Gaviota patiamarilla|Larus michahellis|gaviota|f4f4f4 a8b0ba f2c02a|c|ib,eu,naf,can|wku|
-gaviota_reidora|Gaviota reidora|Chroicocephalus ridibundus|gaviota|f4f4f4 a8b0b8 c0302a|c|ib,eu,ru,ea|w|
-gaviota_argentea|Gaviota argéntea|Larus argentatus|gaviota|f4f4f4 a8b4c0 f2c02a|c|eu,na|uk|
-anade|Ánade real|Anas platyrhynchos|pato|2a7a45 9b8a76 f2c02a|c|ib,eu,naf,me,as,ea,ru,na,au,nz|wp|
-garceta|Garceta común|Egretta garzetta|zancuda|ffffff f2f2f2 1a1a1a|c|ib,eu,af,as,au,me,naf|w|
-garza|Garza real|Ardea cinerea|zancuda|9aa3ad e8eaee e8b03a|r|ib,eu,af,as,ea,ru|w|
-garcilla|Garcilla bueyera|Bubulcus ibis|zancuda|ffffff f2e2b8 e8b03a|c|ib,af,as,sa,na,au|cw|
-cormoran|Cormorán grande|Phalacrocorax carbo|cormoran|1a1f1a 2a302a e8c23a|r|ib,eu,af,as,ea,au,na|wk|
-gallineta|Gallineta común|Gallinula chloropus|pato|2a2a35 3a3a45 d42a2a|c|ib,eu,af,as,ea|w|
-focha|Focha común|Fulica atra|pato|1e1e1e 2a2a2a f4f4f4|c|ib,eu,as,au,naf|w|
-martin|Martín pescador|Alcedo atthis|pajaro|2a8ad8 e8823a 1a1a1a|l|ib,eu,as,ea,naf|w|
-ciguena|Cigüeña blanca|Ciconia ciconia|zancuda|ffffff 1a1a1a e8542a|r|ib,eu,naf,me,af|uc|
-cernicalo|Cernícalo vulgar|Falco tinnunculus|rapaz|b8683a d9b48a f2c02a|r|ib,eu,naf,af,me,as|uc|spots
-halcon|Halcón peregrino|Falco peregrinus|rapaz|4a5560 e8e2d8 f2c02a|l|ib,eu,na,sa,au,af,as,ea,ru|u|
-lechuza|Lechuza común|Tyto alba|buho|e8c88a ffffff 2a2a2a|l|ib,eu,af,as,na,sa,au,me|n|
-autillo|Autillo europeo|Otus scops|buho|8a7a68 a89880 f2c02a|r|ib,eu,naf|n|tufts
-mochuelo|Mochuelo europeo|Athene noctua|buho|8a7058 e8dcc8 f2d02a|r|ib,eu,naf,me|nc|
-murcielago|Murciélago enano|Pipistrellus pipistrellus|murcielago|6a5040 8a6a55 3a2a22|c|ib,eu,naf,me|n|
-salamanquesa|Salamanquesa común|Tarentola mauritanica|lagarto|9a9080 c4bca8 5a5a50|c|ib,naf,eu|un|spots
-lagartija|Lagartija ibérica|Podarcis hispanicus|lagarto|7a6a4a a8a070 3a5a3a|c|ib|up|spots
-erizo|Erizo europeo|Erinaceus europaeus|erizo|7a6048 c8b8a0 4a3a2a|r|ib,eu|pn|spikes
-ardilla|Ardilla roja|Sciurus vulgaris|ardilla|b8582a e8d8c0 1a1a1a|r|ib,eu,ru,ea|pb|tufts
-conejo|Conejo europeo|Oryctolagus cuniculus|conejo|8a7a68 c8bca8 1a1a1a|c|ib,eu,au,nz|pc|
-zorro|Zorro rojo|Vulpes vulpes|zorro|d0662a f4ece0 1a1a1a|r|ib,eu,naf,me,as,ea,ru,na,au|nbc|
-jabali|Jabalí|Sus scrofa|jabali|4a3a2e 5a4a3a e8e0d0|l|ib,eu,naf,me,as,ea,ru|nb|tusk
-galapago_florida|Galápago de Florida|Trachemys scripta|tortuga|4a6a3a 8aa05a d84a2a|c|ib,eu,na,ea|wp|
-carpa|Carpa común|Cyprinus carpio|pez|b8903a e0c070 6a5020|c|ib,eu,as,ea,na,au|w|
-macaon|Mariposa macaón|Papilio machaon|mariposa|f2d84a 3a6ad8 1a1a1a|r|ib,eu,naf,as,ea,na|pc|
-vanesa|Vanesa de los cardos|Vanessa cardui|mariposa|e8883a f4f4f4 2a2a2a|c|*|pc|
-rana_comun|Rana común|Pelophylax perezi|rana|5a8a3a 8ab05a 2a3a2a|c|ib|w|spots
-camaleon|Camaleón común|Chamaeleo chamaeleon|camaleon|6aa03a a8c85a d8c84a|l|ib,naf,me|pc|casque,curl
-flamenco|Flamenco común|Phoenicopterus roseus|flamenco|f2a8b8 f8d0d8 2a2a2a|r|ib,eu,naf,af,me,as|wk|
-pito|Pito real|Picus sharpei|pajaro|5a8a3a c8d07a d82a2a|r|ib|pb|
-buitre|Buitre leonado|Gyps fulvus|rapaz|b8946a e8dcc0 3a3a3a|r|ib,eu,naf,me|mc|
-aguila_imperial|Águila imperial ibérica|Aquila adalberti|rapaz|3a2a1e f2f2f2 f2c02a|l|ib|cm|
-lince|Lince ibérico|Lynx pardinus|gato|c8a06a e8d8b8 2a2a2a|l|ib|cb|spots,tufts
-lobo_iberico|Lobo ibérico|Canis lupus signatus|lobo|8a7a68 c8bca8 2a2a2a|l|ib|bm|
-cabra_montes|Cabra montés|Capra pyrenaica|cabra|8a6a4a c0a888 4a4038|r|ib|m|
-ciervo|Ciervo rojo|Cervus elaphus|ciervo|8a5a32 c8a07a 6a5a48|r|ib,eu,naf,ru|bc|
-gamo|Gamo|Dama dama|ciervo|b8803a f2e8d8 6a5038|r|eu,ib|pb|spots,palm
-oso_pardo|Oso pardo|Ursus arctos|oso|6a4a2e 8a6a4a 1a1a1a|l|ib,eu,ru,na,ea|bm|
-nutria|Nutria europea|Lutra lutra|mustelido|6a4a32 a8886a 1a1a1a|l|ib,eu,as|w|
-gineta|Gineta|Genetta genetta|mustelido|c8b898 e8dcc8 2a2a2a|r|ib,naf,af|nb|spots,ringtail
-tejon|Tejón|Meles meles|mustelido|8a8a8a f2f2f2 1a1a1a|r|ib,eu,ru,ea|nb|
-macaco_berberia|Macaco de Berbería|Macaca sylvanus|mono|a8946a d0bc98 e0a090|l|naf,@gib|um|ape
-canario|Canario silvestre|Serinus canaria|pajaro|e8d43a f2e88a 8a7a4a|c|can|up|
-pinzon_azul|Pinzón azul del Teide|Fringilla teydea|pajaro|5a7ab8 a8bcd8 3a3a3a|l|can|bm|
-lagarto_tizon|Lagarto tizón|Gallotia galloti|lagarto|2a2a2a 3a4a6a 4a7ad8|c|can|uc|spots
-pardela|Pardela cenicienta|Calonectris borealis|gaviota|8a7a6a f4f4f4 e8c87a|r|can,ib|k|
-ardilla_gris|Ardilla gris|Sciurus carolinensis|ardilla|8a8a8a e8e8e8 1a1a1a|c|eu,na|p|
-grajilla|Grajilla|Coloeus monedula|cuervo|2a2a2e 6a6a70 1a1a1a|c|eu,ru,naf|u|
-corneja|Corneja negra|Corvus corone|cuervo|141414 1c1c1c 0e0e0e|c|eu,ib,ru,ea|uc|
-cuervo|Cuervo grande|Corvus corax|cuervo|0e0e12 18181e 0a0a0a|r|eu,ib,ru,na,naf,me,ar|mc|
-cisne|Cisne vulgar|Cygnus olor|cisne|ffffff f4f4f4 e8782a|r|eu,ru,na,au,nz|wp|
-barnacla|Barnacla canadiense|Branta canadensis|cisne|6a5a48 e8e0d4 1a1a1a|c|na,eu|wp|
-pinzon|Pinzón vulgar|Fringilla coelebs|pajaro|b8705a 8aa0c0 f2f2f2|c|eu,ib,naf,ru|pb|
-frailecillo|Frailecillo atlántico|Fratercula arctica|frailecillo|1a1a1a ffffff e8642a|l|eu,ar,na|k|puffin
-foca_comun|Foca común|Phoca vitulina|foca|8a8a88 c0c0b8 2a2a2a|r|eu,na,ar,ea|k|
-reno|Reno|Rangifer tarandus|ciervo|8a7a68 e8e0d4 b8aa98|r|ar,ru,eu,na|hm|
-lince_boreal|Lince boreal|Lynx lynx|gato|b89a70 e8dcc8 3a3a3a|l|eu,ru|bm|spots,tufts
-bisonte_europeo|Bisonte europeo|Bison bonasus|bovino|5a3e2a 7a5a40 2a2a2a|l|eu|b|hump
-marmota|Marmota alpina|Marmota marmota|marmota|8a6a4a c0a888 1a1a1a|r|eu|m|
-salamandra|Salamandra común|Salamandra salamandra|salamandra|1a1a1a 2a2a2a f2c82a|r|ib,eu|bn|spots
-dromedario|Dromedario|Camelus dromedarius|camello|c8a06a e0c898 3a2a1a|r|naf,me,au|dc|hump
-fenec|Zorro del desierto|Vulpes zerda|zorro|e8d0a0 f8f0e0 2a2a2a|l|naf|dn|
-jerbo|Jerbo egipcio|Jaculus jaculus|roedor|d8b880 f4ecd8 2a2a2a|r|naf,me|dn|
-bulbul|Bulbul naranjero|Pycnonotus barbatus|pajaro|7a6a58 e8e0d0 1a1a1a|c|naf,af|up|
-ibis_sagrado|Ibis sagrado|Threskiornis aethiopicus|zancuda|ffffff f2f2f2 1a1a1a|c|af,naf,me|wu|
-milano|Milano negro|Milvus migrans|rapaz|5a4030 8a6a50 f2c02a|c|naf,af,as,ib,eu,me,au|u|
-tortuga_mora|Tortuga mora|Testudo graeca|tortuga|8a7a3a c8b06a 5a4a2a|r|naf,ib,me|cd|
-mina|Miná común|Acridotheres tristis|pajaro|5a3a28 7a5a40 f2c02a|c|as,me,au,af|u|
-tortola_senegalesa|Tórtola senegalesa|Spilopelia senegalensis|paloma|b8806a d8b8a0 4a4a4a|c|me,naf,af,as|u|
-gacela|Gacela dorcas|Gazella dorcas|antilope|d8b07a f4ecdc 2a2a2a|r|naf,me|d|
-orice|Órice de Arabia|Oryx leucoryx|antilope|f4f0e8 ffffff 2a2a2a|l|me|d|
-hiena_rayada|Hiena rayada|Hyaena hyaena|hiena|b8ac90 d8ccb0 2a2a2a|l|me,naf,as|nd|stripes
-babuino|Babuino chacma|Papio ursinus|mono|7a6a50 9a8a70 3a2a2a|c|af|uc|snout
-vervet|Mono vervet|Chlorocebus pygerythrus|mono|8a8a6a d8d0c0 2a2a2a|c|af|up|long
-marabu|Marabú africano|Leptoptilos crumenifer|zancuda|4a4a50 f2f2f2 e8b0a0|r|af|uw|
-pinguino_africano|Pingüino africano|Spheniscus demersus|pinguino|1a1a1a ffffff 2a2a2a|r|af|k|
-daman|Damán roquero|Procavia capensis|marmota|7a6a58 a89880 1a1a1a|c|af,me|mu|
-suricata|Suricata|Suricata suricatta|suricata|c8b08a e8dcc0 2a2a2a|r|af|ds|
-leon|León|Panthera leo|felino|c8a060 e8d0a0 6a4a2a|l|af,as|s|mane,tuft
-leopardo|Leopardo|Panthera pardus|felino|d8a850 f2e0b8 2a2a2a|l|af,as,me|sbn|spots
-guepardo|Guepardo|Acinonyx jubatus|felino|e0b860 f4e4c0 1a1a1a|l|af|s|spots
-hiena|Hiena manchada|Crocuta crocuta|hiena|a8946a c8b490 3a3a3a|r|af|sn|spots
-elefante_africano|Elefante africano|Loxodonta africana|elefante|8a8680 a8a49e f2ece0|l|af|s|tusks
-jirafa|Jirafa|Giraffa camelopardalis|jirafa|e0a858 f4e4c0 7a4a2a|l|af|s|spots
-cebra|Cebra común|Equus quagga|equino|f4f4f4 f4f4f4 1a1a1a|r|af|s|stripes,mane
-nu|Ñu azul|Connochaetes taurinus|bovino|5a5a60 7a7a80 2a2a2a|c|af|s|mane
-hipopotamo|Hipopótamo|Hippopotamus amphibius|hipo|7a6a70 c89a9a 4a3a40|l|af|w|
-rinoceronte_blanco|Rinoceronte blanco|Ceratotherium simum|rino|9a948c b8b2aa 5a564e|l|af|s|
-cocodrilo_nilo|Cocodrilo del Nilo|Crocodylus niloticus|cocodrilo|5a6a3a 8a8a5a d8c87a|l|af,naf|w|
-avestruz|Avestruz|Struthio camelus|corredora|1a1a1a f4f4f4 e8b8a0|r|af|s|
-impala|Impala|Aepyceros melampus|antilope|c0804a f4ece0 2a2a2a|c|af|s|
-facocero|Facocero|Phacochoerus africanus|jabali|7a6a5a 8a7a6a f2ece0|c|af|s|tusk,mane
-gorila|Gorila de montaña|Gorilla beringei|gran_simio|2a2a2e 3a3a40 1e1e22|l|af|j|ape
-chimpance|Chimpancé|Pan troglodytes|mono|2a221e 4a3a32 c8a890|l|af|j|ape
-lemur|Lémur de cola anillada|Lemur catta|mono|a8a8a8 f2f2f2 1a1a1a|r|@mdg|b|ringtail,long,snout
-agama|Agama común|Agama agama|lagarto|3a4ab8 e86a2a f2c02a|c|af|u|
-tejedor|Tejedor enmascarado|Ploceus velatus|pajaro|f2d02a e8c02a 1a1a1a|c|af|up|
-calao_terrestre|Cálao terrestre|Bucorvus leadbeateri|tucan|1a1a1a 2a2a2a d82a2a|l|af|s|
-cerdo_hormiguero|Cerdo hormiguero|Orycteropus afer|oso_hormiguero|b8a088 d8c8b0 6a5a4a|l|af|sn|
-mamba|Mamba negra|Dendroaspis polylepis|serpiente|5a5a50 7a7a6a 2a2a2a|l|af|sb|
-rhesus|Macaco rhesus|Macaca mulatta|mono|a8906a c8b090 e8a090|c|as,ea|up|
-langur|Langur gris|Semnopithecus entellus|mono|b8b4aa e8e4dc 1a1a1a|c|as|uc|long
-cuervo_indio|Cuervo indio|Corvus splendens|cuervo|1a1a1a 6a6a70 0e0e0e|c|as,me,af|u|
-ardilla_palmera|Ardilla de palmera|Funambulus palmarum|ardilla|8a7a5a d8c8a0 3a2a1a|c|as|up|stripes
-pavo_real|Pavo real|Pavo cristatus|gallinacea|1a4ad0 2a8a6a e8c83a|r|as|pc|fan,crest
-zorro_volador|Zorro volador indio|Pteropus medius|murcielago|3a2a20 b8803a 2a1e18|c|as|nu|
-elefante_asiatico|Elefante asiático|Elephas maximus|elefante|7a7670 9a968e f2ece0|l|as|bj|
-tigre|Tigre de Bengala|Panthera tigris tigris|felino|e0782a f4f0e8 1a1a1a|l|as|bj|stripes
-rinoceronte_indio|Rinoceronte indio|Rhinoceros unicornis|rino|8a8680 a8a49e 5a564e|l|as|sw|
-cobra|Cobra india|Naja naja|serpiente|8a7a4a b8a870 2a2a2a|r|as|cn|hood
-varano|Varano de Bengala|Varanus bengalensis|varano|7a6a4a a89a70 3a3020|r|as|cb|spots
-nilgo|Nilgó|Boselaphus tragocamelus|antilope|6a6a78 a8a8b0 3a3a3a|r|as|c|
-geco|Geco casero|Hemidactylus frenatus|lagarto|c8b8a0 e8dcc8 6a6a5a|c|as,ea,au,ca,sa|un|
-orangutan|Orangután|Pongo pygmaeus|gran_simio|c0602a d8804a 6a3a2a|l|as|j|ape
-calao_bicorne|Cálao bicorne|Buceros bicornis|tucan|1a1a1a f2f2f2 f2c02a|l|as|j|
-komodo|Dragón de Komodo|Varanus komodoensis|varano|6a6050 8a8070 4a4030|l|@kom|cb|
-mangosta|Mangosta gris|Urva edwardsii|mustelido|a8a090 c8c0b0 3a3a3a|c|as,me|uc|
-martin_ahumado|Alción de Esmirna|Halcyon smyrnensis|pajaro|2a7ad0 8a4a2a d82a2a|r|as,me|wu|
-panda_gigante|Panda gigante|Ailuropoda melanoleuca|oso|f4f4f4 1a1a1a 1a1a1a|l|ea|bm|panda,legsc3
-panda_rojo|Panda rojo|Ailurus fulgens|mapache|c0502a 3a1e14 f4f0e8|l|ea,as|bm|ringtail
-sika|Ciervo sika|Cervus nippon|ciervo|9a6a3a e8dcc8 5a4a38|c|ea,@nara|up|spots
-tanuki|Perro mapache|Nyctereutes procyonoides|mapache|6a5a48 a89a88 1e1e1e|r|ea,eu,ru|nb|mask
-macaco_japones|Macaco japonés|Macaca fuscata|mono|a8a098 c8c0b8 e87a7a|r|ea|m|ape
-cuervo_picudo|Cuervo picudo|Corvus macrorhynchos|cuervo|0e0e14 1a1a22 0a0a0a|c|ea,as,ru|u|
-estornino_gris|Estornino gris|Spodiopsar cineraceus|pajaro|5a5050 8a8080 f2a02a|c|ea|up|
-koi|Carpa koi|Cyprinus rubrofuscus|pez|f2f2f2 e8582a 1a1a1a|c|ea|wp|spots
-grulla|Grulla de Manchuria|Grus japonensis|zancuda|f4f4f4 1a1a1a d82a2a|l|ea,ru|w|
-faisan|Faisán vulgar|Phasianus colchicus|gallinacea|8a3a2a 2a6a5a d82a2a|r|ea,eu,ru,na|c|long
-mandarin|Pato mandarín|Aix galericulata|pato|e8782a 3a4a8a f4f4f4|r|ea,eu|wp|crest
-salamandra_gigante|Salamandra gigante|Andrias japonicus|salamandra|4a3a2a 6a5a40 2a2a1a|l|ea|w|spots
-tigre_siberiano|Tigre siberiano|Panthera tigris altaica|felino|e08a3a f8f4ee 1a1a1a|l|ru,ea|b|stripes
-alce|Alce|Alces alces|ciervo|4a3a2e 6a5a48 b8a888|r|ru,eu,na|bw|palm,withers
-lobo_gris|Lobo gris|Canis lupus|lobo|8a8a88 d8d8d4 2a2a2a|r|ru,eu,na,ea,as,me|bm|
-saiga|Saiga|Saiga tatarica|antilope|c8b088 e8dcc8 d8c8a0|l|ru|c|
-camello_bactriano|Camello bactriano|Camelus bactrianus|camello|9a7a5a b89a78 3a2a1a|r|ru,ea|d|hump2
-oso_polar|Oso polar|Ursus maritimus|oso|f4f2ea ffffff 1a1a1a|l|ar|hk|
-zorro_artico|Zorro ártico|Vulpes lagopus|zorro|f4f4f8 ffffff 1a1a1a|r|ar|h|
-morsa|Morsa|Odobenus rosmarus|foca|8a6a58 b89a88 f2ece0|l|ar|k|tusks
-buho_nival|Búho nival|Bubo scandiacus|buho|ffffff f4f4f4 f2c02a|l|ar,ru,na|hc|spots
-pinguino_emperador|Pingüino emperador|Aptenodytes forsteri|pinguino|1a1a22 ffffff f2b02a|l|an|h|emp
-pinguino_adelia|Pingüino de Adelia|Pygoscelis adeliae|pinguino|1a1a1a ffffff 2a2a2a|c|an|hk|
-foca_weddell|Foca de Weddell|Leptonychotes weddellii|foca|5a6070 8a90a0 2a2a2a|c|an|h|
-mapache|Mapache|Procyon lotor|mapache|8a8a88 c8c8c4 1a1a1a|c|na,ca,eu|unp|mask,ringtail
-zarigueya|Zarigüeya de Virginia|Didelphis virginiana|roedor|c8c8c0 f2f2ee e8a0a0|c|na,ca|nu|
-mofeta|Mofeta rayada|Mephitis mephitis|mustelido|1a1a1a ffffff 1a1a1a|r|na|n|stripes
-coyote|Coyote|Canis latrans|lobo|b89a70 e8dcc8 3a3a3a|r|na,ca|nc|
-ciervo_cola_blanca|Ciervo de cola blanca|Odocoileus virginianus|ciervo|a8784a f4ece0 6a5a48|c|na,ca,sa|pb|
-ardilla_listada|Ardilla listada|Tamias striatus|ardilla|a8784a f2e8d8 3a2a1a|c|na|pb|stripes
-cardenal|Cardenal norteño|Cardinalis cardinalis|pajaro|d82a2a e8402a e89a3a|c|na,ca|p|crest
-arrendajo|Arrendajo azul|Cyanocitta cristata|pajaro|3a7ad8 f2f2f2 1a1a1a|c|na|p|crest
-zorzal_robin|Zorzal robín|Turdus migratorius|pajaro|4a4a4e d8642a f2c02a|c|na|p|
-colibri|Colibrí garganta rubí|Archilochus colubris|colibri|3a8a4a f2f2f2 2a2a2a|r|na,ca|p|
-pigargo|Pigargo americano|Haliaeetus leucocephalus|rapaz|3a2a1e ffffff f2c02a|l|na|wb|headc2
-castor|Castor americano|Castor canadensis|castor|6a4a2e 8a6a48 3a2a1e|r|na|w|
-oso_negro|Oso negro americano|Ursus americanus|oso|1e1e22 2a2a2e c8a07a|r|na|bm|
-bisonte|Bisonte americano|Bison bison|bovino|5a3e2a 7a5a40 2a2a2a|l|na|c|hump,mane
-puma|Puma|Puma concolor|felino|c8a070 e8dcc8 2a2a2a|l|na,ca,sa|m|
-aligator|Aligátor americano|Alligator mississippiensis|cocodrilo|2a3a2a 4a5a3a d8c87a|r|na|w|
-manati|Manatí|Trichechus manatus|foca|8a8a90 a8a8b0 3a3a3a|l|na,ca,sa|wk|tail
-leon_marino|León marino de California|Zalophus californianus|foca|6a4a32 8a6a4a 1a1a1a|c|na|k|
-pelicano_pardo|Pelícano pardo|Pelecanus occidentalis|pelicano|8a8070 f2ece0 e8a04a|r|na,ca,sa|k|pouch
-pavo_salvaje|Pavo salvaje|Meleagris gallopavo|gallinacea|3a2a22 5a4a3a d82a2a|r|na|bc|fan
-rana_toro|Rana toro|Lithobates catesbeianus|rana|4a6a2a 8a9a4a f2e8a0|c|na|w|
-monarca|Mariposa monarca|Danaus plexippus|mariposa|e8782a f4f4f4 1a1a1a|r|na,ca|p|
-iguana|Iguana verde|Iguana iguana|lagarto|5a9a3a 8ab85a 3a5a2a|c|ca,sa|up|crest
-zanate|Zanate mayor|Quiscalus mexicanus|cuervo|1a1a2e 2a2a4a f2d02a|c|ca,na|u|long
-quetzal|Quetzal|Pharomachrus mocinno|pajaro|2aa05a d82a2a f2d02a|l|ca|j|long
-tucan|Tucán pico iris|Ramphastos sulfuratus|tucan|1a1a1a f2d02a 5ad04a|r|ca,sa|j|
-perezoso|Perezoso de tres dedos|Bradypus variegatus|koala|a8987a c8b89a 3a2a1a|r|ca,sa|jp|
-coati|Coatí de nariz blanca|Nasua narica|mapache|8a6a48 c8a888 1a1a1a|c|ca,na,sa|bp|ringtail
-mono_aullador|Mono aullador|Alouatta palliata|mono|2a1e14 3a2a1e 1a1a1a|r|ca,sa|j|long
-zopilote|Zopilote negro|Coragyps atratus|rapaz|1a1a1a 2a2a2a 6a6a6a|c|ca,na,sa|u|
-flamenco_caribe|Flamenco del Caribe|Phoenicopterus ruber|flamenco|f26a6a f8a0a0 2a2a2a|r|ca,sa|wk|
-rana_flecha|Rana flecha azul|Dendrobates tinctorius|rana|2a5ad8 1a1a1a f2d02a|l|sa,ca|j|spots
-tortuga_verde|Tortuga verde|Chelonia mydas|tortuga|5a6a3a 8a9a5a 6a5a3a|r|ca,sa,au,as,af|k|marina
-jaguar|Jaguar|Panthera onca|felino|e0a848 f4e4c0 1a1a1a|l|ca,sa|j|spots
-tapir|Tapir centroamericano|Tapirus bairdii|tapir|3a3a3e 5a5a60 e8e0d8|l|ca|j|
-capibara|Capibara|Hydrochoerus hydrochaeris|capibara|8a6a48 a8886a 2a2a2a|c|sa|wp|
-guacamayo|Guacamayo rojo|Ara macao|loro|d82a2a f2d02a 2a6ad8|r|sa,ca|j|long
-hornero|Hornero común|Furnarius rufus|pajaro|b8784a e8c8a0 6a4a2a|c|sa|up|
-tero|Tero común|Vanellus chilensis|zancuda|9a9a9a f2f2f2 d82a2a|c|sa|pc|
-mono_capuchino|Mono capuchino|Sapajus apella|mono|3a2a1e d8c8a8 2a2a2a|c|sa,ca|jp|long
-titi|Tití común|Callithrix jacchus|mono|8a8a80 f2f2f2 2a2a2a|c|sa|up|ringtail,long
-llama|Llama|Lama glama|camello|f2ece0 ffffff 3a2a1a|c|sa|mc|
-alpaca|Alpaca|Vicugna pacos|camello|b8885a d8b08a 3a2a1a|c|sa|mc|
-condor|Cóndor andino|Vultur gryphus|rapaz|1a1a1a d89a8a c88a7a|l|sa|m|headc2
-armadillo|Armadillo de nueve bandas|Dasypus novemcinctus|armadillo|8a7a6a b8a898 6a5a4a|r|sa,ca,na|nc|shell
-oso_hormiguero|Oso hormiguero gigante|Myrmecophaga tridactyla|oso_hormiguero|5a4a3a 2a2a2a f2f2f2|l|sa|c|stripes
-pinguino_magallanes|Pingüino de Magallanes|Spheniscus magellanicus|pinguino|1a1a1a ffffff 2a2a2a|r|sa|k|
-lobo_marino|Lobo marino sudamericano|Otaria flavescens|foca|7a5a3a a8805a 1a1a1a|c|sa|k|
-anaconda|Anaconda verde|Eunectes murinus|serpiente|4a5a2a 6a7a3a 1a1a1a|l|sa|jw|spots
-yacare|Yacaré overo|Caiman latirostris|cocodrilo|4a5a3a 6a7a4a d8c87a|r|sa|w|
-tortuga_galapagos|Tortuga de Galápagos|Chelonoidis niger|tortuga|4a4a44 6a6a60 3a3a34|l|@gal|cd|
-iguana_marina|Iguana marina|Amblyrhynchus cristatus|lagarto|2a2a2a 4a4a4a 8a3a2a|l|@gal|k|crest
-pirana|Piraña de vientre rojo|Pygocentrus nattereri|pez|8a8a90 d84a2a 3a3a3a|r|sa|w|teeth
-nandu|Ñandú común|Rhea americana|corredora|8a8a88 c8c8c0 3a3a3a|r|sa|c|
-morfo|Mariposa morfo azul|Morpho menelaus|mariposa|2a7ae8 4aa0f8 1a1a1a|r|sa,ca|j|
-ibis_australiano|Ibis blanco australiano|Threskiornis molucca|zancuda|f4f4f4 ffffff 1a1a1a|c|au|up|
-cacatua|Cacatúa galerita|Cacatua galerita|loro|ffffff f4f4f4 f2d02a|c|au|up|crest,crestc3
-verdugo|Verdugo flautista|Gymnorhina tibicen|cuervo|1a1a1a ffffff c8c8c8|c|au|up|
-cucaburra|Cucaburra común|Dacelo novaeguineae|pajaro|8a6a48 f2ece0 3a5ab8|r|au|pb|
-lori|Lori arcoíris|Trichoglossus moluccanus|loro|2a5ad8 e8582a 4ab83a|c|au|up|long
-galah|Cacatúa galah|Eolophus roseicapilla|loro|e88aa0 c8c8cc f2f2f2|c|au|uc|
-zarigueya_cola_cepillo|Zarigüeya de cola de cepillo|Trichosurus vulpecula|roedor|8a8a88 d8d8d0 1a1a1a|c|au,nz|nu|
-zorro_volador_au|Zorro volador de cabeza gris|Pteropus poliocephalus|murcielago|4a3a30 c87a3a 2a1e18|c|au|nu|
-canguro_rojo|Canguro rojo|Osphranter rufus|canguro|c0603a e8c0a0 3a2a1a|r|au|cd|
-canguro_gris|Canguro gris oriental|Macropus giganteus|canguro|8a8078 c8c0b8 2a2a2a|c|au|pc|
-ualabi|Ualabí de cuello rojo|Notamacropus rufogriseus|canguro|8a7a6a b8705a 2a2a2a|c|au|b|
-koala|Koala|Phascolarctos cinereus|koala|9a9a9a e8e8e8 1a1a1a|r|au|b|
-uombat|Uombat común|Vombatus ursinus|oso|8a7a68 a89a88 2a2a2a|r|au|bn|
-equidna|Equidna de hocico corto|Tachyglossus aculeatus|erizo|5a4a3a e8dcc0 e8d8b0|r|au|b|spikes
-ornitorrinco|Ornitorrinco|Ornithorhynchus anatinus|castor|6a4a32 8a6a48 2a2a2a|l|au|w|duckbill
-emu|Emú|Dromaius novaehollandiae|corredora|5a4a3a 7a6a58 3a4a8a|r|au|c|
-casuario|Casuario|Casuarius casuarius|corredora|1a1a1a 2a5ad8 d82a2a|l|au|j|crest,crestc3
-cocodrilo_marino|Cocodrilo marino|Crocodylus porosus|cocodrilo|5a5a3a 8a8a5a d8c87a|l|au,as|wk|
-demonio_tasmania|Demonio de Tasmania|Sarcophilus harrisii|mustelido|1a1a1a 2a2a2a f2f2f2|l|@tas|bn|
-pinguino_pequeno|Pingüino pequeño|Eudyptula minor|pinguino|4a6a98 f4f4f4 2a2a2a|r|au,nz,@stk|k|
-dingo|Dingo|Canis dingo|lobo|d8a060 f2e8d8 2a2a2a|r|au|cd|
-pelicano_australiano|Pelícano australiano|Pelecanus conspicillatus|pelicano|f4f4f4 1a1a1a f2c0a0|c|au|wk|pouch
-escinco|Escinco de lengua azul|Tiliqua scincoides|lagarto|8a8070 b0a890 2a5ad8|c|au|up|stripes
-dragon_agua|Dragón de agua australiano|Intellagama lesueurii|lagarto|5a6a4a 8a9a6a d84a2a|c|au|wp|crest
-kiwi|Kiwi común|Apteryx mantelli|kiwi|8a6a48 a8886a e8d8b0|l|nz|bn|
-kea|Kea|Nestor notabilis|loro|5a7a3a 8a9a4a e8582a|r|nz|m|
-tui|Tui|Prosthemadera novaeseelandiae|pajaro|1a2a3a 2a4a5a f4f4f4|c|nz|p|
-pukeko|Pukeko|Porphyrio melanotus|gallinacea|2a3a8a 1a1a2a d82a2a|c|nz,au|wp|
-lobo_marino_nz|Lobo marino de Nueva Zelanda|Arctocephalus forsteri|foca|5a4a3a 7a6a58 1a1a1a|c|nz,au|k|
-ciguenuela|Cigüeñuela común|Himantopus himantopus|zancuda|f4f4f4 1a1a1a e8789a|r|ib,eu,af,as|w|
-avoceta|Avoceta común|Recurvirostra avosetta|zancuda|f4f4f4 1a1a1a 3a6ad8|r|ib,eu,naf,af,as|wk|
-somormujo|Somormujo lavanco|Podiceps cristatus|pato|7a5a3a f4f4f4 d84a2a|r|ib,eu,af,as,au|w|crest
-abejaruco|Abejaruco europeo|Merops apiaster|pajaro|e8c82a 3ab0c0 8a3a2a|r|ib,eu,naf,me,af|c|long
-oropendola|Oropéndola europea|Oriolus oriolus|pajaro|f2d02a e8c82a 1a1a1a|r|ib,eu,naf,ru|pb|
-rabilargo|Rabilargo ibérico|Cyanopica cooki|pajaro|8a8078 b8b0a8 5a9ad8|c|ib|pb|long
-arrendajo_eu|Arrendajo euroasiático|Garrulus glandarius|cuervo|c8a088 e8dcd0 3a6ad8|c|ib,eu,ru,ea,naf|pb|crest
-pico_picapinos|Pico picapinos|Dendrocopos major|pajaro|1a1a1a f4f4f4 d82a2a|r|ib,eu,ru,ea|pb|
-buho_real|Búho real|Bubo bubo|buho|a8784a d8b890 e8882a|l|ib,eu,ru,me,as|mn|tufts
-gaviota_cabecinegra|Gaviota cabecinegra|Ichthyaetus melanocephalus|gaviota|f4f4f4 c8d0d8 d82a2a|r|ib,eu|k|
-charran|Charrán común|Sterna hirundo|gaviota|f4f4f4 d8dde2 d82a2a|r|ib,eu,na,af,as|k|long
-gorrion_alpino|Gorrión alpino|Montifringilla nivalis|pajaro|8a7a68 f4f4f4 1a1a1a|r|ib,eu,ru|m|
-quebrantahuesos|Quebrantahuesos|Gypaetus barbatus|rapaz|3a3a3a e8b88a 1a1a1a|l|ib,eu,af,me|m|long
-sapo_comun|Sapo común|Bufo spinosus|rana|8a6a48 a88a68 5a4a32|c|ib,eu,naf|nwp|spots
-triton|Tritón jaspeado|Triturus marmoratus|salamandra|4a7a3a 2a2a2a e88a2a|r|ib|w|spots
-culebra|Culebra de escalera|Zamenis scalaris|serpiente|a8946a c8b48a 4a3a2a|r|ib|cp|
-lagarto_ocelado|Lagarto ocelado|Timon lepidus|lagarto|5a8a3a 8ab05a 3a6ad8|r|ib|cp|spots
-gato_montes|Gato montés|Felis silvestris|gato|8a7a68 c8b8a0 2a2a2a|l|ib,eu,naf|b|stripes
-liebre|Liebre ibérica|Lepus granatensis|conejo|a8885a d8c8a8 1a1a1a|c|ib|c|
-liron|Lirón careto|Eliomys quercinus|roedor|a8886a f4f4f4 1a1a1a|r|ib,eu|nb|mask
-murcielago_orejudo|Murciélago orejudo|Plecotus auritus|murcielago|8a7058 a88a70 5a4a3a|r|ib,eu|n|
-grillo?
-`.split("\n").map(s=>s.trim()).filter(s=>s&&s.indexOf("|")>0);
-const SPOTS={gib:{n:"Gibraltar",ll:[36.1405,-5.3530],r:5000},nara:{n:"Parque de Nara",ll:[34.685,135.843],r:4000},gal:{n:"Islas Galápagos",ll:[-0.6,-90.4],r:260000},
-  tas:{n:"Tasmania",ll:[-42.0,146.6],r:350000},kom:{n:"Isla de Komodo",ll:[-8.6,119.5],r:80000},stk:{n:"St Kilda, Melbourne",ll:[-37.867,144.974],r:5000},mdg:{n:"Madagascar",ll:[-19.0,46.7],r:650000}};
-const REGN={ib:"España y Portugal",can:"Canarias",eu:"Europa",naf:"Norte de África",me:"Oriente Medio",af:"África",as:"Sur de Asia",ea:"Asia oriental",ru:"Rusia y Asia central",
-  na:"Norteamérica",ca:"Centroamérica y Caribe",sa:"Sudamérica",au:"Australia",nz:"Nueva Zelanda",ar:"Ártico",an:"Antártida","*":"Casi todo el mundo"};
-const HABN={u:"Ciudad",p:"Parques",w:"Ríos, lagos y puertos",k:"Costa",n:"De noche",b:"Bosque",c:"Campo",m:"Montaña",d:"Desierto",s:"Sabana",j:"Selva",h:"Hielo"};
-const SPX={};
-SPECIES_RAW.forEach(line=>{const a=line.split("|");if(a.length<8)return;const k=a[0];const regs=a[6].split(",").filter(Boolean);
-  SPX[k]={k:k,n:a[1],sci:a[2],a:a[3],c:a[4].split(" "),rar:a[5],reg:regs.filter(r=>r[0]!=="@"),spots:regs.filter(r=>r[0]==="@").map(r=>r.slice(1)),h:a[7],f:new Set((a[8]||"").split(",").filter(Boolean))};});
-const SPK=Object.keys(SPX);
-const REGION_BOXES=[["an",-90,-60,-180,180],["ar",66,90,-180,180],["can",27.4,29.6,-18.3,-13.2],["nz",-47.5,-34,165,179.9],["au",-44,-10,112,154],
-  ["ib",35.9,43.85,-9.7,-1.8],["ib",35.9,42.55,-1.8,4.5],["naf",15,37.4,-18,11],["naf",15,33.5,11,35],["me",12,37.6,34.2,63],["eu",34.5,71.5,-25,45],["af",-35,15,-18,52],
-  ["ea",20,55,100,146],["as",-11,35,60,150],["ru",35,78,45,180],["na",24,72,-170,-50],["ca",7,24,-118,-59],["sa",-56,13,-82,-34]];
-function regionOf(ll){for(const b of REGION_BOXES)if(ll[0]>=b[1]&&ll[0]<=b[2]&&ll[1]>=b[3]&&ll[1]<=b[4])return b[0];return "*";}
-function livesIn(s,reg){return reg!=="*"&&(s.reg.includes(reg)||(s.reg.includes("*")&&reg!=="ar"&&reg!=="an"));}
-
-</script>
 <script>
 (function(){
 "use strict";
@@ -1276,35 +1344,29 @@ const PLACES=[
 const WQ={b1:"Catedral de Barcelona",b2:"Plaza Real Barcelona",b3:"Mercado de La Boquería",b4:"Palacio de la Música Catalana",b5:"Calle del Obispo Barcelona",b6:"Monumento a Colón Barcelona",
   m1:"Puerta del Sol",m2:"Plaza Mayor de Madrid",m3:"Mercado de San Miguel",m4:"Palacio Real de Madrid",m5:"Templo de Debod",l1:"Praça do Comércio",l2:"Elevador de Santa Justa",l3:"Miradouro de Santa Luzia",
   p1:"Catedral de Notre Dame de París",p2:"Pont Neuf",n1:"Times Square",n2:"Grand Central Terminal",t1:"Cruce de Shibuya",t2:"Santuario Meiji"};
-const SPECIES={};SPK.forEach(k=>{SPECIES[k]=[SPX[k].n,SPX[k].sci,SPX[k].rar,SPX[k].h[0]];});
-const HAB=HABN;
-const RARM={c:"común",r:"raro",l:"legendario"},ANIXP={c:15,r:40,l:120},ANICOL={c:"#FFFFFF",r:"#5AC8FA",l:"#FFD60A"},RARN={c:"común",r:"rara",l:"legendaria"};
-const ENVS=[["ciudad","Ciudad",""],["b","Bosque","b"],["c","Campo","c"],["m","Montaña","m"],["k","Costa","k"],["d","Desierto","d"],["s","Sabana","s"],["j","Selva","j"],["h","Hielo","h"]];
-const HABBG={u:["#BFD0E2","#7E8794","#5B636E"],p:["#CDE7FF","#78B562","#4F8A3E"],w:["#C4E6F7","#4E9FCC","#2F7DAE"],k:["#CFEAFF","#F0DFAE","#D9C48C"],n:["#0A1430","#22304E","#151F36"],b:["#D3E8CC","#4E7C40","#365A2C"],c:["#F6EED2","#C4B064","#A8954A"],m:["#DCE6F0","#9A8E7C","#7A6E5E"],d:["#FBEBC8","#E6C186","#D2A766"],s:["#FBE3B2","#D2AC5C","#B8913E"],j:["#C8EDB8","#3A7A32","#2A5E24"],h:["#E6F3FF","#F2F7FC","#D8E6F2"]};
-const AG=0.0018,ANI_SEE=150,ANI_SNAP=40;
-const FIXED_ANIMALS=[{id:"ax1",sp:"cotorra",ll:[41.3830,2.1752]},{id:"ax2",sp:"halcon",ll:[41.3842,2.1766]},{id:"ax3",sp:"gaviota",ll:[41.3762,2.1786]}];
+const RARN={c:"común",r:"rara",l:"legendaria"};
 const TREASURES=[{id:"tb1",ll:[41.3812,2.1738],sp:"Bar de ejemplo del Gòtic",pr:"Una caña gratis"},{id:"th1",ll:[41.3606,2.1012],sp:"Tapéalo · bar de ejemplo",pr:"Tapa de bravas gratis"},{id:"tm1",ll:[40.4160,-3.7055],sp:"Cafetería de ejemplo",pr:"Café y churros"},{id:"tl1",ll:[38.7095,-9.1370],sp:"Pastelaria de ejemplo",pr:"Pastel de nata gratis"}];
 const START=[41.3825,2.1745];
 const FIXED_RELICS=[{id:"rx1",ll:[41.3813,2.1764],r:"r",n:"Brújula de bolsillo"},{id:"rx2",ll:[41.3605,2.1040],r:"l",n:"Llave de la ciudad"}];
 const BADGES=[
-  {id:"choq",n:"3 choques",g:"C3",need:3,k:"bumps"},
+  {id:"guia",n:"Guía local",g:"10★",need:10,k:"rated"},
   {id:"marat",n:"5 km",g:"5K",need:5,k:"km"},
   {id:"colec",n:"10 cromos",g:"10",need:10,k:"places"},
   {id:"leyen",n:"Legendario",g:"L",need:1,k:"legend"},
   {id:"rel5",n:"5 reliquias",g:"R5",need:5,k:"relics"},
-  {id:"esp5",n:"5 especies",g:"E5",need:5,k:"species"},
+  {id:"insp",n:"Inspector de baños",g:"B5",need:5,k:"ratedToilets"},
   {id:"noct",n:"Noctámbulo",g:"N",need:1,k:"night",hard:1},
   {id:"halcon",n:"Ojo de halcón",g:"H",need:1,k:"hawk",hard:1},
   {id:"mara10",n:"10 km en un día",g:"10K",need:10,k:"bestday",hard:1},
   {id:"leyenda",n:"Leyenda",g:"3L",need:3,k:"relLeg",epic:1},
-  {id:"halc",n:"Halcón peregrino",g:"HP",need:1,k:"halcon",epic:1},
+  {id:"salva",n:"Salvavidas",g:"♥3",need:3,k:"aed",epic:1},
   {id:"z100",n:"Zona al 100 %",g:"100",need:100,k:"zbest",epic:1}
 ];
 const ZONE=0.01;
 const FRIENDS=[{u:"laia.walks",e:"🦊",c:"#FF5E8A",ll:[41.3834,2.1731],pct:41},{u:"marc_bcn",e:"🐸",c:"#30C85E",ll:[41.3806,2.1783],pct:23},{u:"nora.explora",e:"🐙",c:"#A55EEA",ll:[41.3851,2.1758],pct:12}];
 const LB=[["laia.walks",9.4],["marc_bcn",7.8],["nora.explora",6.1],["urbanfox",4.9],["pau.street",3.2],["mika",2.4],["jordi.lh",1.6]];
-const KEY="explorador-mundo-v2";
-let S=null,map=null,meMk=null,animalMk={},snap=null,albReg=null,friendMk={},zoneRect=null,placeMk={},treasMk={},relicMk={},fogCanvas=null,fogCtx=null,brush=null,clouds=null,cloudPat=null,walkAnim=0,gpsWatch=null,toastT=0,current="mapa",lbMode="cerca",albMode="lugares",tilesOk=0,tilesErr=0,saveT=0,photoFor=null,revealQ=[],shareBlob=null,shareText="";
+const KEY="explorador-mundo-v3";
+let albMode0=null,S=null,map=null,meMk=null,fogBounds=null,friendMk={},zoneRect=null,placeMk={},treasMk={},relicMk={},fogCanvas=null,fogCtx=null,brush=null,clouds=null,cloudPat=null,walkAnim=0,gpsWatch=null,toastT=0,current="mapa",lbMode="cerca",albMode="lugares",tilesOk=0,tilesErr=0,saveT=0,photoFor=null,revealQ=[],shareBlob=null,shareText="";
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=(n,d)=>Number(n).toLocaleString("es-ES",{minimumFractionDigits:d||0,maximumFractionDigits:d||0});
@@ -1312,7 +1374,7 @@ function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i)
 function distM(a,b){const R=6371000,t=Math.PI/180,dLat=(b[0]-a[0])*t,dLng=(b[1]-a[1])*t,x=Math.sin(dLat/2)**2+Math.cos(a[0]*t)*Math.cos(b[0]*t)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
 function dayStr(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 function W(){if(!S.world)S.world={pts:[],big:[],cells:{},km:0,pos:null};if(!S.world.big)S.world.big=[];return S.world;}
-function fresh(){return {world:{pts:[],big:[],cells:{},km:0,pos:null},zones:{},bumps:{},found:{},treas:{},relics:{},animals:{},spawnDone:{},flares:1,user:"tu_usuario",daily:{},night:0,hawk:0};}
+function fresh(){return {world:{pts:[],big:[],cells:{},km:0,pos:null},zones:{},bumps:{},found:{},treas:{},relics:{},visits:{},rates:{},added:{},reports:{},flares:1,user:"tu_usuario",daily:{},night:0,hawk:0};}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.world)return d;}}catch(e){}return null;}
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300);}
 function saveNow(){clearTimeout(saveT);try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){return false;}}
@@ -1347,7 +1409,7 @@ function updateRadar(ll){
 
 /* ---------- Puntos y niveles ---------- */
 function xp(){
-  return Object.keys(S.found).reduce((s,id)=>{const p=findPlace(id);return s+(p?RAR[p.r][1]:0);},0)+Math.round(W().km*20)+Object.keys(S.treas).length*30+Object.keys(S.animals||{}).reduce((s,k)=>s+(SPECIES[k]?ANIXP[SPECIES[k][2]]+(S.animals[k].n-1)*5:0),0)+
+  return Object.keys(S.found).reduce((s,id)=>{const p=findPlace(id);return s+(p?RAR[p.r][1]:0);},0)+Math.round(W().km*20)+Object.keys(S.treas).length*30+Object.values(S.visits||{}).reduce((s,v)=>s+(v.x||5),0)+Object.values(S.rates||{}).reduce((s,v)=>s+(v.x||10),0)+Object.keys(S.added||{}).length*20+
     Object.keys(S.relics).reduce((s,id)=>s+RELRAR[S.relics[id].r][1]*(S.relics[id].x2?2:1),0)+Object.keys(S.bumps||{}).length*40+(S.bonus||0);
 }
 function levelOf(x){return Math.floor(Math.sqrt(x/50))+1;}
@@ -1386,7 +1448,7 @@ function checkFinds(ll){
 }
 function setPos(ll,follow){
   W().pos=ll;if(meMk)meMk.setLatLng(ll);
-  addPoint(ll);checkFinds(ll);updateRadar(ll);updateZoneRect(ll);updateAnimals(ll);
+  addPoint(ll);checkFinds(ll);checkVisits(ll);updateRadar(ll);updateZoneRect(ll);fetchPOIs(ll);
   if(follow&&map)map.panInside(ll,{padding:[90,210],animate:false});
   drawFog();updateHud();save();
 }
@@ -1395,7 +1457,7 @@ function walkTo(target){
   const from=(W().pos||START).slice(),total=distM(from,target);if(total<3)return;
   if(total>4000){toast("Demasiado lejos para ir andando en el modo demo");return;}
   const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches,speed=reduce?total:7;let done=0,frame=0;
-  const step=()=>{done=Math.min(total,done+speed);const k=done/total,ll=[from[0]+(target[0]-from[0])*k,from[1]+(target[1]-from[1])*k];frame++;setPos(ll,frame%8===0||k>=1);if(k<1&&$("#reveal").hidden&&$("#snap").hidden)walkAnim=requestAnimationFrame(step);};
+  const step=()=>{done=Math.min(total,done+speed);const k=done/total,ll=[from[0]+(target[0]-from[0])*k,from[1]+(target[1]-from[1])*k];frame++;setPos(ll,frame%8===0||k>=1);if(k<1&&$("#reveal").hidden)walkAnim=requestAnimationFrame(step);};
   walkAnim=requestAnimationFrame(step);
 }
 /* ---------- Fotos: Wikimedia (y Google en la app real) ---------- */
@@ -1434,130 +1496,141 @@ const SFX=(function(){let ac=null;const on=()=>!S||S.sound!==false;
     radar(){tone(1400,.06,"sine",.04);}};
 })();
 
-/* ---------- Eventos de la semana y especie del día ---------- */
-const BIRDS=new Set(["pajaro","cuervo","paloma","loro","gaviota","rapaz","buho","zancuda","flamenco","pato","cisne","pelicano","cormoran","gallinacea","corredora","kiwi","colibri","tucan","pinguino","frailecillo"]);
+/* ---------- Eventos de la semana ---------- */
 const EVENTS=[
-  {id:"aves",n:"Semana de las aves",d:"Las aves aparecen el doble. Mira a los tejados.",sp:"halcon"},
-  {id:"noche",n:"Noche salvaje",d:"Los animales nocturnos salen también de día.",sp:"lechuza"},
-  {id:"leyenda",n:"Fiebre legendaria",d:"Las especies legendarias aparecen el triple.",sp:"jabali"},
-  {id:"reliquias",n:"Ruta de las reliquias",d:"Las reliquias dan el doble de XP.",sp:"zorro"}];
+  {id:"banos",n:"Semana de los baños",d:"Valorar baños da el doble de XP. Ayuda a encontrar los mejores de tu zona.",e:"🚻"},
+  {id:"agua",n:"Ruta del agua",d:"Fuentes y bancos dan el doble de XP. Ideal para pasear con calor.",e:"🚰"},
+  {id:"salva",n:"Semana salvavidas",d:"Encontrar desfibriladores da el triple de XP. Saber dónde están salva vidas.",e:"❤️"},
+  {id:"reliquias",n:"Ruta de las reliquias",d:"Las reliquias dan el doble de XP.",e:"💎"}];
 function weekNo(){const d=new Date(),j=new Date(d.getFullYear(),0,1);return Math.floor(((d-j)/864e5+j.getDay())/7);}
 function curEvent(){return EVENTS[weekNo()%EVENTS.length];}
 function evEnds(){const d=new Date(),n=(8-d.getDay())%7||7;return n===1?"Acaba hoy":"Quedan "+n+" días";}
 function dayKey(){return dayStr();}
-function dailySpecies(){const reg=regionOf(W().pos||START),pool=[...new Set(["u","p","w"].flatMap(h=>poolFor(reg,h)))].filter(k=>SPX[k].rar!=="l");if(!pool.length)return "paloma";return pool[hash(dayKey()+reg)%pool.length];}
-function updateDayPill(){const el=$("#dayPill");if(!el)return;const k=dailySpecies(),s=SPX[k],done=S.dayDone===dayKey();el.hidden=false;el.innerHTML='<img src="'+A3.thumb(s,96,!S.animals[k])+'" alt="">'+(done?'Especie del día · <b>conseguida</b>':'Especie del día: <b>'+esc(S.animals[k]?s.n:"???")+'</b> · ×3 XP');}
+function evMult(c){const e=curEvent().id;if(e==="banos"&&c==="toilets")return 2;if(e==="agua"&&(c==="water"||c==="bench"))return 2;if(e==="salva"&&c==="aed")return 3;return 1;}
 
-/* ---------- Animales ---------- */
-function isDusk(){const h=new Date().getHours();return h>=21||h<7;}
-function inSpot(sp,ll){const o=SPOTS[sp];return !!o&&distM(ll,o.ll)<=o.r;}
-function habOk(s,hab){return s.h.includes(hab)||(hab==="w"&&s.h.includes("k"))||(hab==="k"&&s.h.includes("w"));}
-const poolMemo={};
-function poolFor(reg,hab){const key=reg+hab;if(!poolMemo[key])poolMemo[key]=SPK.filter(k=>habOk(SPX[k],hab)&&livesIn(SPX[k],reg));return poolMemo[key];}
-function envHab(h){const env=S.env||"ciudad";if(env==="ciudad"){if(isDusk()&&(h>>>3)%2===0)return "n";const x=(h>>>5)%100;return x<45?"u":x<75?"p":"w";}return env;}
-function pickSpecies(ll,h){
-  const reg=regionOf(ll),hab=envHab(h),spot=SPK.filter(k=>SPX[k].spots.some(sp=>inSpot(sp,ll)));
-  if(spot.length&&(h>>>13)%100<35)return {sp:spot[(h>>>17)%spot.length],hab:hab};
-  const ev=curEvent().id;let hb=hab;if(ev==="noche"&&hb!=="n"&&(h>>>4)%2===0&&poolFor(reg,"n").length)hb="n";
-  let pool=poolFor(reg,hb);if(!pool.length)pool=poolFor(reg,"u");if(!pool.length)pool=["paloma"];
-  if(ev==="aves"&&(h>>>6)%2===0){const bp=pool.filter(k=>BIRDS.has(SPX[k].a));if(bp.length)pool=bp;}
-  const ds=dailySpecies();if(pool.includes(ds)&&(h>>>9)%100<12)return {sp:ds,hab:hb};
-  const rr=(h>>>11)%100,lc=ev==="leyenda"?15:5,r=rr<lc?"l":rr<lc+25?"r":"c";let c=pool.filter(k=>SPX[k].rar===r);if(!c.length)c=pool;
-  return {sp:c[(h>>>17)%c.length],hab:hb};
+/* ---------- Sitios útiles (datos reales de OpenStreetMap) ---------- */
+const CATS={
+  toilets:{n:"Baño público",pl:"Baños",e:"🚻",col:"#0A84FF",tags:["Limpio","Gratis","Adaptado","Cambiador","Con papel","Abierto"]},
+  water:{n:"Fuente de agua",pl:"Fuentes",e:"🚰",col:"#32ADE6",tags:["Funciona","Agua fresca","Buena presión"]},
+  wifi:{n:"WiFi",pl:"WiFi",e:"📶",col:"#5E5CE6",tags:["Rápida","Sin registro","Gratis de verdad"]},
+  charge:{n:"Cargar el móvil",pl:"Carga",e:"🔌",col:"#30D158",tags:["Funciona","Gratis","USB-C"]},
+  bench:{n:"Banco",pl:"Bancos",e:"🪑",col:"#A2845E",tags:["Sombra","Cómodo","Tranquilo"]},
+  aed:{n:"Desfibrilador",pl:"Desfibriladores",e:"❤️",col:"#FF3B30",tags:["Accesible 24 h","Bien señalizado"]},
+  atm:{n:"Cajero",pl:"Cajeros",e:"🏧",col:"#8E8E93",tags:["Sin comisión","Funciona"]},
+  dog:{n:"Zona para perros",pl:"Perros",e:"🐕",col:"#FF9F0A",tags:["Vallada","Limpia","Con fuente"]},
+  play:{n:"Parque infantil",pl:"Infantiles",e:"🛝",col:"#FF375F",tags:["Sombra","Limpio","Para peques"]}};
+const CAT_ORDER=["toilets","water","wifi","charge","bench","aed","atm","dog","play"];
+const TITLES={toilets:"Inspector de baños",water:"Catador de fuentes",wifi:"Cazador de WiFi",charge:"Señor de los enchufes",bench:"Experto en bancos",aed:"Guardián salvavidas",atm:"Rastreador de cajeros",dog:"Amigo de los perros",play:"Explorador de parques"};
+const RATE_M=10,VISIT_M=10,POI_KEY="explorador-poi-v1",POI_CELL=0.01,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+let POI={},poiMk={},poiCells={},poiLoading={},filt=null,rateDraft=null;
+try{const c=JSON.parse(localStorage.getItem(POI_KEY)||"{}");if(c&&c.cells){poiCells=c.cells;POI=c.poi||{};}}catch(e){}
+function savePoiCache(){try{const ks=Object.keys(poiCells);if(ks.length>30){ks.sort((a,b)=>poiCells[a].t-poiCells[b].t).slice(0,ks.length-30).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>delete POI[id]);delete poiCells[k];});}
+  localStorage.setItem(POI_KEY,JSON.stringify({cells:poiCells,poi:POI}));}catch(e){}}
+function here(){return W().pos||START;}
+function catOf(t){if(t.amenity==="toilets")return "toilets";if(t.amenity==="drinking_water")return "water";if(t.emergency==="defibrillator")return "aed";if(t.amenity==="atm")return "atm";
+  if(t.amenity==="device_charging_station")return "charge";if(t.leisure==="dog_park")return "dog";if(t.leisure==="playground")return "play";if(t.amenity==="bench")return "bench";
+  if(t.internet_access==="wlan"||t.internet_access==="yes")return "wifi";return null;}
+const KEEP=["fee","wheelchair","changing_table","opening_hours","access","internet_access:fee","backrest","covered","indoor","operator","unisex","toilets:disposal","drinking_water","bottle","level","description"];
+function poiCellKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI_CELL);}
+function allPois(){return Object.assign({},POI,S.added||{});}
+function fetchPOIs(ll){
+  const k=poiCellKey(ll);if(poiLoading[k])return;const c=poiCells[k];if(c&&Date.now()-c.t<7*864e5)return;
+  const i=+k.split(":")[0],j=+k.split(":")[1],lat=((i+.5)*POI_CELL).toFixed(5),lng=((j+.5)*POI_CELL).toFixed(5),R=850,A="(around:"+R+","+lat+","+lng+")";
+  const q='[out:json][timeout:25];(nwr["amenity"="toilets"]'+A+';node["amenity"="drinking_water"]'+A+';nwr["emergency"="defibrillator"]'+A+';node["amenity"="atm"]'+A+';nwr["amenity"="device_charging_station"]'+A+';nwr["leisure"~"^(dog_park|playground)$"]'+A+';nwr["internet_access"~"^(wlan|yes)$"]'+A+';node["amenity"="bench"](around:500,'+lat+','+lng+'););out center tags;';
+  poiLoading[k]=1;setPoiStatus("Buscando sitios útiles cerca…");
+  const tryAt=n=>fetch(OVERPASS[n],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
+    .catch(e=>{if(n+1<OVERPASS.length)return tryAt(n+1);throw e;});
+  tryAt(0).then(d=>{const ids=[];(d.elements||[]).forEach(e=>{const t=e.tags||{},c=catOf(t);if(!c)return;const pll=e.lat!=null?[e.lat,e.lon]:e.center?[e.center.lat,e.center.lon]:null;if(!pll)return;
+      const id=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[id]={id:id,c:c,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t.name||"").slice(0,60),tg:tg};ids.push(id);});
+      poiCells[k]={t:Date.now(),ids:ids};savePoiCache();delete poiLoading[k];setPoiStatus(ids.length?"":"No hay sitios útiles registrados aquí todavía. ¡Añade el primero!");renderPOIs();})
+    .catch(()=>{delete poiLoading[k];poiCells[k]={t:Date.now()-6.9*864e5,ids:[]};seedDemo(ll);setPoiStatus("Sin conexión con OpenStreetMap: te enseño sitios de ejemplo.");renderPOIs();});
 }
-function spawnsNear(ll){
-  const w=Math.floor(Date.now()/1200000),env=S.env||"ciudad",out=env==="ciudad"?FIXED_ANIMALS.filter(a=>!S.spawnDone[a.id]&&distM(ll,a.ll)<1500):[];
-  const i0=Math.floor(ll[0]/AG),j0=Math.floor(ll[1]/AG);
-  for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){const i=i0+di,j=j0+dj,id="a"+i+"_"+j+"_"+w,h=hash(id+env);if(h%100>=45||S.spawnDone[id])continue;
-    const pll=[(i+((h>>>8)%1000)/1000)*AG,(j+((h>>>18)%1000)/1000)*AG],pk=pickSpecies(pll,h);out.push({id:id,ll:pll,sp:pk.sp,hab:pk.hab});}
-  return out;
+function seedDemo(ll){
+  if(Object.values(POI).some(p=>p.demo&&distM(p.ll,ll)<600))return;let s=hash(poiCellKey(ll));const R=()=>{s=(Math.imul(s,16807)>>>0)%2147483647;return s/2147483647;};
+  const plan=["toilets","toilets","toilets","water","water","water","wifi","wifi","charge","bench","bench","bench","bench","aed","aed","atm","atm","dog","play","play"];
+  plan.forEach((c,n)=>{const a=R()*Math.PI*2,d=(n<2?25+R()*60:60+R()*480),id="x"+poiCellKey(ll)+"_"+n;POI[id]={id:id,c:c,demo:1,ll:[ll[0]+Math.cos(a)*d/111320,ll[1]+Math.sin(a)*d/(111320*Math.cos(ll[0]*Math.PI/180))],n:"",tg:c==="toilets"?(n%2?{fee:"no",wheelchair:"yes"}:{fee:"yes",changing_table:"yes"}):{}};});
 }
-function animalIcon(a){const s=SPX[a.sp],r=s.rar;return L.divIcon({className:"pop",html:'<div class="anm r-'+r+'" style="--ac:'+ANICOL[r]+'"><img src="'+A3.thumb(s,128)+'" alt="">'+(r!=="c"?'<span class="rq">'+(r==="l"?"★":"R")+'</span>':'')+'</div>',iconSize:[64,64],iconAnchor:[32,58]});}
-function updateAnimals(ll){
-  if(!map)return;const ids={};
-  spawnsNear(ll).filter(a=>distM(ll,a.ll)<=ANI_SEE).forEach(a=>{ids[a.id]=1;if(animalMk[a.id])return;
-    const m=L.marker(a.ll,{icon:animalIcon(a),title:SPX[a.sp].n,keyboard:true,zIndexOffset:300}).addTo(map);
-    m.on("click",()=>openAnimalSpot(a.id));animalMk[a.id]={m:m,a:a};});
-  Object.keys(animalMk).forEach(id=>{if(!ids[id]){animalMk[id].m.remove();delete animalMk[id];}});
+function setPoiStatus(t){const el=$("#poiStatus");if(!el)return;el.textContent=t;el.hidden=!t;if(t)clearTimeout(el._t),el._t=setTimeout(()=>{el.hidden=true;},5000);}
+function rateOf(p){const h=hash(p.id),n0=p.mine?0:(h%7===0?0:(h>>>3)%34),a0=2.6+((h>>>9)%24)/10,me=S.rates[p.id];let n=n0,avg=n0?a0:0;if(me){avg=(avg*n+me.s)/(n+1);n++;}return {n:n,avg:Math.min(5,avg),sample:n0>0};}
+function starsHTML(v,big){let h='<span class="stars'+(big?" big":"")+'" aria-label="'+fmt(v,1)+' de 5">';for(let i=1;i<=5;i++){const f=Math.max(0,Math.min(1,v-i+1));h+='<i style="--f:'+(f*100).toFixed(0)+'%">★</i>';}return h+'</span>';}
+function poiIcon(p){const c=CATS[p.c],r=rateOf(p),vis=S.visits[p.id];
+  return L.divIcon({className:"",html:'<div class="pin'+(vis?" vis":"")+(p.c==="bench"?" sm":"")+'" style="--pc:'+c.col+'"><span>'+c.e+'</span>'+(r.n&&p.c!=="bench"?'<em>'+fmt(r.avg,1)+'</em>':'')+'</div>',iconSize:[36,44],iconAnchor:[18,42]});}
+function renderPOIs(){
+  if(!map)return;const ctr=map.getCenter(),cll=[ctr.lat,ctr.lng],z=map.getZoom(),P=allPois(),want={};
+  Object.values(P).filter(p=>(!filt||p.c===filt)&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).slice(0,220).forEach(o=>want[o.p.id]=o.p);
+  Object.keys(poiMk).forEach(id=>{if(!want[id]){poiMk[id].remove();delete poiMk[id];}});
+  Object.values(want).forEach(p=>{if(poiMk[p.id])return;const m=L.marker(p.ll,{icon:poiIcon(p),title:CATS[p.c].n,keyboard:true,zIndexOffset:200,riseOnHover:true}).addTo(map);m.on("click",()=>openPOI(p.id));poiMk[p.id]=m;});
 }
-function meHTML(){const b=S.buddy&&SPX[S.buddy];return '<div class="me"><span></span><i>🧭</i>'+(b?'<img class="bud" src="'+A3.thumb(b,96)+'" alt="">':'')+'</div>';}
-function setBuddy(){if(meMk)meMk.setIcon(L.divIcon({html:meHTML(),iconSize:[44,44],iconAnchor:[22,22]}));}
-function clearAnimals(){Object.values(animalMk).forEach(o=>o.m.remove());animalMk={};}
-function openAnimalSpot(id){
-  const o=animalMk[id];if(!o)return;const a=o.a,s=SPX[a.sp],d=distM(W().pos||START,a.ll),near=d<=ANI_SNAP,got=S.animals[a.sp];
-  openSheet('<div class="shk">'+rb(s.rar==="l"?3:s.rar==="r"?2:1)+(got?esc(s.n):'Especie '+RARN[s.rar]+(got?'':' · ¡nueva!'))+' · '+esc(HABN[a.hab||s.h[0]])+'</div><div class="sht">'+(got?esc(s.n):"¿Qué será?")+'</div>'+
-    '<canvas class="sh3d" data-sp="'+a.sp+'" data-hab="'+(a.hab||s.h[0])+'"'+(got?'':' data-sil="1"')+' aria-label="Modelo 3D"></canvas>'+
-    (near?'<p class="shp">Está a <b>'+fmt(d)+' m</b>. Abre la cámara y dispara cuando el recuadro de enfoque encaje. '+(s.rar==="l"?'Es <b>legendario</b>: se mueve rapidísimo y solo tienes 2 intentos.':s.rar==="r"?'Es esquivo: 2 intentos.':'Tienes 3 intentos.')+'</p><button type="button" class="btn full" data-snap="'+esc(id)+'">'+ICON.camera+'Abrir la cámara</button>'
-      :'<p class="shp">Acércate a menos de '+ANI_SNAP+' m. Estás a <b>'+fmt(d)+' m</b>. Corre: los animales cambian de sitio cada 20 minutos.</p>'+(gpsWatch==null?'<button type="button" class="btn dark full" data-walka="'+esc(id)+'">Acercarme (demo)</button>':'')));
+function refreshPOI(id){const p=allPois()[id];if(p&&poiMk[id])poiMk[id].setIcon(poiIcon(p));}
+function checkVisits(ll){
+  const P=allPois();Object.values(P).forEach(p=>{if(S.visits[p.id]||distM(ll,p.ll)>VISIT_M)return;const x=5*evMult(p.c);S.visits[p.id]={ts:Date.now(),x:x,c:p.c};refreshPOI(p.id);SFX.pop();buzz(30);toast(CATS[p.c].e+" "+(p.n||CATS[p.c].n)+" · descubierto +"+x+" XP");});
 }
-/* Cámara */
-function snapBg(g,w,h,hab,now){
-  const c=HABBG[hab]||HABBG.u,hz=h*.6,sky=g.createLinearGradient(0,0,0,hz);sky.addColorStop(0,hab==="n"?"#050A1C":"#FFFFFF");sky.addColorStop(1,c[0]);g.fillStyle=sky;g.fillRect(0,0,w,hz);
-  if(hab==="n"){g.fillStyle="rgba(255,255,255,.8)";for(let i=0;i<40;i++){const x=(i*97%100)/100*w,y=(i*53%100)/100*hz*.9;g.fillRect(x,y,1.6,1.6);}g.fillStyle="#F4F1E0";g.beginPath();g.arc(w*.8,hz*.25,18,0,6.3);g.fill();}
-  g.fillStyle=c[2];
-  if(hab==="u"||hab==="n"){for(let i=0;i<9;i++){const bw=w*(.08+((i*37)%5)/40),bh=hz*(.25+((i*53)%7)/14),x=i*w/8.5-10;g.globalAlpha=.55;g.fillRect(x,hz-bh,bw,bh);g.globalAlpha=1;}}
-  else if(hab==="p"||hab==="b"||hab==="j"){for(let i=0;i<10;i++){const x=i*w/9,r=w*(.06+((i*29)%4)/40);g.globalAlpha=.6;g.beginPath();g.arc(x,hz-r*.6,r,0,6.3);g.fill();g.globalAlpha=1;}}
-  else if(hab==="m"){g.globalAlpha=.6;g.beginPath();g.moveTo(0,hz);for(let i=0;i<=6;i++)g.lineTo(i*w/6,hz-(i%2?h*.25:h*.1));g.lineTo(w,hz);g.fill();g.globalAlpha=1;}
-  else if(hab==="d"||hab==="s"){g.globalAlpha=.5;g.beginPath();g.ellipse(w*.3,hz,w*.5,h*.06,0,Math.PI,0);g.ellipse(w*.85,hz,w*.4,h*.05,0,Math.PI,0);g.fill();g.globalAlpha=1;}
-  const gr=g.createLinearGradient(0,hz,0,h);gr.addColorStop(0,c[1]);gr.addColorStop(1,c[2]);g.fillStyle=gr;g.fillRect(0,hz,w,h-hz);
-  if(hab==="w"||hab==="k"){g.strokeStyle="rgba(255,255,255,.35)";g.lineWidth=2;for(let i=0;i<6;i++){const y=hz+12+i*(h-hz)/6,o=Math.sin(now/600+i)*14;g.beginPath();g.moveTo(w*.1+o,y);g.lineTo(w*.35+o,y);g.moveTo(w*.6-o,y+6);g.lineTo(w*.85-o,y+6);g.stroke();}}
+function poiFacts(p){const t=p.tg||{},f=[];
+  if(t.fee==="no")f.push("Gratis");else if(t.fee==="yes")f.push("De pago");
+  if(t.wheelchair==="yes")f.push("Adaptado");else if(t.wheelchair==="limited")f.push("Adaptado en parte");
+  if(t.changing_table==="yes")f.push("Cambiador");if(t.unisex==="yes")f.push("Unisex");
+  if(t.access==="customers")f.push("Solo clientes");if(t["internet_access:fee"]==="no")f.push("WiFi gratis");if(t["internet_access:fee"]==="customers")f.push("Para clientes");
+  if(t.backrest==="yes")f.push("Con respaldo");if(t.covered==="yes")f.push("Cubierto");if(t.indoor==="yes")f.push("En interior");if(t.bottle==="yes")f.push("Para rellenar botella");
+  if(t.opening_hours)f.push(t.opening_hours==="24/7"?"Abierto 24 h":"Horario: "+t.opening_hours);if(t.operator)f.push(t.operator);return f;}
+function commTags(p){const c=CATS[p.c],h=hash(p.id+"t");return [c.tags[h%c.tags.length],c.tags[(h>>>4)%c.tags.length]].filter((v,i,a)=>a.indexOf(v)===i).map((t,i)=>[t,55+((h>>>(8+i*5))%40)]);}
+function routeURL(ll){return "https://maps.apple.com/?daddr="+ll[0].toFixed(6)+","+ll[1].toFixed(6)+"&dirflg=w";}
+function openPOI(id){
+  const p=allPois()[id];if(!p)return;const c=CATS[p.c],d=distM(here(),p.ll),near=d<=RATE_M,r=rateOf(p),me=S.rates[id],facts=poiFacts(p);
+  rateDraft=near?{id:id,s:me?me.s:0,t:new Set(me?me.t:[])}:null;
+  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht">'+esc(p.n||c.n)+'</div>';
+  h+='<div class="rate-sum">'+(r.n?'<b class="num">'+fmt(r.avg,1)+'</b>'+starsHTML(r.avg,true)+'<small>'+r.n+(r.n===1?" valoración":" valoraciones")+(r.sample?' (de ejemplo hasta que haya usuarios reales)':'')+'</small>':'<small>Todavía nadie lo ha valorado. ¡Sé el primero!</small>')+'</div>';
+  if(r.sample)h+='<div class="ctags">'+commTags(p).map(t=>'<span>'+esc(t[0])+' <em>'+t[1]+' %</em></span>').join("")+'</div>';
+  if(facts.length)h+='<div class="facts2">'+facts.map(f=>'<span>'+esc(f)+'</span>').join("")+'</div>';
+  if(me)h+='<p class="shp mine">Tu valoración: '+starsHTML(me.s)+(me.t&&me.t.length?' · '+esc(me.t.join(", ")):'')+(me.c?'<br><i>“'+esc(me.c)+'”</i>':'')+'</p>';
+  if(near){h+='<div class="rateform"><p class="rf-t">'+(me?"Cambia tu valoración":"¿Qué tal está?")+'</p><div class="starpick" role="radiogroup" aria-label="Estrellas">'+[1,2,3,4,5].map(i=>'<button type="button" data-star="'+i+'" aria-label="'+i+' estrellas" class="'+(rateDraft.s>=i?"on":"")+'">★</button>').join("")+'</div>'+
+      '<div class="tagpick">'+c.tags.map(t=>'<button type="button" data-tg="'+esc(t)+'" aria-pressed="'+rateDraft.t.has(t)+'">'+esc(t)+'</button>').join("")+'</div>'+
+      '<textarea id="rateTxt" maxlength="140" rows="2" placeholder="Un comentario corto (opcional)">'+esc(me&&me.c||"")+'</textarea>'+
+      '<button type="button" class="btn full" data-rate="'+esc(id)+'">Enviar valoración · +'+(me?0:10*evMult(p.c))+' XP</button>'+
+      '<button type="button" class="link rep" data-report="'+esc(id)+'">Avisar: está cerrado o ya no existe</button></div>';}
+  else h+='<p class="shp">Para valorarlo tienes que estar a menos de <b>'+RATE_M+' m</b>. Ahora estás a <b>'+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</b>.</p><div class="btnrow"><a class="btn dark" href="'+routeURL(p.ll)+'" target="_blank" rel="noopener">Cómo llegar</a>'+(gpsWatch==null&&d<=4000?'<button type="button" class="btn grey" data-walkp="'+esc(id)+'">Ir (demo)</button>':'<button type="button" class="btn grey" data-center="'+esc(id)+'">Ver en el mapa</button>')+'</div>';
+  if(!p.demo&&!p.mine)h+='<p class="srcnote">Dato de OpenStreetMap, el mapa libre que hace la gente.</p>';
+  openSheet(h);
 }
-function openSnap(id){
-  const o=animalMk[id];if(!o)return;const a=o.a,sp=SPX[a.sp],r=sp.rar;closeSheet();cancelAnimationFrame(walkAnim);
-  snap={a:a,sp:sp,hab:a.hab||sp.h[0],t0:performance.now(),tries:r==="c"?3:2,max:r==="c"?3:2,tol:{c:.16,r:.1,l:.065}[r],per:{c:1600,r:1150,l:820}[r],amp:{c:.12,r:.22,l:.3}[r],om:{c:1.1,r:1.7,l:2.5}[r],raf:0,busy:false,yaw:.5,lx:null,flee:0};
-  $("#snap").style.setProperty("--ac",ANICOL[r]);
-  $("#camChip").innerHTML='<i></i>'+(S.animals[a.sp]?esc(sp.n):"Especie "+RARN[r])+' · '+esc(HABN[snap.hab]);
-  const tip=$("#snTip");tip.className="cam-tip";tip.textContent="Dispara cuando el enfoque amarillo encaje";
-  $("#shoot").disabled=false;$("#camVf").classList.remove("miss");$("#snap").hidden=false;drawTries();snap.raf=requestAnimationFrame(snapLoop);
+function submitRate(id){
+  const p=allPois()[id];if(!p||!rateDraft||rateDraft.id!==id)return;if(distM(here(),p.ll)>RATE_M){toast("Acércate a menos de "+RATE_M+" m para valorarlo");return;}
+  if(!rateDraft.s){toast("Elige de 1 a 5 estrellas");return;}
+  const prev=S.rates[id],lv0=levelOf(xp());S.rates[id]={s:rateDraft.s,t:[...rateDraft.t],c:(($("#rateTxt")||{}).value||"").trim().slice(0,140),ts:Date.now(),x:prev?prev.x:10*evMult(p.c),cat:p.c};
+  if(!S.visits[id])S.visits[id]={ts:Date.now(),x:5*evMult(p.c),c:p.c};
+  save();refreshPOI(id);updateHud();SFX.chime();buzz([30,40,30]);closeSheet();toast(prev?"Valoración actualizada":"¡Gracias! +"+S.rates[id].x+" XP");
+  const lv1=levelOf(xp());if(lv1>lv0){S.flares=(S.flares||0)+(lv1-lv0);revealQ.push({k:"level",l:lv1});nextReveal();}
 }
-function snapScale(){const t=((performance.now()-snap.t0)%snap.per)/snap.per;return 1.85-1.3*t;}
-function snapLoop(now){
-  if(!snap)return;const cv=$("#camCv"),dpr=Math.min(window.devicePixelRatio||1,2),w=cv.clientWidth,h=cv.clientHeight;if(!w||!h){snap.raf=requestAnimationFrame(snapLoop);return;}
-  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
-  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);snapBg(g,w,h,snap.hab,now);
-  const t=(now-snap.t0)/1000,m=A3.build(snap.sp),Sc=A3.fit(m,w,w,.2),gy=h*.78;
-  let x=w/2+w*snap.amp*(Math.sin(t*snap.om)+.35*Math.sin(t*snap.om*2.3+1));
-  if(snap.flee){snap.flee+=1;x=snap.fx+snap.fd*snap.flee*snap.flee*.9;}
-  const dx=snap.lx==null?0:x-snap.lx;snap.lx=x;const ty=dx>=0?.45:Math.PI-.45;snap.yaw+=(ty-snap.yaw)*.1;
-  const hop=snap.busy&&!snap.flee?0:Math.abs(Math.sin(t*snap.om*3))*.07*m.h*Sc;
-  A3.render(g,m,{scale:Sc,cx:x,cy:gy-m.h*.48*Sc-hop,yaw:snap.yaw,pitch:.16,shadowCol:"rgba(0,0,0,.22)"});
-  const fy=gy-m.h*.5*Sc-hop,base=Math.max(m.h,m.ext*1.4)*Sc*1.15;snap.fx0=x;
-  if(!snap.busy){
-    const sc=snapScale(),inside=Math.abs(sc-1)<=snap.tol,b=base/2;
-    g.strokeStyle="rgba(255,255,255,.9)";g.lineWidth=2;const k=b*.32;
-    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(c=>{g.beginPath();g.moveTo(x+c[0]*b,fy+c[1]*(b-k));g.lineTo(x+c[0]*b,fy+c[1]*b);g.lineTo(x+c[0]*(b-k),fy+c[1]*b);g.stroke();});
-    const fb=b*sc;g.strokeStyle="#FFD60A";g.lineWidth=inside?3:1.6;g.strokeRect(x-fb,fy-fb,fb*2,fb*2);
-    g.beginPath();g.moveTo(x,fy-fb);g.lineTo(x,fy-fb+7);g.moveTo(x,fy+fb);g.lineTo(x,fy+fb-7);g.moveTo(x-fb,fy);g.lineTo(x-fb+7,fy);g.moveTo(x+fb,fy);g.lineTo(x+fb-7,fy);g.stroke();
-    if(inside){g.fillStyle="#FFD60A";g.font="700 11px -apple-system,Helvetica,Arial";g.textAlign="center";g.fillText("ENFOQUE",x,fy-fb-8);}
-  }
-  snap.raf=requestAnimationFrame(snapLoop);
+function nearestToilet(){
+  const h=here(),list=Object.values(allPois()).filter(p=>p.c==="toilets").map(p=>({p:p,d:distM(h,p.ll),r:rateOf(p)})).sort((a,b)=>a.d-b.d);
+  if(!list.length){toast("No hay baños públicos en el mapa por aquí. Si conoces uno, añádelo");fetchPOIs(h);return;}
+  const lim=list[0].d*1.5+60,best=list.filter(o=>o.d<=lim).sort((a,b)=>(b.r.n?b.r.avg:2.5)-(a.r.n?a.r.avg:2.5)||a.d-b.d)[0];
+  if(filt&&filt!=="toilets"){filt=null;renderFilters();}map.setView(best.p.ll,Math.max(map.getZoom(),17));renderPOIs();setTimeout(()=>openPOI(best.p.id),250);SFX.tap();
 }
-function drawTries(){$("#tries").innerHTML=Array.from({length:snap.max},(_,i)=>'<i class="'+(i<snap.tries?"":"off")+'"></i>').join("");}
-function shoot(){
-  if(!snap||snap.busy)return;SFX.shutter();const sc=snapScale(),ok=Math.abs(sc-1)<=snap.tol,vf=$("#camVf"),tip=$("#snTip");
-  const fl=$("#camFlash");fl.classList.remove("go");void fl.offsetWidth;fl.classList.add("go");
-  if(ok){snap.busy=true;buzz([30,40,30]);tip.className="cam-tip good";tip.textContent="¡Foto perfecta!";
-    setTimeout(()=>{try{const last=$("#camLast");last.style.backgroundImage="url("+$("#camCv").toDataURL("image/jpeg",.6)+")";last.classList.remove("in");void last.offsetWidth;last.classList.add("in");}catch(e){}},80);
-    const a=snap.a;setTimeout(()=>catchAnimal(a),900);return;}
-  snap.tries--;SFX.miss();drawTries();vf.classList.remove("miss");void vf.offsetWidth;vf.classList.add("miss");buzz(120);
-  if(snap.tries<=0){snap.busy=true;snap.flee=1;snap.fx=snap.fx0;snap.fd=snap.fx0>($("#camCv").clientWidth/2)?1:-1;S.spawnDone[snap.a.id]=1;save();tip.className="cam-tip warn";tip.textContent="Se ha escapado…";$("#shoot").disabled=true;
-    if(animalMk[snap.a.id]){animalMk[snap.a.id].m.remove();delete animalMk[snap.a.id];}setTimeout(closeSnap,1500);}
-  else{tip.className="cam-tip warn";tip.textContent=snap.tries===1?"Movida. Último intento":"Movida. Te quedan "+snap.tries;}
-}
-function closeSnap(){if(snap)cancelAnimationFrame(snap.raf);snap=null;$("#snap").hidden=true;}
-function catchAnimal(a){
-  const lv0=levelOf(xp()),prev=S.animals[a.sp];S.animals[a.sp]={n:(prev?prev.n:0)+1,first:prev?prev.first:Date.now()};S.spawnDone[a.id]=1;if(isNight())S.night=1;
-  let daily=false;if(a.sp===dailySpecies()&&S.dayDone!==dayKey()){S.dayDone=dayKey();S.bonus=(S.bonus||0)+ANIXP[SPX[a.sp].rar]*2;daily=true;}
-  let newBuddy=false;if(!S.buddy){S.buddy=a.sp;newBuddy=true;setBuddy();}
-  if(animalMk[a.id]){animalMk[a.id].m.remove();delete animalMk[a.id];}
-  closeSnap();revealQ.push({k:"animal",sp:a.sp,first:!prev,daily:daily,buddy:newBuddy});updateDayPill();const lv1=levelOf(xp());if(lv1>lv0){S.flares=(S.flares||0)+(lv1-lv0);revealQ.push({k:"level",l:lv1});}
-  save();updateHud();nextReveal();
-}
-function mount3D(root){(root||document).querySelectorAll("canvas[data-sp]").forEach(cv=>{if(cv.dataset.on)return;const s=SPX[cv.dataset.sp];if(!s)return;cv.dataset.on="1";
-  if(cv.classList.contains("sh3d")){const c=HABBG[cv.dataset.hab||s.h[0]]||HABBG.u;cv.style.background="linear-gradient(180deg,"+(cv.dataset.hab==="n"?"#0A1430":"#FFFFFF")+" 0%,"+c[0]+" 55%,"+c[1]+" 56%,"+c[2]+" 100%)";}
-  A3.viewer(cv,s,{sil:cv.dataset.sil==="1",pad:cv.classList.contains("sh3d")?.34:.4,cy:cv.classList.contains("sh3d")?.58:.55,bob:!cv.dataset.sil,shadowCol:"rgba(0,0,0,.18)"});});}
-function confetti(root,colors){const c=document.createElement("div");c.className="confetti";for(let i=0;i<60;i++){const e=document.createElement("i");e.style.left=(Math.random()*100)+"%";e.style.background=colors[i%colors.length];e.style.animationDuration=(1.6+Math.random()*1.6)+"s";e.style.animationDelay=(Math.random()*.5)+"s";e.style.transform="rotate("+(Math.random()*360)+"deg)";c.appendChild(e);}root.appendChild(c);setTimeout(()=>c.remove(),3800);}
-function fillThumbs(root){const list=[...root.querySelectorAll("img[data-thumb]")];let i=0;const step=()=>{const t0=performance.now();while(i<list.length&&performance.now()-t0<12){const im=list[i++];if(!im.isConnected)continue;const s=SPX[im.dataset.thumb];if(s)im.src=A3.thumb(s,160,im.dataset.sil==="1");}if(i<list.length)setTimeout(step,0);};step();}
+function openAdd(){openSheet('<div class="shk">Añadir un sitio útil aquí</div><div class="sht">¿Qué has encontrado?</div><p class="shp">Se añade justo donde estás. Ganas 25 XP y apareces como su descubridor.</p><div class="addgrid">'+CAT_ORDER.map(c=>'<button type="button" data-addc="'+c+'"><span style="background:'+CATS[c].col+'">'+CATS[c].e+'</span>'+esc(CATS[c].n)+'</button>').join("")+'</div>');}
+function addPOI(c){const h=here();if(!S.added)S.added={};const id="u"+Date.now().toString(36);S.added[id]={id:id,c:c,ll:[+h[0].toFixed(6),+h[1].toFixed(6)],n:"",tg:{},mine:1,ts:Date.now()};S.visits[id]={ts:Date.now(),x:5,c:c};save();closeSheet();renderPOIs();updateHud();SFX.chime();toast(CATS[c].e+" Añadido · +25 XP");setTimeout(()=>openPOI(id),300);}
+function reportPOI(id){S.reports[id]=(S.reports[id]||0)+1;save();closeSheet();toast("Gracias por avisar. Lo revisaremos con más avisos de la gente");}
+function renderFilters(){const el=$("#filters");if(!el)return;el.innerHTML='<button type="button" data-f="" aria-pressed="'+(!filt)+'">Todo</button>'+CAT_ORDER.map(c=>'<button type="button" data-f="'+c+'" aria-pressed="'+(filt===c)+'"><span>'+CATS[c].e+'</span>'+esc(CATS[c].pl)+'</button>').join("");}
+/* Nombre del barrio (Nominatim, una vez por zona) */
+let znWait={};
+function zoneName(ll){const k=zoneKey(ll);if(!S.zname)S.zname={};if(S.zname[k])return S.zname[k];if(!znWait[k]){znWait[k]=1;fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=es&lat="+ll[0].toFixed(5)+"&lon="+ll[1].toFixed(5))
+  .then(r=>r.json()).then(d=>{const a=d&&d.address||{},n=a.neighbourhood||a.quarter||a.suburb||a.city_district||a.village||a.town||a.city;if(n){S.zname[k]=n;save();updateHud();}}).catch(()=>{});}return "";}
+/* Perfil */
+const AVATARS=["🧭","🦊","🐼","🐸","🦁","🐯","🐨","🐵","🦄","🐙","🤖","👽","😎","🥷","🧙","🏃"],AVCOL=["#FFD60A","#FF9F0A","#FF375F","#BF5AF2","#0A84FF","#30D158","#64D2FF","#F2F2F7"];
+function prof(){if(!S.prof)S.prof={name:S.user||"tu_usuario",av:"🧭",bg:"#FFD60A",photo:null};return S.prof;}
+function avatarHTML(size){const p=prof();return '<span class="av" style="width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*.52)+'px;background:'+(p.photo?"#000":p.bg)+'">'+(p.photo?'<img src="'+p.photo+'" alt="">':p.av)+'</span>';}
+function myTitle(){const cnt={};Object.values(S.rates).forEach(r=>{cnt[r.cat]=(cnt[r.cat]||0)+1;});Object.values(S.visits).forEach(v=>{cnt[v.c]=(cnt[v.c]||0)+.3;});const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];return top&&cnt[top]>=1?TITLES[top]:"Explorador novato";}
+function meHTML(){return '<div class="me"><span style="background:'+hexA(prof().bg,.35)+'"></span><i>'+avatarHTML(42)+'</i></div>';}
+function hexA(h,a){const n=parseInt(h.slice(1),16);return "rgba("+(n>>16&255)+","+(n>>8&255)+","+(n&255)+","+a+")";}
+function setMe(){if(meMk)meMk.setIcon(L.divIcon({html:meHTML(),iconSize:[44,44],iconAnchor:[22,22]}));}
+function openEditProfile(){const p=prof();
+  openSheet('<div class="shk">Tu perfil</div><div class="sht">Personalízalo</div><div class="edav">'+avatarHTML(96)+'</div>'+
+    '<div class="btnrow"><label class="btn grey" for="avIn">📷 Poner foto</label>'+(p.photo?'<button type="button" class="btn grey" data-nophoto="1">Quitar foto</button>':'<span></span>')+'</div>'+
+    '<p class="rf-t">O elige un avatar</p><div class="avgrid">'+AVATARS.map(a=>'<button type="button" data-av="'+a+'" aria-pressed="'+(!p.photo&&p.av===a)+'">'+a+'</button>').join("")+'</div>'+
+    '<p class="rf-t">Color</p><div class="colgrid">'+AVCOL.map(c=>'<button type="button" data-col="'+c+'" aria-pressed="'+(p.bg===c)+'" style="background:'+c+'" aria-label="Color '+c+'"></button>').join("")+'</div>'+
+    '<p class="rf-t">Nombre de usuario</p><div class="nmrow"><span>@</span><input id="nmIn" maxlength="20" autocomplete="off" autocapitalize="none" spellcheck="false" value="'+esc(p.name)+'"></div>'+
+    '<button type="button" class="btn full" data-saveprof="1">Guardar</button>');}
+function readAvatar(file){const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=256;c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,256,256);prof().photo=c.toDataURL("image/jpeg",.82);if(!saveNow()){prof().photo=null;toast("No cabe la foto en este móvil");return;}setMe();openEditProfile();if(current==="perfil")renderPerfil();};img.onerror=()=>toast("No se ha podido leer la imagen");img.src=fr.result;};fr.readAsDataURL(file);}
+
+function confetti(root,colors){const c=document.createElement("div");c.className="confetti";for(let i=0;i<60;i++){const e=document.createElement("i");e.style.left=(Math.random()*100)+"%";e.style.background=colors[i%colors.length];e.style.animationDuration=(1.6+Math.random()*1.6)+"s";e.style.animationDelay=(Math.random()*.5)+"s";c.appendChild(e);}root.appendChild(c);setTimeout(()=>c.remove(),3800);}
 function updateZoneRect(ll){if(!map)return;const b=zoneBounds(ll);if(!zoneRect)zoneRect=L.rectangle(b,{pane:"zone",color:"#FFD60A",weight:2,dashArray:"6 8",fill:false,interactive:false,className:"zonebox"}).addTo(map);else zoneRect.setBounds(b);}
 function buzz(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 function friendIcon(f,pop){return L.divIcon({className:pop?"pop":"",html:'<div class="fr" style="--fc:'+f.c+'"><span class="bub">'+f.e+'</span><span class="tag2">'+(S.bumps[f.u]?"👊 ":"")+f.pct+' %</span></div>',iconSize:[54,62],iconAnchor:[27,22]});}
@@ -1593,7 +1666,7 @@ function drawFog(){
   if(!map||!fogCanvas)return;
   const size=map.getSize(),dpr=Math.min(window.devicePixelRatio||1,2);
   if(fogCanvas.width!==Math.round(size.x*dpr)||fogCanvas.height!==Math.round(size.y*dpr)){fogCanvas.width=Math.round(size.x*dpr);fogCanvas.height=Math.round(size.y*dpr);fogCanvas.style.width=size.x+"px";fogCanvas.style.height=size.y+"px";cloudPat=null;}
-  L.DomUtil.setPosition(fogCanvas,map.containerPointToLayerPoint([0,0]));
+  L.DomUtil.setPosition(fogCanvas,map.containerPointToLayerPoint([0,0]));fogBounds=map.getBounds();
   const g=fogCtx;g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.clearRect(0,0,size.x,size.y);
   if(!cloudPat)cloudPat=g.createPattern(clouds,"repeat");
   const an=map.latLngToContainerPoint([0,0]);
@@ -1635,14 +1708,12 @@ function relicCard(x){
 function rarityLine(r){return r==="l"?"Solo el 3 % de las zonas esconde una reliquia legendaria":r==="r"?"Solo el 13 % de las zonas esconde una reliquia rara":"Aparece en una de cada tres zonas";}
 
 /* ---------- Compartir ---------- */
-function shareCardCanvas(title,big,rar,color,spk){
+function shareCardCanvas(title,big,rar,color){
   const Wd=1080,H=1350,c=document.createElement("canvas");c.width=Wd;c.height=H;const g=c.getContext("2d");
   g.fillStyle="#0E0E0E";g.fillRect(0,0,Wd,H);
   g.globalAlpha=.9;g.drawImage(clouds,0,0,Wd,520);g.globalAlpha=1;
   const gr=g.createLinearGradient(0,300,0,560);gr.addColorStop(0,"rgba(14,14,14,0)");gr.addColorStop(1,"#0E0E0E");g.fillStyle=gr;g.fillRect(0,300,Wd,260);
-  if(spk&&SPX[spk]){const m=A3.build(SPX[spk]);g.save();const rg=g.createRadialGradient(Wd/2,600,40,Wd/2,600,420);rg.addColorStop(0,color==="#FFFFFF"?"rgba(255,255,255,.25)":color+"55");rg.addColorStop(1,"rgba(14,14,14,0)");g.fillStyle=rg;g.fillRect(0,180,Wd,840);
-    A3.render(g,m,{scale:A3.fit(m,700,700,.55),cx:Wd/2,cy:610,yaw:.62,pitch:.28,lw:1.2,shadowCol:"rgba(0,0,0,.35)"});g.restore();}
-  else{g.save();g.translate(Wd/2,600);g.fillStyle=color;g.shadowColor=color;g.shadowBlur=60;const s=9;g.scale(s,s);g.translate(-12,-12);
+  {g.save();g.translate(Wd/2,600);g.fillStyle=color;g.shadowColor=color;g.shadowBlur=60;const s=9;g.scale(s,s);g.translate(-12,-12);
   try{g.fill(new Path2D("M7 3h10l5 6-10 12L2 9z"));}catch(e){}g.restore();}
   const F='"Barlow Condensed","Arial Narrow",sans-serif';
   g.textAlign="center";g.fillStyle="#FFFFFF";g.font="700 44px -apple-system,Helvetica,Arial,sans-serif";g.fillText(title.toUpperCase(),Wd/2,860);
@@ -1652,8 +1723,8 @@ function shareCardCanvas(title,big,rar,color,spk){
   g.fillStyle="#FFD60A";g.font="italic 800 84px "+F;g.fillText("EXPLORADOR.",Wd/2,H-110);
   return c;
 }
-function openShare(title,big,rar,color,spk){
-  const c=shareCardCanvas(title,big,rar,color,spk);shareBlob=null;try{c.toBlob(b=>{shareBlob=b;},"image/png");}catch(e){}
+function openShare(title,big,rar,color){
+  const c=shareCardCanvas(title,big,rar,color);shareBlob=null;try{c.toBlob(b=>{shareBlob=b;},"image/png");}catch(e){}
   shareText=title+": "+big+" en Explorador. "+rar+". ¿Te atreves a encontrar una?";
   openSheet('<div class="shk">Presume de tu hallazgo</div><div class="sht">Compártelo</div><img class="shareimg" src="'+c.toDataURL("image/png")+'" alt="Tarjeta para compartir: '+esc(big)+'"><div class="btnrow"><button class="btn" type="button" id="shareGo">'+ICON.share+'Compartir</button><button class="btn grey" type="button" id="shareCopy">Copiar texto</button></div><p class="srcnote" style="text-align:center">Si no se abre el menú de compartir, mantén pulsada la imagen para guardarla.</p>');
 }
@@ -1666,21 +1737,16 @@ function nextReveal(){
     h='<p class="rv-k">'+esc(RAR[p.r][0])+' · '+esc(TYPES[p.t][0])+'</p><p class="rv-t">'+(p.r==="l"?"Legendario<br>desbloqueado":"Lugar<br>desbloqueado")+'</p><div class="rv-card">'+cardHTML(p)+'</div><span class="rv-xp num">+'+RAR[p.r][1]+' XP</span>'+
       (p.t==="mirador"?'<p class="rv-sub"><b style="color:#FFD60A">Mirador:</b> desde aquí lo ves todo. Se han despejado '+MIRADOR_R+' m a la redonda.</p>':'<p class="rv-sub">Nuevo cromo para tu colección.</p>')+
       '<div class="rv-btns">'+(p.r!=="c"?'<button type="button" class="btn" data-share-place="'+p.id+'">'+ICON.share+'Presumir</button><button type="button" class="btn glassb" data-rv="next">Seguir</button>':'<button type="button" class="btn" data-rv="next">Seguir</button>')+'</div>';}
-  else if(it.k==="animal"){const s=SPX[it.sp];if(!s){nextReveal();return;}cls="relic";
-    h='<p class="rv-k">'+(it.first?"Especie nueva · ":"")+esc(RARN[s.rar])+'</p><p class="rv-t">'+(s.rar==="l"?"¡Legendario!":"¡Foto!")+'</p><canvas class="rv-3d" data-sp="'+it.sp+'" aria-label="Modelo 3D de '+esc(s.n)+'"></canvas><p style="font-size:1.3rem;font-weight:800;margin:14px 0 0;letter-spacing:-.01em">'+esc(s.n)+'</p><span class="sci">'+esc(s.sci)+'</span><span class="rv-xp num">+'+(it.first?ANIXP[s.rar]:5)+' XP</span>'+
-      (it.daily?'<p class="rv-sub" style="color:#FFD60A;font-weight:700">★ Especie del día: +'+ANIXP[s.rar]*2+' XP extra</p>':'')+(it.buddy?'<p class="rv-sub"><b style="color:#fff">Es tu primer compañero:</b> ahora camina contigo por el mapa.</p>':'')+
-      '<p class="rv-sub">'+(it.first?'Nueva en tu guía de campo · '+Object.keys(S.animals).length+' de '+SPK.length+' especies':'Ya la tenías: llevas '+S.animals[it.sp].n+' fotos')+'</p>'+
-      '<div class="rv-btns">'+(s.rar!=="c"?'<button type="button" class="btn" data-share-animal="'+it.sp+'">'+ICON.share+'Presumir</button><button type="button" class="btn glassb" data-rv="next">Seguir</button>':'<button type="button" class="btn" data-rv="next">Seguir</button>')+'</div>';}
   else if(it.k==="treas"){const t=findTreasure(it.id);if(!t){nextReveal();return;}
     h='<p class="rv-k">'+esc(t.sp)+'</p><p class="rv-t">Recompensa<br>desbloqueada</p><div class="rv-big">'+ICON.gift+'</div><p style="font-size:1.15rem;font-weight:700;margin:14px 0 0">'+esc(t.pr)+'</p><p class="rv-sub">Enseña este código en el local</p><span class="rv-code">'+esc(S.treas[t.id].code)+'</span><div class="rv-btns"><button type="button" class="btn" data-rv="next">Seguir</button></div>';}
   else{h='<p class="rv-k">Subes de nivel</p><p class="rv-t">Nivel '+it.l+'</p><div class="rv-big"><b class="num">'+it.l+'</b></div><p class="rv-sub">Ganas una <b style="color:#FFD60A">bengala</b>: úsala para despejar 200 m de golpe.</p><div class="rv-btns"><button type="button" class="btn" data-rv="next">Seguir</button></div>';}
-  const rv=$("#reveal");rv.hidden=true;rv.className="reveal "+cls;if(it.k==="relic"){const x=S.relics[it.id]||relicById(it.id);rv.style.setProperty("--rc",RELRAR[x.r][2]);}if(it.k==="animal")rv.style.setProperty("--rc",SPX[it.sp].rar==="c"?"#FFFFFF":ANICOL[SPX[it.sp].rar]);
-  void rv.offsetWidth;$("#rvIn").innerHTML=h;rv.hidden=false;try{const rr=it.k==="animal"?SPX[it.sp].rar:it.k==="relic"?((S.relics[it.id]||{}).r):it.k==="place"?((findPlace(it.id)||{}).r):"";if(it.k==="level")SFX.level();else if(rr==="l")SFX.legend();else SFX.chime();}catch(e){}hydrate(rv);mount3D(rv);if(it.k==="animal"&&SPX[it.sp].rar!=="c")confetti(rv,SPX[it.sp].rar==="l"?["#FFD60A","#FFFFFF","#FF9F0A"]:["#5AC8FA","#FFFFFF","#0A84FF"]);if(it.k==="relic"&&(S.relics[it.id]||{}).r==="l")confetti(rv,["#FFD60A","#FFFFFF"]);buzz(it.k==="relic"?[40,60,40,60,160]:[50,40,90]);
+  const rv=$("#reveal");rv.hidden=true;rv.className="reveal "+cls;if(it.k==="relic"){const x=S.relics[it.id]||relicById(it.id);rv.style.setProperty("--rc",RELRAR[x.r][2]);}
+  void rv.offsetWidth;$("#rvIn").innerHTML=h;rv.hidden=false;try{const rr=it.k==="relic"?((S.relics[it.id]||{}).r):it.k==="place"?((findPlace(it.id)||{}).r):"";if(it.k==="level")SFX.level();else if(rr==="l")SFX.legend();else SFX.chime();}catch(e){}hydrate(rv);if(it.k==="relic"&&(S.relics[it.id]||{}).r==="l")confetti(rv,["#FFD60A","#FFFFFF"]);buzz(it.k==="relic"?[40,60,40,60,160]:[50,40,90]);
 }
 function closeReveal(){$("#reveal").hidden=true;}
 
 /* ---------- Hoja ---------- */
-function openSheet(html){$("#sheetBody").innerHTML=html;hydrate($("#sheetBody"));setTimeout(()=>mount3D($("#sheetBody")),30);const s=$("#sheet");s.classList.add("open");s.setAttribute("aria-hidden","false");}
+function openSheet(html){$("#sheetBody").innerHTML=html;hydrate($("#sheetBody"));const s=$("#sheet");s.classList.add("open");s.setAttribute("aria-hidden","false");}
 function closeSheet(){const s=$("#sheet");s.classList.remove("open");s.setAttribute("aria-hidden","true");}
 function distText(ll){const d=distM(W().pos||START,ll);return d<1000?fmt(d)+" m":fmt(d/1000,1)+" km";}
 function openPlace(id){
@@ -1706,7 +1772,7 @@ function openTreasure(id){
 /* ---------- GPS ---------- */
 let lastFix=null,wakeLock=null,weakWarned=false;
 async function keepAwake(){try{if("wakeLock" in navigator&&gpsWatch!=null&&document.visibilityState==="visible")wakeLock=await navigator.wakeLock.request("screen");}catch(e){}}
-function setHint(){$("#hint").innerHTML=gpsWatch!=null?'<span class="live">En directo</span> · Camina para despejar las nubes.':'Modo demo: toca el mapa para <b>ir hasta allí</b>. Activa <b>GPS</b> para explorar caminando.';}
+let hintT=0;function setHint(){const hh=$("#hint");hh.hidden=false;clearTimeout(hintT);hintT=setTimeout(()=>{hh.hidden=true;},9000);hh.innerHTML=gpsWatch!=null?'<span class="live">En directo</span> · Camina para despejar las nubes y descubrir sitios.':'Modo demo: toca el mapa para <b>ir hasta allí</b>. Activa <b>GPS</b> para usar tu ubicación real.';}
 function stopGps(){if(gpsWatch!=null&&navigator.geolocation)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;lastFix=null;$("#gpsBtn").setAttribute("aria-pressed","false");try{if(wakeLock)wakeLock.release();}catch(e){}wakeLock=null;setHint();}
 function onFix(p){
   const ll=[p.coords.latitude,p.coords.longitude],acc=p.coords.accuracy||0,now=Date.now();
@@ -1731,119 +1797,92 @@ function updateHud(){
   $("#area").textContent=fmt(areaKm2(),2);$("#zpct").textContent=fmt(zonePct())+" %";$("#km").textContent=fmt(W().km,2);
   $("#lvlTxt").textContent="Nivel "+li.level;$("#xpFill").style.width=li.pct.toFixed(1)+"%";
   const nc=Object.keys(S.found).length;$("#relTxt").textContent=nr+(nr===1?" reliquia":" reliquias")+" · "+nc+(nc===1?" cromo":" cromos");
-  {const rg=regionOf(W().pos||START);$("#regTxt").textContent=REGN[rg]||"Mar abierto";const ev=ENVS.find(x=>x[0]===(S.env||"ciudad"));$("#envBtn").textContent=(ev?ev[1]:"Ciudad")+" ▾";}$("#flareN").textContent=S.flares||0;$("#flareBtn").disabled=!(S.flares>0);
+  {const zn=zoneName(here());$("#regTxt").textContent=zn?"Estás en":"Mundo abierto";$("#zoneTxt").textContent=zn;}$("#flareN").textContent=S.flares||0;$("#flareBtn").disabled=!(S.flares>0);
 }
 function stats(){
   const ids=Object.keys(S.found),rel=Object.values(S.relics),li=lvlInfo();
-  return {species:Object.keys(S.animals||{}).length,halcon:S.animals&&S.animals.halcon?1:0,km:W().km,area:areaKm2(),pts:W().pts.length>1?1:0,places:ids.length,legend:ids.filter(id=>{const p=findPlace(id);return p&&p.r==="l";}).length,
+  const rv=Object.values(S.rates||{}),vv=Object.values(S.visits||{});
+  return {rated:rv.length,ratedToilets:rv.filter(r=>r.cat==="toilets").length,aed:vv.filter(v=>v.c==="aed").length,water:vv.filter(v=>v.c==="water").length,added:Object.keys(S.added||{}).length,visits:vv.length,km:W().km,area:areaKm2(),pts:W().pts.length>1?1:0,places:ids.length,legend:ids.filter(id=>{const p=findPlace(id);return p&&p.r==="l";}).length,
     treas:Object.keys(S.treas).length,relics:rel.length,relLeg:rel.filter(x=>x.r==="l").length,night:S.night||0,bumps:Object.keys(S.bumps||{}).length,zone:zonePct(),zbest:bestZone(),hawk:S.hawk||0,bestday:Math.max(0,...Object.values(S.daily||{})),score:li.xp,level:li.level};
 }
 
 /* ---------- Colección ---------- */
 function renderAlbum(){
-  const got=Object.keys(S.found).length,rel=Object.keys(S.relics).map(id=>Object.assign({id:id},S.relics[id])).sort((a,b)=>b.ts-a.ts),nsp=Object.keys(S.animals).length,tot=Object.keys(SPECIES).length;
-  let h='<h1 class="large">Colección</h1><div class="sub">Lugares, animales y reliquias de cualquier parte del mundo</div>'+
-    '<div class="seg" role="group" aria-label="Ver"><button type="button" data-alb="lugares" aria-pressed="'+(albMode==="lugares")+'">Lugares</button><button type="button" data-alb="animales" aria-pressed="'+(albMode==="animales")+'">Animales</button><button type="button" data-alb="reliquias" aria-pressed="'+(albMode==="reliquias")+'">Reliquias</button></div>';
+  const got=Object.keys(S.found).length,rel=Object.keys(S.relics).map(id=>Object.assign({id:id},S.relics[id])).sort((a,b)=>b.ts-a.ts);
+  let h='<h1 class="large">Guía</h1><div class="sub">Tus sitios útiles, lugares y reliquias</div>'+
+    '<div class="seg" role="group" aria-label="Ver"><button type="button" data-alb="lugares" aria-pressed="'+(albMode==="lugares")+'">Lugares</button><button type="button" data-alb="sitios" aria-pressed="'+(albMode==="sitios")+'">Sitios</button><button type="button" data-alb="reliquias" aria-pressed="'+(albMode==="reliquias")+'">Reliquias</button></div>';
   if(albMode==="lugares"){
     [["l","Legendarios"],["r","Raros"],["c","Comunes"]].forEach(gr=>{const list=PLACES.filter(p=>p.r===gr[0]).sort((a,b)=>(S.found[b.id]?1:0)-(S.found[a.id]?1:0)),nf=list.filter(p=>S.found[p.id]).length;
       h+='<div class="sec"><span>'+gr[1]+'</span><span>'+nf+' de '+list.length+'</span></div><div class="cards">'+list.map(p=>'<button type="button" class="cardbtn" data-place="'+p.id+'" aria-label="'+(S.found[p.id]?esc(p.n):"Cromo por desbloquear")+'">'+cardHTML(p)+'</button>').join("")+'</div>';});
     h+='<p class="hintp">Las fotos son de Wikimedia Commons. Si un sitio no tiene, la app real usará la de Google Maps. Lugares de ejemplo: en la app real saldrán de OpenStreetMap en todo el mundo.</p>';
-  }else if(albMode==="animales"){
-    h+=renderAnimalsHTML();
+  }else if(albMode==="sitios"){
+    h+=renderSitiosHTML();
   }else{
     const cnt=r=>rel.filter(x=>x.r===r).length;
     h+='<div class="sec"><span>Tus reliquias</span></div><div class="group relsum"><div><b class="num">'+cnt("c")+'</b><small>Comunes</small></div><div><b class="num" style="color:#0A84FF">'+cnt("r")+'</b><small>Raras</small></div><div><b class="num" style="color:#C9A400">'+cnt("l")+'</b><small>Legendarias</small></div></div>';
     h+=rel.length?'<div class="sec"><span>Encontradas</span></div><div class="cards">'+rel.map(x=>'<button type="button" class="cardbtn" data-relic="'+esc(x.id)+'" aria-label="'+esc(x.n)+'">'+relicCard(x)+'</button>').join("")+'</div>'
       :'<div class="sec"><span>Cómo encontrarlas</span></div><div class="group"><p class="empty">Las reliquias no salen en el mapa. Cuando una esté a menos de '+RADAR_M+' m, el <b>radar</b> te dirá si estás frío o caliente. Tienes que llegar a menos de '+RELIC_FIND+' m para encontrarla. Hay en cualquier parte del mundo.</p></div>';
   }
-  $("#album").innerHTML=h;hydrate($("#album"));fillThumbs($("#album"));
+  $("#album").innerHTML=h;hydrate($("#album"));
 }
-function renderAnimalsHTML(){
-  const here=regionOf(W().pos||START);if(!albReg)albReg=here==="*"?"ib":here;
-  const tot=SPK.length,got=Object.keys(S.animals).filter(k=>SPX[k]).length,regs=Object.keys(REGN).filter(r=>r!=="*").sort((a,b)=>(b===here)-(a===here));
-  const inReg=r=>SPK.filter(k=>livesIn(SPX[k],r)||SPX[k].spots.some(sp=>regionOf(SPOTS[sp].ll)===r));
-  const RO={l:0,r:1,c:2},list=inReg(albReg).sort((a,b)=>(S.animals[b]?1:0)-(S.animals[a]?1:0)||RO[SPX[a].rar]-RO[SPX[b].rar]||SPX[a].n.localeCompare(SPX[b].n,"es"));
-  return '<div class="dex"><div class="ring" style="--p:'+(got/tot*100).toFixed(1)+'"><div><span><b>'+got+'</b><small>de '+tot+'</small></span></div></div><div style="min-width:0"><h2>Guía de campo</h2><p>Fauna real de todo el mundo. Cada especie solo aparece donde vive de verdad.</p><span class="herechip">📍 Estás en '+esc(REGN[here]||"mar abierto")+'</span></div></div>'+
-    '<div class="rchips" role="group" aria-label="Regiones">'+regs.map(r=>{const l=inReg(r);return '<button type="button" data-reg="'+r+'" aria-pressed="'+(r===albReg)+'">'+esc(REGN[r])+'<em>'+l.filter(k=>S.animals[k]).length+'/'+l.length+'</em></button>';}).join("")+'</div>'+
-    '<div class="sec"><span>'+esc(REGN[albReg])+'</span><span>'+list.filter(k=>S.animals[k]).length+' de '+list.length+'</span></div>'+
-    '<div class="agrid">'+list.map(k=>{const s=SPX[k],g=S.animals[k];return '<button type="button" class="acard r-'+s.rar+(g?"":" locked")+'" data-animal="'+k+'" aria-label="'+(g?esc(s.n):"Especie por descubrir")+'"><img data-thumb="'+k+'"'+(g?'':' data-sil="1"')+' alt="">'+(s.rar!=="c"?'<span class="rq tag '+(s.rar==="l"?"epic":"")+'">'+(s.rar==="l"?"Legendaria":"Rara")+'</span>':'')+(g&&g.n>1?'<span class="cnt">×'+g.n+'</span>':'')+'<b>'+(g?esc(s.n):"???")+'</b><small>'+esc(HABN[s.h[0]])+'</small></button>';}).join("")+'</div>'+
-    '<p class="hintp">En el prototipo el entorno (ciudad, bosque, costa…) se elige arriba en el mapa. En la app real se detecta solo con OpenStreetMap: parques, agua, costa, montaña o desierto.</p>';
+function renderSitiosHTML(){
+  const st=stats(),h0=here(),P=allPois(),cnt={};Object.values(S.visits).forEach(v=>{cnt[v.c]=(cnt[v.c]||0)+1;});
+  const best=Object.values(P).filter(p=>p.c==="toilets").map(p=>({p:p,r:rateOf(p),d:distM(h0,p.ll)})).filter(o=>o.d<2500&&o.r.n).sort((a,b)=>b.r.avg-a.r.avg||a.d-b.d).slice(0,5);
+  const mine=Object.keys(S.rates).map(id=>({id:id,r:S.rates[id],p:P[id]})).sort((a,b)=>b.r.ts-a.r.ts).slice(0,8);
+  return '<div class="dex"><div class="ring" style="--p:'+Math.min(100,st.rated*10)+'"><div><span><b>'+st.rated+'</b><small>valorados</small></span></div></div><div style="min-width:0"><h2>'+esc(myTitle())+'</h2><p>'+st.visits+' sitios descubiertos · '+st.added+' añadidos por ti</p><span class="herechip">⭐ Valorar da 10 XP · descubrir 5 XP</span></div></div>'+
+    '<div class="sec"><span>Descubiertos por tipo</span></div><div class="catgrid">'+CAT_ORDER.map(c=>'<div class="catcard"><span style="background:'+CATS[c].col+'">'+CATS[c].e+'</span><b class="num">'+(cnt[c]||0)+'</b><small>'+esc(CATS[c].pl)+'</small></div>').join("")+'</div>'+
+    '<div class="sec"><span>Mejores baños cerca</span></div><div class="group toplist">'+(best.length?best.map((o,i)=>'<div class="row" data-poi="'+esc(o.p.id)+'" style="cursor:pointer"><span class="pos num">'+(i+1)+'</span><div class="nm"><b>'+esc(o.p.n||"Baño público")+'</b><small>'+starsHTML(o.r.avg)+' '+fmt(o.r.avg,1)+' · a '+(o.d<1000?fmt(o.d)+" m":fmt(o.d/1000,1)+" km")+'</small></div></div>').join(""):'<p class="empty">Muévete por el mapa para cargar los baños de tu zona.</p>')+'</div>'+
+    '<div class="sec"><span>Tus valoraciones</span></div><div class="group toplist">'+(mine.length?mine.map(o=>'<div class="row" data-poi="'+esc(o.id)+'" style="cursor:pointer"><span class="pos">'+(o.p?CATS[o.p.c].e:"📍")+'</span><div class="nm"><b>'+esc(o.p?(o.p.n||CATS[o.p.c].n):"Sitio")+'</b><small>'+starsHTML(o.r.s)+(o.r.c?' · “'+esc(o.r.c)+'”':'')+'</small></div></div>').join(""):'<p class="empty">Acércate a menos de 10 m de un baño, una fuente o un banco para valorarlo.</p>')+'</div>'+
+    '<p class="hintp">Los sitios salen de OpenStreetMap, el mapa libre que hace la gente. Las valoraciones de otros son de ejemplo hasta que la app tenga usuarios reales.</p>';
 }
-function openAnimal(k){const s=SPX[k],got=S.animals[k];if(!s)return;
-  const regs=s.reg.includes("*")?"Casi todo el mundo":s.reg.map(r=>REGN[r]).concat(s.spots.map(sp=>SPOTS[sp].n)).join(", ");
-  openSheet('<div class="shk">'+rb(s.rar==="l"?3:s.rar==="r"?2:1)+'Especie '+RARN[s.rar]+(got?' · ×'+got.n:'')+'</div><div class="sht">'+(got?esc(s.n):"Especie por descubrir")+'</div>'+
-    '<canvas class="sh3d" data-sp="'+k+'" data-hab="'+s.h[0]+'"'+(got?'':' data-sil="1"')+' aria-label="Modelo 3D"></canvas><p class="srcnote" style="text-align:center;margin-top:6px">Arrastra para girarlo</p>'+
-    '<div class="facts">'+(got?'<div><span>Nombre científico</span><b><i>'+esc(s.sci)+'</i></b></div>':'')+'<div><span>Dónde vive</span><b>'+esc(regs)+'</b></div><div><span>Dónde buscarlo</span><b>'+esc([...s.h].map(x=>HABN[x]).join(", "))+'</b></div><div><span>Rareza</span><b>'+esc(RARN[s.rar][0].toUpperCase()+RARN[s.rar].slice(1))+' · '+ANIXP[s.rar]+' XP</b></div>'+(got?'<div><span>Primera foto</span><b>'+new Date(got.first).toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"})+'</b></div>':'')+'</div>'+
-    (got&&s.rar!=="c"?'<button type="button" class="btn dark full" data-share-animal="'+k+'">'+ICON.share+'Presumir</button>':''));
-}
-function openEnv(){
-  const reg=regionOf(W().pos||START),env=S.env||"ciudad";
-  openSheet('<div class="shk">Entorno · '+esc(REGN[reg]||"Mar abierto")+'</div><div class="sht">¿Dónde estás?</div><p class="shp">Cada entorno tiene su fauna. En la app real se detecta solo con el mapa; aquí puedes probarlo.</p><div class="envlist">'+
-    ENVS.map(e=>{const n=e[0]==="ciudad"?new Set(["u","p","w","n"].flatMap(h=>poolFor(reg,h))).size:poolFor(reg,e[2]).length;return '<button type="button" data-env="'+e[0]+'" aria-pressed="'+(env===e[0])+'"'+(n?'':' disabled')+'>'+e[1]+'<small>'+(n?n+(n===1?" especie":" especies"):"Aquí no hay")+'</small></button>';}).join("")+'</div>');
-}
-
 
 /* ---------- Retos ---------- */
 function quest(n,d,v,need,unit,rew,tag){const ok=v>=need,pc=Math.min(100,v/need*100),dec=unit==="km"||unit==="km²"?2:0,decN=unit==="km"?1:unit==="km²"?2:0;
   return '<div class="q'+(ok?" done":"")+'"><div><b>'+esc(n)+'</b><small>'+esc(d)+'</small></div><span class="v num">'+fmt(Math.min(v,need),dec)+'<em> / '+fmt(need,decN)+(unit?" "+unit:"")+'</em></span><div class="bar"><i style="width:'+pc.toFixed(1)+'%"></i></div><div class="meta">'+(tag?'<span class="tag '+tag[0]+'">'+tag[1]+'</span>':'')+(ok?"✓ Completado · ":"")+'+'+rew+' XP</div></div>';}
 function renderRetos(){
-  const s=stats();setTimeout(()=>mount3D($("#retos")),20);
+  const s=stats();
   const zone=lbMode==="cerca",rows=(zone?FRIENDS.map(f=>[f.e+" @"+f.u,f.pct]).concat(LB.slice(3,6).map(r=>["@"+r[0],Math.round(r[1]*1.2)])).concat([["Tú",Math.round(s.zone)]]):LB.map(r=>["@"+r[0],Math.round(r[1]*120)]).concat([["Tú",s.score]])).sort((a,b)=>b[1]-a[1]);
-  const ev=curEvent(),dk=dailySpecies(),dsp=SPX[dk],ddone=S.dayDone===dayKey();
+  const ev=curEvent();
   $("#retos").innerHTML='<h1 class="large">Retos</h1><div class="sub">Valen en cualquier parte del mundo</div>'+
-    '<div class="evt"><div style="position:relative"><span class="k">Evento de la semana</span><h3>'+esc(ev.n)+'</h3><p>'+esc(ev.d)+'</p><span class="tm">'+evEnds()+'</span></div><canvas data-sp="'+ev.sp+'" aria-hidden="true"></canvas></div>'+
-    '<div class="evt2"><img src="'+A3.thumb(dsp,96,!S.animals[dk])+'" alt="" style="width:46px;height:46px;border-radius:12px;background:var(--ios)"><div style="min-width:0;flex:1"><b>Especie del día: '+esc(S.animals[dk]?dsp.n:"???")+'</b><small>'+(ddone?"¡Conseguida hoy! Vuelve mañana":"Fotografíala hoy y gana el triple de XP · "+esc(HABN[dsp.h[0]]))+'</small></div>'+(ddone?'<span class="tag epic">Hecho</span>':'<span class="tag">×3</span>')+'</div>'+
+    '<div class="evt"><div style="position:relative"><span class="k">Evento de la semana</span><h3>'+esc(ev.n)+'</h3><p>'+esc(ev.d)+'</p><span class="tm">'+evEnds()+'</span></div><span style="font-size:4.2rem;text-align:center;line-height:1;position:relative">'+ev.e+'</span></div>'+
     '<div class="sec"><span>Esta semana</span></div><div class="group">'+
-      quest("Primeros 500 m","Camina 500 m",s.km,0.5,"km",20)+quest("Curioso","Desbloquea 3 lugares",s.places,3,"",40)+quest("Cazador","Encuentra 2 reliquias ocultas",s.relics,2,"",50)+quest("Ojo avizor","Fotografía 3 especies distintas",s.species,3,"",50)+quest("Quedada","Choca el móvil con un amigo en persona",s.bumps,1,"",40)+quest("Tu zona","Descubre el 25 % de la zona en la que estás",s.zone,25,"%",60)+quest("Sin nubes","Despeja 0,25 km² de mapa",s.area,0.25,"km²",50)+'</div>'+
+      quest("Primeros 500 m","Camina 500 m",s.km,0.5,"km",20)+quest("Curioso","Desbloquea 3 lugares",s.places,3,"",40)+quest("Cazador","Encuentra 2 reliquias ocultas",s.relics,2,"",50)+quest("Inspector","Valora 3 baños públicos",s.ratedToilets,3,"",40)+quest("Hidratado","Descubre 2 fuentes de agua",s.water,2,"",30)+quest("Quedada","Choca el móvil con un amigo en persona",s.bumps,1,"",40)+quest("Tu zona","Descubre el 25 % de la zona en la que estás",s.zone,25,"%",60)+quest("Sin nubes","Despeja 0,25 km² de mapa",s.area,0.25,"km²",50)+'</div>'+
     '<div class="sec"><span>Para presumir</span></div><div class="group">'+
       quest("Noctámbulo","Encuentra algo entre las 0:00 y las 5:00",s.night,1,"",150,["hard","Difícil"])+
       quest("Ojo de halcón","Encuentra una reliquia menos de 3 min después de que salte el radar",s.hawk,1,"",150,["hard","Difícil"])+
       quest("10 km en un día","Camina 10 km en un mismo día",s.bestday,10,"km",200,["hard","Difícil"])+
-      quest("Leyenda","Encuentra 3 reliquias legendarias",s.relLeg,3,"",500,["epic","Épico"])+quest("Halcón peregrino","Fotografía el animal más rápido del mundo. Anida en campanarios y rascacielos",s.halcon,1,"",500,["epic","Épico"])+
+      quest("Leyenda","Encuentra 3 reliquias legendarias",s.relLeg,3,"",500,["epic","Épico"])+quest("Salvavidas","Encuentra 3 desfibriladores. Saber dónde están puede salvar una vida",s.aed,3,"",300,["hard","Difícil"])+quest("Pionero","Añade 5 sitios útiles que no estaban en el mapa",s.added,5,"",500,["epic","Épico"])+
       quest("Cartógrafo","Despeja 1 km² de mapa",s.area,1,"km²",400,["epic","Épico"])+quest("Zona al 100 %","Descubre una zona entera, calle a calle",s.zbest,100,"%",1000,["epic","Épico"])+'</div>'+
     '<div class="sec"><span>Ranking · de ejemplo</span></div>'+
     '<div class="seg" role="group" aria-label="Ranking" style="margin:0 0 10px"><button type="button" data-lb="cerca" aria-pressed="'+(lbMode==="cerca")+'">% de esta zona</button><button type="button" data-lb="global" aria-pressed="'+(lbMode==="global")+'">Mundo</button></div>'+
     '<div class="group lb">'+rows.slice(0,8).map((r,i)=>'<div class="row'+(r[0]==="Tú"?" me":"")+'"><span class="pos num">'+(i+1)+'</span><span class="n">'+esc(r[0])+'</span><span class="v num">'+fmt(r[1])+'<em>'+(zone?"%":"XP")+'</em></span></div>').join("")+'</div>'+
-    '<p class="hintp">El mundo está dividido en zonas de 1 km. Compite con tus amigos por descubrir el 100 % de la tuya. XP: lugares 10, 25 o 60; reliquias 15, 40 o 120; animales, 15, 40 o 120; choques, 40; cada km, 20.</p>';
+    '<p class="hintp">El mundo está dividido en zonas de 1 km. Compite con tus amigos por descubrir el 100 % de la tuya. XP: lugares 10, 25 o 60; reliquias 15, 40 o 120; descubrir un sitio, 5; valorarlo, 10; añadirlo, 25; choques, 40; cada km, 20.</p>';
 }
 
 /* ---------- Perfil ---------- */
 function renderPerfil(){
   const s=stats(),li=lvlInfo();
   const coupons=Object.keys(S.treas).map(id=>{const t=findTreasure(id);return t?'<div class="row coupon"><div><b>'+esc(t.pr)+'</b><small>'+esc(t.sp)+'</small></div><span class="code">'+esc(S.treas[id].code)+'</span></div>':"";}).join("");
-  const bud=S.buddy&&SPX[S.buddy];
   $("#perfil").innerHTML='<h1 class="large">Perfil</h1>'+
-    '<div class="pcard"><div class="pav">'+(bud?'<span class="ava bud"><img src="'+A3.thumb(bud,128)+'" alt=""></span>':'<span class="ava">'+ICON.compass+'</span>')+'<div style="min-width:0"><h2>@'+esc(S.user)+'</h2><span class="lvlchip">Nivel '+li.level+'</span></div></div><div class="bar"><i style="width:'+li.pct.toFixed(1)+'%"></i></div><small>'+fmt(li.xp)+' XP · faltan '+fmt(li.toNext)+' para el nivel '+(li.level+1)+' · '+(S.flares||0)+((S.flares||0)===1?' bengala':' bengalas')+'</small></div>'+
-    '<div class="sec"><span>Estadísticas</span></div><div class="group kgrid"><div><b class="num">'+fmt(s.km,1)+'</b><small>km caminados</small></div><div><b class="num">'+fmt(s.area,2)+'</b><small>km² despejados</small></div><div><b class="num">'+s.places+'</b><small>lugares</small></div><div><b class="num">'+s.relics+'</b><small>reliquias</small></div><div><b class="num">'+s.species+'</b><small>especies de '+Object.keys(SPECIES).length+'</small></div><div><b class="num">'+s.bumps+'</b><small>choques</small></div></div>'+
+    '<div class="pcard"><div class="pav">'+avatarHTML(62)+'<div style="min-width:0"><h2>@'+esc(prof().name)+'</h2><span class="lvlchip">Nivel '+li.level+'</span><br><span class="ptitle">'+esc(myTitle())+'</span></div><button type="button" class="editbtn" id="editProf">Editar</button></div><div class="bar"><i style="width:'+li.pct.toFixed(1)+'%"></i></div><small>'+fmt(li.xp)+' XP · faltan '+fmt(li.toNext)+' para el nivel '+(li.level+1)+' · '+(S.flares||0)+((S.flares||0)===1?' bengala':' bengalas')+'</small></div>'+
+    '<div class="sec"><span>Estadísticas</span></div><div class="group kgrid"><div><b class="num">'+fmt(s.km,1)+'</b><small>km caminados</small></div><div><b class="num">'+fmt(s.area,2)+'</b><small>km² despejados</small></div><div><b class="num">'+s.places+'</b><small>lugares</small></div><div><b class="num">'+s.relics+'</b><small>reliquias</small></div><div><b class="num">'+s.rated+'</b><small>sitios valorados</small></div><div><b class="num">'+s.bumps+'</b><small>choques</small></div></div>'+
     '<div class="sec"><span>Medallas</span><span>'+BADGES.filter(b=>s[b.k]>=b.need).length+' de '+BADGES.length+'</span></div><div class="group medals">'+BADGES.map(b=>{const ok=s[b.k]>=b.need,v=Math.min(s[b.k],b.need);
       return '<div class="medal'+(ok?"":" locked")+(b.epic?" epic":"")+'"><span class="hexm" aria-hidden="true">'+esc(b.g)+'</span><b>'+esc(b.n)+'</b><small>'+(ok?"Conseguida":b.epic?"Épica":b.hard?"Difícil":(b.k==="km"||b.k==="area"?fmt(v,1):fmt(v))+"/"+b.need)+'</small></div>';}).join("")+'</div>'+
-    '<div class="sec"><span>Tu compañero</span><span>'+Object.keys(S.animals).length+' disponibles</span></div><div class="group">'+(Object.keys(S.animals).length?'<div class="budgrid">'+Object.keys(S.animals).filter(k=>SPX[k]).map(k=>'<button type="button" data-buddy="'+k+'" aria-pressed="'+(S.buddy===k)+'"><img data-thumb="'+k+'" alt="">'+esc(SPX[k].n.split(" ")[0])+'</button>').join("")+'</div>':'<p class="empty">Fotografía tu primer animal y te acompañará por el mapa.</p>')+'</div>'+
     '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo se juega</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div></div>'+
     '<div class="sec"><span>Recompensas</span></div><div class="group">'+(coupons||'<p class="empty">Aún no has desbloqueado recompensas de locales.</p>')+'</div>'+
     '<div class="sec"><span>Privacidad</span></div><div class="group"><p class="empty">Tu recorrido se guarda solo en este móvil y no se envía a ningún sitio. <button type="button" class="link" id="resetBtn">Borrar mi recorrido</button></p></div>';
-  fillThumbs($("#perfil"));
 }
 
 /* ---------- Tutorial ---------- */
 const COACH=[
   {i:"map",t:"Despeja el mundo",d:"El mapa está cubierto de nubes. Camina y se irá despejando a tu paso. Compite con tus amigos por el 100 % de tu zona."},
-  {sp:"cotorra",t:"Fotografía la fauna",d:"Cuando veas un animal en el mapa, acércate y hazle una foto. Cada especie vive solo donde vive de verdad: hay 274 por todo el mundo."},
+  {em:"⭐",t:"Encuentra y valora lo útil",d:"Baños, fuentes, WiFi, desfibriladores… se ven aunque haya nubes. Acércate a menos de 10 m para valorarlos con estrellas y ayudar a los demás."},
   {i:"gem",t:"Caza reliquias y presume",d:"Hay reliquias ocultas que no salen en el mapa. Sigue el radar de frío y caliente y comparte las legendarias."}];
 let coachStep=0;
 function openCoach(i){coachStep=i||0;const c=COACH[coachStep];
-  openSheet('<div class="coach">'+(c.sp?'<canvas data-sp="'+c.sp+'" aria-hidden="true"></canvas>':'<div class="big">'+ICON[c.i]+'</div>')+'<h3>'+esc(c.t)+'</h3><p>'+esc(c.d)+'</p><div class="dots">'+COACH.map((_,k)=>'<i class="'+(k===coachStep?"on":"")+'"></i>').join("")+'</div>'+
+  openSheet('<div class="coach">'+(c.em?'<div class="big" style="font-size:2.6rem">'+c.em+'</div>':'<div class="big">'+ICON[c.i]+'</div>')+'<h3>'+esc(c.t)+'</h3><p>'+esc(c.d)+'</p><div class="dots">'+COACH.map((_,k)=>'<i class="'+(k===coachStep?"on":"")+'"></i>').join("")+'</div>'+
     '<button type="button" class="btn full" data-coach="'+(coachStep+1)+'">'+(coachStep<COACH.length-1?"Siguiente":"¡A explorar!")+'</button></div>');}
-let paradeRaf=0;
-function startParade(){
-  const cv=$("#stStage"),nm=$("#stName");if(!cv)return;const list=["cotorra","zorro","halcon","jirafa","canguro_rojo","panda_gigante","flamenco","elefante_africano","koala","pinguino_emperador","tigre","jabali"].filter(k=>SPX[k]);
-  const dpr=Math.min(window.devicePixelRatio||1,2),w=250,h=250;cv.width=w*dpr;cv.height=h*dpr;const g=cv.getContext("2d");let i=0,t0=performance.now();
-  const setName=()=>{const s=SPX[list[i]];nm.innerHTML=esc(s.n)+' · <span>'+esc(REGN[s.reg[0]]||"")+'</span>';};setName();
-  const loop=now=>{if($("#startOv").hidden){paradeRaf=0;return;}let t=(now-t0)/1000;if(t>2.6){i=(i+1)%list.length;t0=now;t=0;setName();}
-    const m=A3.build(SPX[list[i]]),k=t<.35?Math.pow(t/.35,.5)*1.08:t<.5?1.08-(t-.35)/.15*.08:t>2.3?Math.max(0,1-(t-2.3)/.3):1;
-    g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);if(k>0)A3.render(g,m,{scale:A3.fit(m,w,h,.33)*k,cx:w/2,cy:h*.56,yaw:.4+t*.9,pitch:.28,shadowCol:"rgba(0,0,0,.25)"});
-    paradeRaf=requestAnimationFrame(loop);};
-  if(!paradeRaf)paradeRaf=requestAnimationFrame(loop);
-}
+function startParade(){const el=$("#stPins");if(!el)return;el.innerHTML=CAT_ORDER.map((c,i)=>{const a=i/CAT_ORDER.length*Math.PI*2-1.2,x=115+Math.cos(a)*88-17,y=115+Math.sin(a)*88-17;return '<div class="pin" style="--pc:'+CATS[c].col+';left:'+x.toFixed(0)+'px;top:'+y.toFixed(0)+'px;animation-delay:'+(i*.18).toFixed(2)+'s"><span>'+CATS[c].e+'</span></div>';}).join("")+'<div style="position:absolute;left:95px;top:95px">'+avatarHTML(40)+'</div>';}
 function sheetDrag(){
   const sh=$("#sheet"),z=$("#grabZone");let y0=null,dy=0;
   const down=e=>{y0=e.clientY;dy=0;sh.classList.add("dragging");try{z.setPointerCapture(e.pointerId);}catch(_){}};
@@ -1861,7 +1900,6 @@ function go(t){
 }
 function handleShareClicks(e){
   const sr=e.target.closest("[data-share-relic]");if(sr){const x=S.relics[sr.dataset.shareRelic];if(x){closeReveal();openShare("He encontrado una reliquia",x.n,"Rareza "+RELRAR[x.r][0].toLowerCase()+" · "+rarityLine(x.r),RELRAR[x.r][2]);}return true;}
-  const sa=e.target.closest("[data-share-animal]");if(sa){const k=sa.dataset.shareAnimal,s=SPX[k];if(s){closeReveal();openShare("He fotografiado",s.n,"Especie "+RARN[s.rar]+" · "+s.sci,s.rar==="c"?"#FFFFFF":ANICOL[s.rar],k);}return true;}
   const sp=e.target.closest("[data-share-place]");if(sp){const p=findPlace(sp.dataset.sharePlace);closeReveal();if(p)openShare("He desbloqueado",p.n,"Lugar "+RAR[p.r][0].toLowerCase(),"#FFD60A");return true;}
   if(e.target.closest("#shareGo")){try{const file=shareBlob?new File([shareBlob],"explorador.png",{type:"image/png"}):null,data=file?{files:[file],text:shareText}:{text:shareText};
     if(navigator.share&&(!navigator.canShare||navigator.canShare(data)))navigator.share(data).catch(()=>{});else toast("Mantén pulsada la imagen para guardarla");}catch(err){toast("Mantén pulsada la imagen para guardarla");}return true;}
@@ -1871,7 +1909,7 @@ function handleShareClicks(e){
 
 /* ---------- Inicio ---------- */
 function start(){
-  S=load()||fresh();["found","treas","relics","animals","spawnDone","daily","zones","bumps"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;{const w=Math.floor(Date.now()/1200000);Object.keys(S.spawnDone).forEach(k=>{const m=/_(\d+)$/.exec(k);if(k[0]==="a"&&k[1]!=="x"&&m&&+m[1]<w-1)delete S.spawnDone[k];});}
+  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","daily","zones","bumps"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
   fillIcons();
   const afterStart=()=>{SFX.unlock();if(!S.coached)setTimeout(()=>openCoach(0),450);};
   $("#startGps").addEventListener("click",()=>{S.started=true;save();$("#startOv").hidden=true;afterStart();if(map){toast("Buscando tu ubicación");startGps();}});
@@ -1881,28 +1919,28 @@ function start(){
   sheetDrag();
   if(typeof L==="undefined"){$("#map").innerHTML='<p style="padding:200px 20px;text-align:center;color:#8E8E93">No se ha podido cargar el mapa.</p>';return;}
   brush=makeBrush();clouds=makeClouds();
-  map=L.map("map",{zoomControl:false,zoomAnimation:false,attributionControl:true,minZoom:3,maxZoom:19,worldCopyJump:true});
+  map=L.map("map",{zoomControl:false,zoomAnimation:true,fadeAnimation:true,markerZoomAnimation:true,zoomSnap:.25,zoomDelta:1,wheelPxPerZoomLevel:90,inertia:true,bounceAtZoomLimits:false,attributionControl:true,minZoom:3,maxZoom:19,worldCopyJump:true});
   const tl=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
   tl.on("tileload",()=>{tilesOk++;});tl.on("tileerror",()=>{tilesErr++;if(!tilesOk&&tilesErr>=4)$("#mapNote").hidden=false;});
   setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},7000);
   map.createPane("zone");map.getPane("zone").style.zIndex=460;map.getPane("zone").style.pointerEvents="none";
   map.createPane("fog");map.getPane("fog").style.zIndex=450;map.getPane("fog").style.pointerEvents="none";
-  fogCanvas=L.DomUtil.create("canvas","",map.getPane("fog"));fogCtx=fogCanvas.getContext("2d");
+  fogCanvas=L.DomUtil.create("canvas","leaflet-zoom-animated",map.getPane("fog"));
+  map.on("zoomanim",e=>{if(!fogBounds)return;const sc=map.getZoomScale(e.zoom),off=map._latLngBoundsToNewLayerBounds(fogBounds,e.zoom,e.center).min;L.DomUtil.setTransform(fogCanvas,off,sc);});fogCtx=fogCanvas.getContext("2d");
   const st=W();if(!st.pos){st.pos=START.slice();addPoint(st.pos,true);}
   if(!st.big.length)bigReveal(st.pos,START_R);
   map.setView(st.pos,17);
   meMk=L.marker(st.pos,{icon:L.divIcon({html:meHTML(),iconSize:[44,44],iconAnchor:[22,22]}),interactive:false,zIndexOffset:1000}).addTo(map);
   buildMarkers();buildFriends();updateZoneRect(st.pos);
-  map.on("move zoomend resize viewreset",drawFog);
+  map.on("move zoomend resize viewreset",drawFog);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
   map.on("click",e=>{closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
-  drawFog();updateHud();setHint();updateRadar(st.pos);updateAnimals(st.pos);updateDayPill();setInterval(()=>{if(W().pos)updateAnimals(W().pos);},30000);
+  drawFog();updateHud();setHint();updateRadar(st.pos);renderFilters();fetchPOIs(st.pos);renderPOIs();
 
-  $("#zin").addEventListener("click",()=>map.zoomIn());
-  $("#zout").addEventListener("click",()=>map.zoomOut());
-  $("#zme").addEventListener("click",()=>{const p=W().pos;if(p)map.setView(p,Math.max(map.getZoom(),16));});
+  $("#zin").addEventListener("click",()=>{map.zoomIn(1);SFX.tap();});
+  $("#zout").addEventListener("click",()=>{map.zoomOut(1);SFX.tap();});
+  $("#zme").addEventListener("click",()=>{const p=W().pos;if(p)map.flyTo(p,Math.max(map.getZoom(),17),{duration:.6});SFX.tap();});
   $("#gpsBtn").addEventListener("click",toggleGps);
   $("#flareBtn").addEventListener("click",useFlare);
-  $("#dayPill").addEventListener("click",()=>{go("retos");});
   $("#playerBtn").addEventListener("click",()=>go("perfil"));
   $("#sheetX").addEventListener("click",closeSheet);
   $("#sheetBody").addEventListener("click",e=>{
@@ -1912,24 +1950,33 @@ function start(){
     const wf=e.target.closest("[data-walkf]");if(wf){const f=findFriend(wf.dataset.walkf);closeSheet();if(f)walkTo([f.ll[0]-0.0002,f.ll[1]]);return;}
     const bp=e.target.closest("[data-bump]");if(bp){doBump(bp.dataset.bump);return;}
     const co=e.target.closest("[data-coach]");if(co){const n=+co.dataset.coach;if(n>=COACH.length){S.coached=1;save();closeSheet();SFX.pop();}else{SFX.tap();openCoach(n);}return;}
-    const sn=e.target.closest("[data-snap]");if(sn){openSnap(sn.dataset.snap);return;}
-    const ev=e.target.closest("[data-env]");if(ev){S.env=ev.dataset.env;save();clearAnimals();updateAnimals(W().pos||START);updateHud();closeSheet();toast("Entorno: "+ENVS.find(x=>x[0]===S.env)[1]);return;}
-    const an=e.target.closest("[data-animal]");if(an){openAnimal(an.dataset.animal);return;}
-    const wa=e.target.closest("[data-walka]");if(wa){const o=animalMk[wa.dataset.walka];closeSheet();if(o)walkTo([o.a.ll[0]-0.00014,o.a.ll[1]]);}
+    const stb=e.target.closest("[data-star]");if(stb&&rateDraft){rateDraft.s=+stb.dataset.star;document.querySelectorAll("#sheetBody [data-star]").forEach(b=>b.classList.toggle("on",+b.dataset.star<=rateDraft.s));SFX.tap();buzz(10);return;}
+    const tg=e.target.closest("[data-tg]");if(tg&&rateDraft){const t=tg.dataset.tg;if(rateDraft.t.has(t))rateDraft.t.delete(t);else rateDraft.t.add(t);tg.setAttribute("aria-pressed",rateDraft.t.has(t));return;}
+    const rt=e.target.closest("[data-rate]");if(rt){submitRate(rt.dataset.rate);return;}
+    const rp=e.target.closest("[data-report]");if(rp){reportPOI(rp.dataset.report);return;}
+    const ad=e.target.closest("[data-addc]");if(ad){addPOI(ad.dataset.addc);return;}
+    const wp=e.target.closest("[data-walkp]");if(wp){const p=allPois()[wp.dataset.walkp];closeSheet();if(p)walkTo([p.ll[0]+0.00003,p.ll[1]]);return;}
+    const ce=e.target.closest("[data-center]");if(ce){const p=allPois()[ce.dataset.center];closeSheet();if(p)map.flyTo(p.ll,18,{duration:.6});return;}
+    const av=e.target.closest("[data-av]");if(av){prof().av=av.dataset.av;prof().photo=null;save();setMe();openEditProfile();SFX.pop();return;}
+    const co2=e.target.closest("[data-col]");if(co2){prof().bg=co2.dataset.col;save();setMe();openEditProfile();return;}
+    if(e.target.closest("[data-nophoto]")){prof().photo=null;save();setMe();openEditProfile();return;}
+    if(e.target.closest("[data-saveprof]")){const v=(($("#nmIn")||{}).value||"").toLowerCase().replace(/[^a-z0-9._ñ]/g,"").slice(0,20);if(v)prof().name=v;save();setMe();closeSheet();if(current==="perfil")renderPerfil();toast("Perfil guardado");return;}
+
   });
   $("#reveal").addEventListener("click",e=>{if(handleShareClicks(e))return;if(e.target.closest("[data-rv]"))nextReveal();});
-  $("#album").addEventListener("click",e=>{const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const an=e.target.closest("[data-animal]");if(an){openAnimal(an.dataset.animal);return;}const rg=e.target.closest("[data-reg]");if(rg){albReg=rg.dataset.reg;const y=$("#v-album").scrollTop;renderAlbum();$("#v-album").scrollTop=y;}});
+  $("#album").addEventListener("click",e=>{const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
   $("#retos").addEventListener("click",e=>{const b=e.target.closest("[data-lb]");if(b){lbMode=b.dataset.lb;renderRetos();}});
   $("#perfil").addEventListener("click",e=>{
-    const bd=e.target.closest("[data-buddy]");if(bd){S.buddy=bd.dataset.buddy;save();setBuddy();SFX.pop();const y=$("#v-perfil").scrollTop;renderPerfil();$("#v-perfil").scrollTop=y;toast(SPX[S.buddy].n+" te acompaña");return;}
+    if(e.target.closest("#editProf")){openEditProfile();return;}
     if(e.target.closest("#sndSw")){S.sound=S.sound===false;save();const y=$("#v-perfil").scrollTop;renderPerfil();$("#v-perfil").scrollTop=y;if(S.sound!==false)SFX.pop();return;}
     if(e.target.closest("#coachBtn")){openCoach(0);return;}
     const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}
-    if(e.target.closest("#resetBtn")){stopGps();cancelAnimationFrame(walkAnim);S=fresh();S.started=true;try{localStorage.removeItem(KEY);}catch(_){}const s2=W();s2.pos=START.slice();addPoint(s2.pos,true);bigReveal(s2.pos,START_R);clearAnimals();buildMarkers();buildFriends();updateZoneRect(s2.pos);updateAnimals(s2.pos);meMk.setLatLng(s2.pos);map.setView(s2.pos,16,{animate:false});updateHud();renderPerfil();toast("Recorrido borrado");}
+    if(e.target.closest("#resetBtn")){stopGps();cancelAnimationFrame(walkAnim);S=fresh();S.started=true;try{localStorage.removeItem(KEY);}catch(_){}const s2=W();s2.pos=START.slice();addPoint(s2.pos,true);bigReveal(s2.pos,START_R);buildMarkers();buildFriends();updateZoneRect(s2.pos);renderPOIs();setMe();meMk.setLatLng(s2.pos);map.setView(s2.pos,16,{animate:false});updateHud();renderPerfil();toast("Recorrido borrado");}
   });
-  $("#snapX").addEventListener("click",()=>{if(snap&&!snap.busy){closeSnap();toast("Lo has dejado ir");}});
-  $("#shoot").addEventListener("click",shoot);
-  $("#envBtn").addEventListener("click",openEnv);
+  $("#wcBtn").addEventListener("click",nearestToilet);
+  $("#addBtn").addEventListener("click",()=>{SFX.tap();openAdd();});
+  $("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;filt=b.dataset.f||null;SFX.tap();renderFilters();renderPOIs();});
+  $("#avIn").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(f)readAvatar(f);});
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>go(b.dataset.t)));
   go("mapa");
   if(S.started&&S.gps&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:"geolocation"}).then(r=>{if(r.state==="granted")startGps();else{S.gps=false;save();}}).catch(()=>{});}
