@@ -1,5 +1,5 @@
 # Explorador
 
-Despeja el mundo caminando y encuentra baños públicos, fuentes, WiFi, desfibriladores y más, valorados por la gente. Datos de OpenStreetMap.
+Desbloquea tu ciudad caminando y encuentra baños públicos, fuentes, WiFi, desfibriladores, monumentos y curiosidades, con fotos, descripciones y valoraciones. Datos reales de OpenStreetMap, Wikimedia Commons y Wikipedia.
 
 Prueba: https://turbo4drive-ai.github.io/explorador

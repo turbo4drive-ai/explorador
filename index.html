@@ -801,7 +801,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .stats3 b{display:block;font-size:2rem;line-height:1}
 .stats3 small{display:block;margin-top:3px;font-size:.68rem;font-weight:600;color:#A1A1A6;text-transform:uppercase;letter-spacing:.05em}
 .stats3 .hl b{color:var(--y)}
-.hud.right{top:calc(196px + env(safe-area-inset-top));right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.hud.right{top:calc(118px + env(safe-area-inset-top));right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .ctl{display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
 .ctl button{width:46px;height:46px;border:0;background:none;color:#fff;font-size:1.4rem;font-weight:500;cursor:pointer;display:grid;place-items:center}
 .ctl button + button{border-top:.5px solid rgba(255,255,255,.14)}
@@ -819,7 +819,8 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .hint b{color:var(--y);font-weight:600}
 .live{font-weight:700;color:var(--y)}
 .live::before{content:"● ";animation:blink 1.1s infinite}
-.radar{display:flex;align-items:center;gap:12px;padding:10px 16px 10px 12px;border-radius:18px}
+.radar{display:flex;align-items:center;gap:10px;padding:7px 14px 7px 8px;border-radius:18px}
+.radar .rdish{width:32px;height:32px}.radar b{font-size:.92rem!important}.radar small{font-size:.72rem!important}
 .radar[hidden]{display:none}
 .rdish{position:relative;width:40px;height:40px;border-radius:50%;border:2px solid var(--rc);display:grid;place-items:center}
 .rdish::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--rc);animation:ping var(--rs) ease-out infinite}
@@ -1060,6 +1061,40 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .segset button[aria-pressed="true"]{background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.12)}
 .maplight #map{background-color:#EAE6DF;background-image:none}
 .raster.maplight .leaflet-tile-pane{filter:saturate(.9) brightness(1.02)}
+/* v11: panel compacto */
+.hudbar{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 10px!important;border-radius:22px}
+.hudbar .lvl{flex:none}
+.hudbar .wtag{flex:1;min-width:0;text-align:left}
+.hudbar .wtag span{display:block}
+.hudbar .wtag b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.88rem}
+.hudbar .zp{text-align:center;line-height:1;padding:0 4px}
+.hudbar .zp b{font-size:1.45rem;color:#FFD60A;display:block}
+.hudbar .zp small{font-size:.6rem;font-weight:700;color:#A1A1A6;text-transform:uppercase;letter-spacing:.06em}
+.srch{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.12);display:grid;place-items:center;cursor:pointer;flex:none}
+.srch svg{width:20px;height:20px;fill:#fff}
+.chips .fx[aria-pressed="true"]{background:#FFD60A;color:#0E0E0E;border-color:#FFD60A}
+.chips .sep{flex:none;width:1px;background:rgba(255,255,255,.2);margin:6px 2px}
+.srchbox{display:flex;align-items:center;gap:8px;background:var(--ios);border-radius:12px;padding:0 12px;margin-top:12px}
+.srchbox input{flex:1;border:0;background:none;padding:12px 0;font:inherit;font-size:16px;outline:none}
+.srchres .row{cursor:pointer}.srchres .row b{display:block;font-weight:600}.srchres .row small{color:var(--label2);font-size:.8rem}
+.ask{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:1450;width:min(420px,calc(100% - 20px));opacity:0;pointer-events:none;transition:opacity .25s,transform .3s cubic-bezier(.2,1.2,.4,1);padding:12px 14px;border-radius:20px;color:#fff}
+.ask.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.ask b{display:block;font-size:.95rem}.ask small{color:#C7C7CC;font-size:.8rem}
+.ask .btnrow{margin-top:10px}.ask .btn{padding:10px 12px;font-size:.92rem}
+/* v12 */
+.desc{margin:10px 0 0;font-size:.93rem;line-height:1.45}
+.desc a{color:#0A84FF;font-weight:600;text-decoration:none;white-space:nowrap}
+.addr{margin:8px 0 0;font-size:.85rem;color:var(--label2)}
+.phstrip.big img{width:150px;height:112px}
+.phstrip a{flex:none}
+.pin.mon{width:40px;height:40px}.pin.mon span{font-size:19px}
+.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mcard{border:0;padding:0 0 10px;border-radius:16px;background:#fff;overflow:hidden;text-align:left;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.mimg{display:grid;place-items:center;width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;font-size:2rem}
+.mcard b{display:block;padding:8px 10px 0;font-size:.86rem;font-weight:700;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.mcard small{display:block;padding:2px 10px 0;font-size:.72rem;color:var(--label2)}
+.rv-photo{background-size:cover;background-position:center;font-size:3.4rem}
+.chips{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
 .mapnote{padding:9px 14px;font-size:.78rem;text-align:center;max-width:440px;color:#FFE780;border-radius:14px}
 @keyframes ping{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.7);opacity:0}}
 
@@ -1266,16 +1301,11 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 <section id="v-mapa">
   <div id="map" role="application" aria-label="Mapa del mundo cubierto de nubes: camina para despejarlo"></div>
   <div class="hud top">
-    <div class="glass">
-      <div class="trow">
-        <button class="lvl" id="playerBtn" type="button" aria-label="Ver tu perfil"><span class="ava" data-icon="compass"></span><span><b id="lvlTxt">Nivel 1</b><span class="xp"><i id="xpFill" style="width:0%"></i></span></span></button>
-        <div class="wtag"><span id="regTxt">Mundo abierto</span><b id="zoneTxt" style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></b><b id="relTxt" hidden></b></div>
-      </div>
-      <div class="stats3">
-        <div class="hl"><b class="num" id="zpct">0 %</b><small>de esta zona</small></div>
-        <div><b class="num" id="km">0,00</b><small>km caminados</small></div>
-        <div><b class="num" id="area">0,00</b><small>km² totales</small></div>
-      </div>
+    <div class="glass hudbar">
+      <button class="lvl" id="playerBtn" type="button" aria-label="Ver tu perfil"><span id="hudAv"></span><span><b id="lvlTxt">Nivel 1</b><span class="xp"><i id="xpFill" style="width:0%"></i></span></span></button>
+      <div class="wtag"><span id="regTxt">Mundo abierto</span><b id="zoneTxt"></b></div>
+      <div class="zp"><b class="num" id="zpct">0 %</b><small>zona</small></div>
+      <button type="button" class="srch" id="searchBtn" aria-label="Buscar una zona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 1 0 4.2 12.6l5.1 5.1 1.4-1.4-5.1-5.1A7 7 0 0 0 10 3zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg></button>
     </div>
     <div class="chips" id="filters" role="group" aria-label="Filtrar sitios"></div>
   </div>
@@ -1324,7 +1354,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
   <div class="st-in">
     <span class="st-k">Mundo abierto · a pie</span>
     <div class="wordmark">Explo<br>rador<span>.</span></div>
-    <p class="tagline">El mundo está cubierto de nubes. Despéjalo caminando y encuentra baños, fuentes, WiFi y más, valorados por la gente.</p>
+    <p class="tagline">El mapa empieza bloqueado. Desbloquéalo caminando y encuentra baños, fuentes, WiFi y más, valorados por la gente.</p>
     <div class="glass st-panel">
       <p>Usa tu ubicación solo mientras la app está abierta. Tu recorrido se guarda en este móvil.</p>
       <button class="btn full" id="startGps" type="button">Empezar a explorar</button>
@@ -1334,6 +1364,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 </div>
 
 <input class="vh" type="file" id="avIn" accept="image/*" tabindex="-1" aria-hidden="true">
+<div class="glass ask" id="ask" role="dialog" aria-live="polite"></div>
 <input class="vh" type="file" id="phIn" accept="image/*" tabindex="-1" aria-hidden="true">
 <div class="sos" id="sos" role="dialog" aria-label="Necesito un baño" hidden>
   <div class="sos-top"><button class="cam-x" type="button" id="sosX" aria-label="Cerrar">✕</button><span>🚻 Baño más cercano · <span id="sosPos"></span></span><button type="button" id="sosNext">Otro</button></div>
@@ -1345,9 +1376,9 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<link rel="preload" href="maplibre-gl.js" as="script">
 <link rel="stylesheet" href="maplibre-gl.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="maplibre-gl.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1376,30 +1407,22 @@ const TYPES={mirador:["Mirador","eye"],monumento:["Monumento","columns"],mercado
 const RAR={c:["Común",10,1],r:["Rara",25,2],l:["Legendaria",60,3]};
 const RELRAR={c:["Común",15,"#AEB4BE"],r:["Rara",40,"#5AC8FA"],l:["Legendaria",120,"#FFD60A"]};
 const RELNAMES={c:["Chapa de metro","Moneda antigua","Billete de tranvía","Llave oxidada","Postal perdida","Ficha de futbolín","Botón de latón","Canica de cristal"],r:["Brújula de bolsillo","Disco de vinilo","Reloj de cadena","Mapa rasgado","Cámara de carrete","Medalla de 1929"],l:["Estatuilla dorada","Diamante urbano","Corona de neón","Llave de la ciudad"]};
-const START_R=150,RADIUS_M=55,CELL=0.00045,FIND_M=45,RELIC_FIND=25,RADAR_M=300,MIRADOR_R=350,FLARE_R=200,RG=0.006,CELL_KM2=Math.pow(CELL*111320/1000,2);
+const START_R=150,RADIUS_M=55,RADAR_SHOW=150,CELL=0.00045,FIND_M=45,RELIC_FIND=25,RADAR_M=300,MIRADOR_R=350,FLARE_R=200,RG=0.006,CELL_KM2=Math.pow(CELL*111320/1000,2);
 function P(id,n,t,r,lat,lng){return {id:id,n:n,t:t,r:r,ll:[lat,lng]};}
-const PLACES=[
-  P("b1","Catedral de Barcelona","monumento","r",41.3839,2.1762),P("b2","Plaça Reial","plaza","c",41.3801,2.1754),P("b3","Mercat de la Boqueria","mercado","c",41.3817,2.1716),P("b4","Palau de la Música","monumento","l",41.3875,2.1753),P("b5","Carrer del Bisbe","calle","r",41.3832,2.1770),P("b6","Mirador de Colom","mirador","r",41.3758,2.1778),
-  P("h1","Plaça de l'Ajuntament","plaza","c",41.3596,2.1003),P("h2","Rambla de Just Oliveras","calle","c",41.3594,2.1030),P("h3","Mirador de la Gran Via","mirador","r",41.3580,2.1260),P("h4","Mural del barrio","arte","l",41.3640,2.0990),
-  P("m1","Puerta del Sol","plaza","c",40.4169,-3.7035),P("m2","Plaza Mayor","plaza","c",40.4155,-3.7074),P("m3","Mercado de San Miguel","mercado","r",40.4154,-3.7090),P("m4","Palacio Real","monumento","l",40.4180,-3.7143),P("m5","Templo de Debod","mirador","r",40.4240,-3.7178),
-  P("l1","Praça do Comércio","plaza","c",38.7076,-9.1365),P("l2","Elevador de Santa Justa","monumento","r",38.7121,-9.1394),P("l3","Miradouro de Santa Luzia","mirador","l",38.7117,-9.1301),
-  P("p1","Notre-Dame","monumento","l",48.8530,2.3499),P("p2","Pont Neuf","calle","c",48.8566,2.3412),
-  P("n1","Times Square","plaza","c",40.7580,-73.9855),P("n2","Grand Central","monumento","l",40.7527,-73.9772),
-  P("t1","Cruce de Shibuya","calle","r",35.6595,139.7005),P("t2","Santuario Meiji","monumento","l",35.6764,139.6993)
-];
+const PLACES=[];
 const WQ={b1:"Catedral de Barcelona",b2:"Plaza Real Barcelona",b3:"Mercado de La Boquería",b4:"Palacio de la Música Catalana",b5:"Calle del Obispo Barcelona",b6:"Monumento a Colón Barcelona",
   m1:"Puerta del Sol",m2:"Plaza Mayor de Madrid",m3:"Mercado de San Miguel",m4:"Palacio Real de Madrid",m5:"Templo de Debod",l1:"Praça do Comércio",l2:"Elevador de Santa Justa",l3:"Miradouro de Santa Luzia",
   p1:"Catedral de Notre Dame de París",p2:"Pont Neuf",n1:"Times Square",n2:"Grand Central Terminal",t1:"Cruce de Shibuya",t2:"Santuario Meiji"};
 const RARN={c:"común",r:"rara",l:"legendaria"};
-const TREASURES=[{id:"tb1",ll:[41.3812,2.1738],sp:"Bar de ejemplo del Gòtic",pr:"Una caña gratis"},{id:"th1",ll:[41.3606,2.1012],sp:"Tapéalo · bar de ejemplo",pr:"Tapa de bravas gratis"},{id:"tm1",ll:[40.4160,-3.7055],sp:"Cafetería de ejemplo",pr:"Café y churros"},{id:"tl1",ll:[38.7095,-9.1370],sp:"Pastelaria de ejemplo",pr:"Pastel de nata gratis"}];
+const TREASURES=[];
 const START=[41.3825,2.1745];
 const FIXED_RELICS=[{id:"rx1",ll:[41.3813,2.1764],r:"r",n:"Brújula de bolsillo"},{id:"rx2",ll:[41.3605,2.1040],r:"l",n:"Llave de la ciudad"}];
 const BADGES=[
   {id:"guia",n:"Guía local",g:"10★",need:10,k:"rated"},
   {id:"marat",n:"5 km",g:"5K",need:5,k:"km"},
-  {id:"colec",n:"10 cromos",g:"10",need:10,k:"places"},
-  {id:"leyen",n:"Legendario",g:"L",need:1,k:"legend"},
-  {id:"rel5",n:"5 reliquias",g:"R5",need:5,k:"relics"},
+  {id:"desc",n:"25 sitios",g:"25",need:25,k:"visits"},
+  {id:"pion1",n:"Pionero",g:"P",need:1,k:"added"},
+  {id:"tur",n:"10 monumentos",g:"10🏛",need:10,k:"monu"},
   {id:"insp",n:"Inspector de baños",g:"B5",need:5,k:"ratedToilets"},
   {id:"noct",n:"Noctámbulo",g:"N",need:1,k:"night",hard:1},
   {id:"halcon",n:"Ojo de halcón",g:"H",need:1,k:"hawk",hard:1},
@@ -1409,10 +1432,89 @@ const BADGES=[
   {id:"z100",n:"Zona al 100 %",g:"100",need:100,k:"zbest",epic:1}
 ];
 const ZONE=0.01;
-const FRIENDS=[{u:"laia.walks",e:"🦊",c:"#FF5E8A",ll:[41.3834,2.1731],pct:41},{u:"marc_bcn",e:"🐸",c:"#30C85E",ll:[41.3806,2.1783],pct:23},{u:"nora.explora",e:"🐙",c:"#A55EEA",ll:[41.3851,2.1758],pct:12}];
+const FRIENDS=[];
 const LB=[["laia.walks",9.4],["marc_bcn",7.8],["nora.explora",6.1],["urbanfox",4.9],["pau.street",3.2],["mika",2.4],["jordi.lh",1.6]];
+/* ---------- Idioma: español o inglés (automático según el móvil) ---------- */
+const LANG=(function(){let o=null;try{const d=JSON.parse(localStorage.getItem("explorador-mundo-v3")||"{}");o=d&&d.lang;}catch(e){}
+  if(o==="es"||o==="en")return o;const l=(navigator.language||"es").toLowerCase();return /^(es|ca|gl|eu)/.test(l)?"es":"en";})();
+const EN_EXACT={
+"Mapa":"Map","Guía":"Guide","Retos":"Challenges","Perfil":"Profile","Mundo abierto":"Open world","Estás en":"You're in","zona":"area",
+"Todo":"All","🟢 Abierto ahora":"🟢 Open now","Gratis":"Free","♿ Adaptado":"♿ Accessible","🚼 Cambiador":"🚼 Changing table",
+"Baños":"Toilets","Fuentes":"Fountains","Carga":"Charging","Bancos":"Benches","Desfibriladores":"Defibrillators","Cajeros":"ATMs","Perros":"Dogs","Infantiles":"Playgrounds",
+"Baño público":"Public toilet","Fuente de agua":"Drinking fountain","Cargar el móvil":"Phone charging","Banco":"Bench","Desfibrilador":"Defibrillator","Cajero":"ATM","Zona para perros":"Dog park","Parque infantil":"Playground",
+"Necesito un baño":"I need a toilet","Añadir":"Add","Bengala":"Flare","GPS":"GPS",
+"Empezar a explorar":"Start exploring","Probar sin salir de casa":"Try it from home","Mundo abierto · a pie":"Open world · on foot",
+"El mapa empieza bloqueado. Desbloquéalo caminando y encuentra baños, fuentes, WiFi y más, valorados por la gente.":"The map starts locked. Unlock it by walking and find toilets, fountains, WiFi and more, rated by people.",
+"Usa tu ubicación solo mientras la app está abierta. Tu recorrido se guarda en este móvil.":"Uses your location only while the app is open. Your route stays on this phone.",
+"Baños · Fuentes · WiFi · Desfibriladores…":"Toilets · Fountains · WiFi · Defibrillators…",
+"Desbloquea el mapa":"Unlock the map","Todo empieza bloqueado 🔒. Camina y el mapa se abre a tu paso. Intenta llegar al 100 % de tu zona.":"Everything starts locked 🔒. Walk and the map opens as you go. Try to reach 100% of your area.",
+"Encuentra y valora lo útil":"Find and rate what's useful","Baños, fuentes, WiFi, desfibriladores… se ven aunque la zona esté bloqueada. Acércate a menos de 10 m para valorarlos con estrellas y ayudar a los demás.":"Toilets, fountains, WiFi, defibrillators… are visible even in locked areas. Get within 10 m to rate them with stars and help others.",
+"Caza reliquias y presume":"Hunt relics and show off","Hay reliquias ocultas que no salen en el mapa. Sigue el radar de frío y caliente y comparte las legendarias.":"Hidden relics aren't shown on the map. Follow the hot-and-cold radar and share the legendary ones.",
+"Siguiente":"Next","¡A explorar!":"Let's explore!",
+"¿Qué tal está?":"How is it?","Cambia tu valoración":"Change your rating","Un comentario corto (opcional)":"A short comment (optional)","📷 Añadir foto":"📷 Add photo","📷 Cambiar foto":"📷 Change photo",
+"Avisar: está cerrado o ya no existe":"Report: closed or gone","Cómo llegar":"Directions","Ir (demo)":"Go (demo)","Ver en el mapa":"Show on map","Compartir":"Share",
+"Todavía nadie lo ha valorado. ¡Sé el primero!":"Nobody has rated it yet. Be the first!","Lo que dice la gente":"What people say","● Abierto ahora":"● Open now","● Cerrado ahora":"● Closed now",
+"Dato de OpenStreetMap, el mapa libre que hace la gente.":"Data from OpenStreetMap, the free map made by people.",
+"Limpio":"Clean","Adaptado":"Accessible","Cambiador":"Changing table","Con papel":"Has paper","Abierto":"Open","Funciona":"Works","Agua fresca":"Cold water","Buena presión":"Good pressure","Rápida":"Fast","Sin registro":"No sign-up","Gratis de verdad":"Really free","USB-C":"USB-C","Sombra":"Shade","Cómodo":"Comfy","Tranquilo":"Quiet","Accesible 24 h":"24 h access","Bien señalizado":"Well signposted","Sin comisión":"No fees","Vallada":"Fenced","Limpia":"Clean","Con fuente":"Has water","Para peques":"For little ones",
+"De pago":"Paid","Adaptado en parte":"Partly accessible","Unisex":"Unisex","Solo clientes":"Customers only","WiFi gratis":"Free WiFi","Para clientes":"For customers","Con respaldo":"With backrest","Cubierto":"Covered","En interior":"Indoors","Para rellenar botella":"Bottle refill","Abierto 24 h":"Open 24 h",
+"Otro":"Next one","Ruta en Mapas":"Route in Maps","Valorarlo":"Rate it","¡Has llegado!":"You've arrived!","Sin valorar":"Not rated",
+"Sin brújula: la flecha apunta respecto al norte (arriba = norte).":"No compass: the arrow points relative to north (up = north).","Modo demo: activa el GPS para usar tu posición real.":"Demo mode: turn on GPS to use your real position.","Gira hasta que la flecha apunte hacia delante y camina.":"Turn until the arrow points ahead, then walk.",
+"Sí, sigue aquí":"Yes, still here","No está":"It's gone","Confirmarlo ayuda a que el mapa sea fiable · +3 XP":"Confirming keeps the map reliable · +3 XP",
+"Buscar":"Search","¿Adónde vas?":"Where are you going?","Barrio, calle o sitio (p. ej. Sagrada Familia)":"Area, street or place (e.g. Sagrada Familia)","Busca un sitio y verás los baños, fuentes y demás que hay allí.":"Search a place to see the toilets, fountains and more around it.","Buscando…":"Searching…","No encuentro nada con ese nombre.":"Nothing found with that name.","Sin conexión para buscar ahora mismo.":"No connection to search right now.",
+"Añadir un sitio útil aquí":"Add a useful place here","¿Qué has encontrado?":"What did you find?","Se añade justo donde estás. Ganas 25 XP y apareces como su descubridor.":"It's added right where you are. You earn 25 XP and appear as its discoverer.",
+"Tus sitios útiles y tus reliquias":"Your useful places and relics","Sitios":"Places","Reliquias":"Relics","Descubiertos por tipo":"Discovered by type","Mejores baños cerca":"Best toilets nearby","Tus valoraciones":"Your ratings",
+"Muévete por el mapa para cargar los baños de tu zona.":"Move around the map to load the toilets in your area.","Acércate a menos de 10 m de un baño, una fuente o un banco para valorarlo.":"Get within 10 m of a toilet, fountain or bench to rate it.",
+"Los sitios salen de OpenStreetMap, el mapa libre que hace la gente. Las valoraciones de otros son de ejemplo hasta que la app tenga usuarios reales.":"Places come from OpenStreetMap, the free map made by people. Other people's ratings are samples until the app has real users.",
+"Explorador novato":"Rookie explorer","Inspector de baños":"Toilet inspector","Catador de fuentes":"Fountain taster","Cazador de WiFi":"WiFi hunter","Señor de los enchufes":"Lord of the sockets","Experto en bancos":"Bench expert","Guardián salvavidas":"Lifesaver","Rastreador de cajeros":"ATM tracker","Amigo de los perros":"Dog friend","Explorador de parques":"Park explorer",
+"Valen en cualquier parte del mundo":"They count anywhere in the world","Evento de la semana":"Event of the week","Esta semana":"This week","Para presumir":"Bragging rights","Difícil":"Hard","Épico":"Epic","Acaba hoy":"Ends today",
+"Semana de los baños":"Toilet week","Ruta del agua":"Water route","Semana salvavidas":"Lifesaver week","Ruta de las reliquias":"Relic route",
+"Valorar baños da el doble de XP. Ayuda a encontrar los mejores de tu zona.":"Rating toilets gives double XP. Help find the best in your area.","Fuentes y bancos dan el doble de XP. Ideal para pasear con calor.":"Fountains and benches give double XP. Perfect for hot walks.","Encontrar desfibriladores da el triple de XP. Saber dónde están salva vidas.":"Finding defibrillators gives triple XP. Knowing where they are saves lives.","Las reliquias dan el doble de XP.":"Relics give double XP.",
+"Primeros 500 m":"First 500 m","Camina 500 m":"Walk 500 m","Curioso":"Curious","Descubre 5 sitios útiles":"Discover 5 useful places","Cazador":"Hunter","Encuentra 2 reliquias ocultas":"Find 2 hidden relics","Inspector":"Inspector","Valora 3 baños públicos":"Rate 3 public toilets","Hidratado":"Hydrated","Descubre 2 fuentes de agua":"Discover 2 drinking fountains","Tu zona":"Your area","Descubre el 25 % de la zona en la que estás":"Unlock 25% of the area you're in","Sin nubes":"Clear skies",
+"Noctámbulo":"Night owl","Encuentra algo entre las 0:00 y las 5:00":"Find something between 0:00 and 5:00","Ojo de halcón":"Hawk eye","Encuentra una reliquia menos de 3 min después de que salte el radar":"Find a relic within 3 min of the radar going off","10 km en un día":"10 km in a day","Camina 10 km en un mismo día":"Walk 10 km in a single day","Leyenda":"Legend","Encuentra 3 reliquias legendarias":"Find 3 legendary relics","Salvavidas":"Lifesaver","Encuentra 3 desfibriladores. Saber dónde están puede salvar una vida":"Find 3 defibrillators. Knowing where they are can save a life","Pionero":"Pioneer","Añade 5 sitios útiles que no estaban en el mapa":"Add 5 useful places missing from the map","Cartógrafo":"Cartographer","Despeja 1 km² de mapa":"Unlock 1 km² of map","Zona al 100 %":"Area at 100%","Descubre una zona entera, calle a calle":"Unlock a whole area, street by street",
+"Estadísticas":"Stats","km caminados":"km walked","km² despejados":"km² unlocked","sitios añadidos":"places added","reliquias":"relics","sitios valorados":"places rated","sitios descubiertos":"places discovered","Medallas":"Medals","Conseguida":"Earned","Épica":"Epic",
+"Guía local":"Local guide","25 sitios":"25 places","5 km":"5 km","5 reliquias":"5 relics","Pionero ":"Pioneer",
+"Ajustes":"Settings","Sonidos":"Sounds","Cómo se juega":"How to play","Ver de nuevo":"See again","Privacidad":"Privacy","Borrar mi recorrido":"Delete my route","Tu recorrido se guarda solo en este móvil y no se envía a ningún sitio.":"Your route is stored only on this phone and is never sent anywhere.",
+"Editar":"Edit","Tu perfil":"Your profile","Personalízalo":"Make it yours","📷 Poner foto":"📷 Set photo","Quitar foto":"Remove photo","O elige un avatar":"Or pick an avatar","Color":"Colour","Nombre de usuario":"Username","Guardar":"Save","Claro":"Light","Oscuro":"Dark","Auto":"Auto","Idioma":"Language",
+"Presume de tu hallazgo":"Show off your find","Compártelo":"Share it","Copiar texto":"Copy text","Seguir":"Continue","Presumir":"Show off","¡Encontrada!":"Found!","Subes de nivel":"Level up",
+"Cerrar":"Close","Acercar":"Zoom in","Alejar":"Zoom out","Centrar en mí":"Centre on me","Ver tu perfil":"See your profile","Buscar una zona":"Search an area","Filtrar sitios":"Filter places","Secciones":"Sections",
+"Frío":"Cold","Templado":"Warm","Caliente":"Hot","¡Ardiendo!":"Burning hot!","Reliquia oculta cerca · encuéntrala a menos de 25 m":"Hidden relic nearby · find it within 25 m",
+"Perfil guardado":"Profile saved","Elige de 1 a 5 estrellas":"Pick 1 to 5 stars","Valoración actualizada":"Rating updated","Mostrando todo":"Showing everything","Mostrando los sitios útiles de esa zona":"Showing useful places in that area","Gracias: lo marcamos para revisar":"Thanks: we'll flag it for review",
+"Buscando sitios útiles cerca…":"Looking for useful places nearby…","Sin conexión con OpenStreetMap: te enseño sitios de ejemplo.":"Can't reach OpenStreetMap: showing sample places.","No hay sitios útiles registrados aquí todavía. ¡Añade el primero!":"No useful places listed here yet. Add the first one!",
+"Modo demo · toca el mapa para moverte":"Demo mode · tap the map to move","No veo baños abiertos cerca en el mapa. Si conoces uno, añádelo":"No open toilets nearby on the map. If you know one, add it","No hay baños públicos en el mapa por aquí. Si conoces uno, añádelo":"No public toilets on the map around here. If you know one, add it","Enlace copiado: pégalo en WhatsApp":"Link copied: paste it in WhatsApp","Texto copiado":"Text copied","No se ha podido copiar":"Couldn't copy","¡Bengala! 200 m despejados":"Flare! 200 m unlocked","No te quedan bengalas · sube de nivel para conseguir más":"No flares left · level up to get more","Gracias por avisar. Lo revisaremos con más avisos de la gente":"Thanks for reporting. We'll review it as more reports come in","Con el GPS activo te mueves caminando":"With GPS on, you move by walking","Demasiado lejos para ir andando en el modo demo":"Too far to walk in demo mode","Buscando dónde está exactamente…":"Finding exactly where it is…","Leer más en Wikipedia":"Read more on Wikipedia","Fotos de este punto · Wikimedia Commons":"Photos of this spot · Wikimedia Commons","Recorrido borrado":"Route deleted","No cabe la foto en este móvil":"The photo doesn't fit on this phone","Monumento":"Monument","Monumentos":"Monuments","Curiosidad":"Oddity","Curiosidades":"Oddities","Monumento desbloqueado":"Monument unlocked","Curiosidad desbloqueada":"Oddity unlocked","Ver la ficha":"See details","Monumentos y curiosidades":"Monuments and oddities","Turista":"Tourist","Visita 3 monumentos":"Visit 3 monuments","Rarezas":"Oddities","Encuentra 3 curiosidades de tu ciudad":"Find 3 oddities in your city","10 monumentos":"10 monuments","Imprescindible":"Must-see","Poca gente":"Not crowded","Buenas fotos":"Great photos","Sorprendente":"Surprising","Escondido":"Hidden","Pasa a menos de 40 m de un monumento o de una curiosidad del mapa para desbloquearlo con su foto e historia.":"Pass within 40 m of a monument or oddity to unlock it with its photo and story.","Todos los sitios son reales: salen de OpenStreetMap, las fotos de Wikimedia Commons y las historias de Wikipedia.":"All places are real: from OpenStreetMap, photos from Wikimedia Commons and stories from Wikipedia.","No he podido cargar los sitios de esta zona. Lo vuelvo a intentar en un momento.":"Couldn't load places for this area. I'll try again shortly.","Sin valoraciones todavía. Las de la gente aparecerán al conectar el servidor.":"No ratings yet. Other people's will appear once the server is connected.","Cazador de monumentos":"Monument hunter","Coleccionista de rarezas":"Oddity collector","Buscando tu ubicación":"Finding your location","Ubicación encontrada · a caminar":"Location found · start walking","GPS apagado · modo demo":"GPS off · demo mode","Sin permiso de ubicación":"No location permission","Señal GPS débil":"Weak GPS signal"
+};
+const EN_RX=[
+ [/^Nivel (\d+)$/,"Level $1"],[/^a (\d[\d.,]*) (m|km)$/,"$1 $2 away"],[/ · a (\d[\d.,]*) (m|km)/g," · $1 $2 away"],[/ · de ejemplo/g," · sample"],[/ · añadido por ti/g," · added by you"],[/ · añadido por @/g," · added by @"],
+ [/^(\d+) valoraciones \(de ejemplo hasta que conectemos el servidor\)$/,"$1 ratings (samples until the server is connected)"],[/^(\d+) valoración(es)?$/,(m,n)=>n+(n==="1"?" rating":" ratings")],
+ [/^Para valorarlo tienes que estar a menos de /,"To rate it you must be within "],[/^\. Ahora estás a /,". You're now "],
+ [/^Enviar valoración · \+(\d+) XP$/,"Send rating · +$1 XP"],[/^Tu valoración: /,"Your rating: "],
+ [/^≈ (\d+) min andando$/,"≈ $1 min walk"],[/^🚻 Baño más cercano · $/,"🚻 Nearest toilet · "],[/^(\d+) de (\d+)$/,"$1 of $2"],
+ [/ · ¿sigue aquí\?$/," · still here?"],
+ [/^Quedan (\d+) días$/,"$1 days left"],[/^(.*) · descubierto \+(\d+) XP$/,"$1 · discovered +$2 XP"],[/^¡Gracias! \+(\d+) XP$/,"Thanks! +$1 XP"],
+ [/^(\d+) sitios descubiertos · (\d+) añadidos por ti$/,"$1 places discovered · $2 added by you"],[/^⭐ Valorar da 10 XP · descubrir 5 XP$/,"⭐ Rating gives 10 XP · discovering 5 XP"],
+ [/^valorados$/,"rated"],[/^Solo los sitios donde consta: (.*)$/,"Only places listed as: $1"],[/^Solo lo que está abierto ahora \(si se conoce el horario\)$/,"Only what's open now (when hours are known)"],
+ [/^Horario: /,"Hours: "],[/^Camina para desbloquear el mapa y descubrir sitios\.$/,"Walk to unlock the map and discover places."],
+ [/^ · Camina para desbloquear el mapa y descubrir sitios\.$/," · Walk to unlock the map and discover places."],[/^En directo$/,"Live"],
+ [/^Modo demo: toca el mapa para $/,"Demo mode: tap the map to "],[/^ir hasta allí$/,"go there"],[/^\. Activa $/,". Turn on "],[/^ para usar tu ubicación real\.$/," to use your real location."],
+ [/^ (\d+) bengalas?$/," $1 flare(s)"],[/XP · faltan ([\d.,]+) para el nivel (\d+)/,"XP · $1 to level $2"],[/^Nivel (\d+) · /,"Level $1 · "],[/ · (\d+) bengalas?$/," · $1 flare(s)"],
+ [/^de esta zona$/,"of this area"],[/^\+(\d+) XP$/,"+$1 XP"],[/^Fotografía/,"Photo"],
+ [/^XP: descubrir un sitio, 5; confirmarlo, 3; valorarlo, 10; añadirlo, 25; reliquias, 15, 40 o 120; cada km, 20\. El ranking llegará con las cuentas de usuario\.$/,"XP: discover a place 5; confirm 3; rate 10; add 25; relics 15, 40 or 120; every km 20. Rankings will come with user accounts."],
+ [/^El mundo está dividido en zonas de 1 km\. Intenta descubrir el 100 % de la tuya\. /,"The world is split into 1 km areas. Try to unlock 100% of yours. "],
+ [/^✓ Confirmaste que sigue aquí el /,"✓ You confirmed it's still here on "],[/^✗ Avisaste de que no está el /,"✗ You reported it gone on "],
+ [/Baño público/g,"Public toilet"],[/Fuente de agua/g,"Drinking fountain"],[/Cargar el móvil/g,"Phone charging"],[/Desfibrilador/g,"Defibrillator"],[/Zona para perros/g,"Dog park"],[/Parque infantil/g,"Playground"],[/^Cajero$/,"ATM"],[/^Banco$/,"Bench"],
+ [/Especie /,"Species "],[/^Reliquia (común|rara|legendaria)$/,(m,r)=>({"común":"Common","rara":"Rare","legendaria":"Legendary"}[r])+" relic"]
+];
+function trText(t){if(LANG!=="en"||!t)return t;const k=t.trim();if(!k)return t;if(EN_EXACT[k])return t.replace(k,EN_EXACT[k]);let o=t;for(const r of EN_RX)o=o.replace(r[0],r[1]);return o;}
+function trNode(root){if(LANG!=="en"||!root)return;
+  if(root.nodeType===3){if(root.parentNode&&root.parentNode.closest&&root.parentNode.closest('[translate="no"],script,style,textarea,input'))return;const v=trText(root.nodeValue);if(v!==root.nodeValue)root.nodeValue=v;return;}
+  if(root.nodeType!==1||root.closest('[translate="no"],script,style'))return;
+  ["aria-label","placeholder","title"].forEach(a=>{if(root.hasAttribute&&root.hasAttribute(a)){const v=trText(root.getAttribute(a));if(v!==root.getAttribute(a))root.setAttribute(a,v);}});
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);let n;while((n=w.nextNode())){if(n.nodeType===1){if(n.matches('[translate="no"],script,style')){continue;}["aria-label","placeholder","title"].forEach(a=>{if(n.hasAttribute(a)){const v=trText(n.getAttribute(a));if(v!==n.getAttribute(a))n.setAttribute(a,v);}});}
+    else if(!(n.parentNode&&n.parentNode.closest('[translate="no"],script,style,textarea'))){const v=trText(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v;}}}
+function startI18n(){if(LANG!=="en")return;document.documentElement.lang="en";trNode(document.body);
+  new MutationObserver(ms=>{ms.forEach(m=>{if(m.type==="characterData")trNode(m.target);else m.addedNodes.forEach(trNode);});}).observe(document.body,{subtree:true,childList:true,characterData:true});}
+
 const KEY="explorador-mundo-v3";
-let albMode0=null,S=null,map=null,meMk=null,fogBounds=null,friendMk={},zoneRect=null,placeMk={},treasMk={},relicMk={},fogCanvas=null,fogCtx=null,brush=null,clouds=null,cloudPat=null,walkAnim=0,gpsWatch=null,toastT=0,current="mapa",lbMode="cerca",albMode="lugares",tilesOk=0,tilesErr=0,saveT=0,photoFor=null,revealQ=[],shareBlob=null,shareText="";
+let albMode0=null,S=null,map=null,meMk=null,fogBounds=null,friendMk={},zoneRect=null,placeMk={},treasMk={},relicMk={},fogCanvas=null,fogCtx=null,brush=null,clouds=null,cloudPat=null,walkAnim=0,gpsWatch=null,toastT=0,current="mapa",lbMode="cerca",albMode="sitios",tilesOk=0,tilesErr=0,saveT=0,photoFor=null,revealQ=[],shareBlob=null,shareText="";
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=(n,d)=>Number(n).toLocaleString("es-ES",{minimumFractionDigits:d||0,maximumFractionDigits:d||0});
@@ -1420,7 +1522,7 @@ function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i)
 function distM(a,b){const R=6371000,t=Math.PI/180,dLat=(b[0]-a[0])*t,dLng=(b[1]-a[1])*t,x=Math.sin(dLat/2)**2+Math.cos(a[0]*t)*Math.cos(b[0]*t)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
 function dayStr(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 function W(){if(!S.world)S.world={pts:[],big:[],cells:{},km:0,pos:null};if(!S.world.big)S.world.big=[];return S.world;}
-function fresh(){return {world:{pts:[],big:[],cells:{},km:0,pos:null},zones:{},bumps:{},found:{},treas:{},relics:{},visits:{},rates:{},added:{},reports:{},flares:1,user:"tu_usuario",daily:{},night:0,hawk:0};}
+function fresh(){return {world:{pts:[],big:[],cells:{},km:0,pos:null},zones:{},bumps:{},found:{},treas:{},relics:{},visits:{},rates:{},added:{},reports:{},confirms:{},flares:1,user:"tu_usuario",daily:{},night:0,hawk:0};}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.world)return d;}}catch(e){}return null;}
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300);}
 function saveNow(){clearTimeout(saveT);try{localStorage.setItem(KEY,JSON.stringify(S));return true;}catch(e){return false;}}
@@ -1445,17 +1547,17 @@ function relicsNear(ll){
 function relicById(id){const f=FIXED_RELICS.find(x=>x.id===id);if(f)return f;const m=/^g(-?\d+)_(-?\d+)$/.exec(id);return m?relicAt(+m[1],+m[2]):null;}
 let radarSince={};
 function updateRadar(ll){
-  const near=relicsNear(ll).filter(x=>!S.relics[x.id]).map(x=>({x:x,d:distM(ll,x.ll)})).filter(o=>o.d<=RADAR_M).sort((a,b)=>a.d-b.d)[0];
+  const near=relicsNear(ll).filter(x=>!S.relics[x.id]).map(x=>({x:x,d:distM(ll,x.ll)})).filter(o=>o.d<=RADAR_SHOW).sort((a,b)=>a.d-b.d)[0];
   const el=$("#radar");if(!near){el.hidden=true;return;}
   if(!radarSince[near.x.id])radarSince[near.x.id]=Date.now();
-  const d=near.d,lv=d<45?["¡Ardiendo!","#FF453A",".5s"]:d<100?["Caliente","#FF9F0A",".8s"]:d<190?["Templado","#FFD60A","1.2s"]:["Frío","#5AC8FA","1.8s"];
+  const d=near.d,lv=d<30?["¡Ardiendo!","#FF453A",".5s"]:d<70?["Caliente","#FF9F0A",".8s"]:d<110?["Templado","#FFD60A","1.2s"]:["Frío","#5AC8FA","1.8s"];
   if(el.dataset.lv!==lv[0]){el.dataset.lv=lv[0];if(!el.hidden)SFX.radar();}el.hidden=false;el.style.setProperty("--rc",lv[1]);el.style.setProperty("--rs",lv[2]);
   $("#rdTxt").textContent=lv[0];$("#rdSub").textContent="Reliquia oculta cerca · encuéntrala a menos de "+RELIC_FIND+" m";
 }
 
 /* ---------- Puntos y niveles ---------- */
 function xp(){
-  return Object.keys(S.found).reduce((s,id)=>{const p=findPlace(id);return s+(p?RAR[p.r][1]:0);},0)+Math.round(W().km*20)+Object.keys(S.treas).length*30+Object.values(S.visits||{}).reduce((s,v)=>s+(v.x||5),0)+Object.values(S.rates||{}).reduce((s,v)=>s+(v.x||10),0)+Object.keys(S.added||{}).length*20+
+  return Object.keys(S.found).reduce((s,id)=>{const p=findPlace(id);return s+(p?RAR[p.r][1]:0);},0)+Math.round(W().km*20)+Object.keys(S.treas).length*30+Object.values(S.visits||{}).reduce((s,v)=>s+(v.x||5),0)+Object.values(S.rates||{}).reduce((s,v)=>s+(v.x||10),0)+Object.values(S.confirms||{}).reduce((s,v)=>s+(v.x||3),0)+Object.keys(S.added||{}).length*20+
     Object.keys(S.relics).reduce((s,id)=>s+RELRAR[S.relics[id].r][1]*(S.relics[id].x2?2:1),0)+Object.keys(S.bumps||{}).length*40+(S.bonus||0);
 }
 function levelOf(x){return Math.floor(Math.sqrt(x/50))+1;}
@@ -1564,32 +1666,37 @@ const CATS={
   aed:{n:"Desfibrilador",pl:"Desfibriladores",e:"❤️",col:"#FF3B30",tags:["Accesible 24 h","Bien señalizado"]},
   atm:{n:"Cajero",pl:"Cajeros",e:"🏧",col:"#8E8E93",tags:["Sin comisión","Funciona"]},
   dog:{n:"Zona para perros",pl:"Perros",e:"🐕",col:"#FF9F0A",tags:["Vallada","Limpia","Con fuente"]},
-  play:{n:"Parque infantil",pl:"Infantiles",e:"🛝",col:"#FF375F",tags:["Sombra","Limpio","Para peques"]}};
-const CAT_ORDER=["toilets","water","wifi","charge","bench","aed","atm","dog","play"];
-const TITLES={toilets:"Inspector de baños",water:"Catador de fuentes",wifi:"Cazador de WiFi",charge:"Señor de los enchufes",bench:"Experto en bancos",aed:"Guardián salvavidas",atm:"Rastreador de cajeros",dog:"Amigo de los perros",play:"Explorador de parques"};
-const RATE_M=10,VISIT_M=10,POI_KEY="explorador-poi-v1",POI_CELL=0.01,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+  play:{n:"Parque infantil",pl:"Infantiles",e:"🛝",col:"#FF375F",tags:["Sombra","Limpio","Para peques"]},
+  monu:{n:"Monumento",pl:"Monumentos",e:"🏛️",col:"#D4A017",tags:["Imprescindible","Poca gente","Buenas fotos","Gratis"]},
+  odd:{n:"Curiosidad",pl:"Curiosidades",e:"🗿",col:"#BF5AF2",tags:["Sorprendente","Escondido","Buenas fotos"]}};
+const CAT_ORDER=["toilets","water","monu","odd","wifi","charge","bench","aed","atm","dog","play"];
+const TITLES={toilets:"Inspector de baños",water:"Catador de fuentes",wifi:"Cazador de WiFi",charge:"Señor de los enchufes",bench:"Experto en bancos",aed:"Guardián salvavidas",atm:"Rastreador de cajeros",dog:"Amigo de los perros",play:"Explorador de parques",monu:"Cazador de monumentos",odd:"Coleccionista de rarezas"};
+const RATE_M=10,VISIT_M=10,BIG_M=40,POI_KEY="explorador-poi-v2",POI_CELL=0.01,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
 let POI={},poiMk={},poiCells={},poiLoading={},filt=null,rateDraft=null;
-try{const c=JSON.parse(localStorage.getItem(POI_KEY)||"{}");if(c&&c.cells){poiCells=c.cells;POI=c.poi||{};}}catch(e){}
+try{const c=JSON.parse(localStorage.getItem(POI_KEY)||"{}");if(c&&c.cells){poiCells=c.cells;POI=c.poi||{};Object.keys(POI).forEach(id=>{if(POI[id].demo)delete POI[id];});Object.keys(poiCells).forEach(k=>{if(!(poiCells[k].ids||[]).length)delete poiCells[k];});}}catch(e){}
 function savePoiCache(){try{const ks=Object.keys(poiCells);if(ks.length>30){ks.sort((a,b)=>poiCells[a].t-poiCells[b].t).slice(0,ks.length-30).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>delete POI[id]);delete poiCells[k];});}
   localStorage.setItem(POI_KEY,JSON.stringify({cells:poiCells,poi:POI}));}catch(e){}}
 function here(){return W().pos||START;}
 function catOf(t){if(t.amenity==="toilets")return "toilets";if(t.amenity==="drinking_water")return "water";if(t.emergency==="defibrillator")return "aed";if(t.amenity==="atm")return "atm";
   if(t.amenity==="device_charging_station")return "charge";if(t.leisure==="dog_park")return "dog";if(t.leisure==="playground")return "play";if(t.amenity==="bench")return "bench";
-  if(t.internet_access==="wlan"||t.internet_access==="yes")return "wifi";return null;}
-const KEEP=["fee","wheelchair","changing_table","opening_hours","access","internet_access:fee","backrest","covered","indoor","operator","unisex","toilets:disposal","drinking_water","bottle","level","description"];
+  if(t.internet_access==="wlan"||t.internet_access==="yes")return "wifi";
+  if(t.tourism==="artwork"||t.historic==="memorial"||/^(boundary_stone|wayside_cross|wayside_shrine|milestone|cannon|aircraft|locomotive|ship|tank)$/.test(t.historic||"")||/^(obelisk|clock)$/.test(t.man_made||""))return t.name||t.artwork_type||t.historic?"odd":null;
+  if(/^(attraction|museum|viewpoint)$/.test(t.tourism||"")||/^(monument|castle|ruins|archaeological_site|city_gate|fort|tower|church)$/.test(t.historic||"")||(t.amenity==="place_of_worship"&&(t.wikipedia||t.wikidata)))return t.name?"monu":null;
+  return null;}
+const KEEP=["wikipedia","wikidata","image","wikimedia_commons","historic","tourism","artwork_type","man_made","amenity","start_date","artist_name","heritage","inscription","description:es","description:en","toilets:position","fee","wheelchair","changing_table","opening_hours","access","internet_access:fee","backrest","covered","indoor","operator","unisex","toilets:disposal","drinking_water","bottle","level","description"];
 function poiCellKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI_CELL);}
 function allPois(){return Object.assign({},POI,S.added||{});}
 function fetchPOIs(ll){
   const k=poiCellKey(ll);if(poiLoading[k])return;const c=poiCells[k];if(c&&Date.now()-c.t<7*864e5)return;
   const i=+k.split(":")[0],j=+k.split(":")[1],lat=((i+.5)*POI_CELL).toFixed(5),lng=((j+.5)*POI_CELL).toFixed(5),R=850,A="(around:"+R+","+lat+","+lng+")";
-  const q='[out:json][timeout:25];(nwr["amenity"="toilets"]'+A+';node["amenity"="drinking_water"]'+A+';nwr["emergency"="defibrillator"]'+A+';node["amenity"="atm"]'+A+';nwr["amenity"="device_charging_station"]'+A+';nwr["leisure"~"^(dog_park|playground)$"]'+A+';nwr["internet_access"~"^(wlan|yes)$"]'+A+';node["amenity"="bench"](around:500,'+lat+','+lng+'););out center tags;';
+  const q='[out:json][timeout:25];(nwr["amenity"="toilets"]'+A+';node["amenity"="drinking_water"]'+A+';nwr["emergency"="defibrillator"]'+A+';node["amenity"="atm"]'+A+';nwr["amenity"="device_charging_station"]'+A+';nwr["leisure"~"^(dog_park|playground)$"]'+A+';nwr["internet_access"~"^(wlan|yes)$"]'+A+';node["amenity"="bench"](around:500,'+lat+','+lng+');nwr["tourism"~"^(attraction|museum|viewpoint|artwork)$"]'+A+';nwr["historic"~"^(monument|memorial|castle|ruins|archaeological_site|city_gate|fort|tower|church|boundary_stone|wayside_cross|wayside_shrine|milestone|cannon|aircraft|locomotive|ship|tank)$"]'+A+';nwr["man_made"~"^(obelisk|clock)$"]["name"]'+A+';nwr["amenity"="place_of_worship"]["wikidata"]'+A+';);out center tags;';
   poiLoading[k]=1;setPoiStatus("Buscando sitios útiles cerca…");
   const tryAt=n=>fetch(OVERPASS[n],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
     .catch(e=>{if(n+1<OVERPASS.length)return tryAt(n+1);throw e;});
   tryAt(0).then(d=>{const ids=[];(d.elements||[]).forEach(e=>{const t=e.tags||{},c=catOf(t);if(!c)return;const pll=e.lat!=null?[e.lat,e.lon]:e.center?[e.center.lat,e.center.lon]:null;if(!pll)return;
-      const id=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[id]={id:id,c:c,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t.name||"").slice(0,60),tg:tg};ids.push(id);});
+      const id=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[id]={id:id,c:c,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};ids.push(id);});
       poiCells[k]={t:Date.now(),ids:ids};savePoiCache();delete poiLoading[k];setPoiStatus(ids.length?"":"No hay sitios útiles registrados aquí todavía. ¡Añade el primero!");renderPOIs();})
-    .catch(()=>{delete poiLoading[k];poiCells[k]={t:Date.now()-6.9*864e5,ids:[]};seedDemo(ll);setPoiStatus("Sin conexión con OpenStreetMap: te enseño sitios de ejemplo.");renderPOIs();});
+    .catch(()=>{delete poiLoading[k];poiCells[k]={t:Date.now()-6.97*864e5,ids:[]};setPoiStatus("No he podido cargar los sitios de esta zona. Lo vuelvo a intentar en un momento.");});
 }
 function seedDemo(ll){
   if(Object.values(POI).some(p=>p.demo&&distM(p.ll,ll)<600))return;let s=hash(poiCellKey(ll));const R=()=>{s=(Math.imul(s,16807)>>>0)%2147483647;return s/2147483647;};
@@ -1597,21 +1704,32 @@ function seedDemo(ll){
   plan.forEach((c,n)=>{const a=R()*Math.PI*2,d=(n<2?25+R()*60:60+R()*480),id="x"+poiCellKey(ll)+"_"+n;POI[id]={id:id,c:c,demo:1,ll:[ll[0]+Math.cos(a)*d/111320,ll[1]+Math.sin(a)*d/(111320*Math.cos(ll[0]*Math.PI/180))],n:"",tg:c==="toilets"?(n%2?{fee:"no",wheelchair:"yes"}:{fee:"yes",changing_table:"yes"}):{}};});
 }
 function setPoiStatus(t){const el=$("#poiStatus");if(!el)return;el.textContent=t;el.hidden=!t;if(t)clearTimeout(el._t),el._t=setTimeout(()=>{el.hidden=true;},5000);}
-function rateOf(p){if(sbOn()){const st=SBSTAT[p.id]||{n:0,avg:0},me0=S.rates[p.id];let n=st.n,avg=st.avg;if(me0&&!me0.synced){avg=(avg*n+me0.s)/(n+1);n++;}return {n:n,avg:avg,sample:false};}const h=hash(p.id),n0=p.mine?0:(h%7===0?0:(h>>>3)%34),a0=2.6+((h>>>9)%24)/10,me=S.rates[p.id];let n=n0,avg=n0?a0:0;if(me){avg=(avg*n+me.s)/(n+1);n++;}return {n:n,avg:Math.min(5,avg),sample:n0>0};}
+function rateOf(p){if(sbOn()){const st=SBSTAT[p.id]||{n:0,avg:0},me0=S.rates[p.id];let n=st.n,avg=st.avg;if(me0&&!me0.synced){avg=(avg*n+me0.s)/(n+1);n++;}return {n:n,avg:avg,sample:false};}const me=S.rates[p.id];return me?{n:1,avg:me.s,sample:false}:{n:0,avg:0,sample:false};}
 function starsHTML(v,big){let h='<span class="stars'+(big?" big":"")+'" aria-label="'+fmt(v,1)+' de 5">';for(let i=1;i<=5;i++){const f=Math.max(0,Math.min(1,v-i+1));h+='<i style="--f:'+(f*100).toFixed(0)+'%">★</i>';}return h+'</span>';}
 function poiIcon(p){const c=CATS[p.c],r=rateOf(p),vis=S.visits[p.id];
-  const cl=ohOpen(p.tg&&p.tg.opening_hours)===false;return L.divIcon({className:"",html:'<div class="pin'+(vis?" vis":"")+(p.c==="bench"?" sm":"")+(cl?" shut":"")+'" style="--pc:'+c.col+'"><span>'+c.e+'</span>'+(r.n&&p.c!=="bench"?'<em>'+fmt(r.avg,1)+'</em>':'')+'</div>',iconSize:[36,44],iconAnchor:[18,42]});}
+  const cl=ohOpen(p.tg&&p.tg.opening_hours)===false;return L.divIcon({className:"",html:'<div class="pin'+(vis?" vis":"")+(p.c==="bench"?" sm":"")+(p.c==="monu"||p.c==="odd"?" mon":"")+(cl?" shut":"")+'" style="--pc:'+c.col+'"><span>'+c.e+'</span>'+(r.n&&p.c!=="bench"?'<em>'+fmt(r.avg,1)+'</em>':'')+'</div>',iconSize:[36,44],iconAnchor:[18,42]});}
 function renderPOIs(){
   if(!map)return;const ctr=map.getCenter(),cll=[ctr.lat,ctr.lng],z=map.getZoom(),P=allPois(),want={};
-  Object.values(P).filter(p=>(!filt||p.c===filt)&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)&&!(S.openOnly&&ohOpen(p.tg&&p.tg.opening_hours)===false)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).slice(0,220).forEach(o=>want[o.p.id]=o.p);
+  Object.values(P).filter(p=>(!filt||p.c===filt)&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)&&!(S.openOnly&&ohOpen(p.tg&&p.tg.opening_hours)===false)&&fxOk(p)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).slice(0,220).forEach(o=>want[o.p.id]=o.p);
   Object.keys(poiMk).forEach(id=>{if(!want[id]){poiMk[id].remove();delete poiMk[id];}});
   Object.values(want).forEach(p=>{if(poiMk[p.id])return;const m=L.marker(p.ll,{icon:poiIcon(p),title:CATS[p.c].n,keyboard:true,zIndexOffset:200,riseOnHover:true}).addTo(map);m.on("click",()=>openPOI(p.id));poiMk[p.id]=m;});
   sbStats(Object.keys(want));sbPlaces(cll);
 }
 function refreshPOI(id){const p=allPois()[id];if(p&&poiMk[id])poiMk[id].setIcon(poiIcon(p));}
+let askQ=[],askT=0,askCur=null;
+function radiusOf(p){return p.c==="monu"||p.c==="odd"?BIG_M:VISIT_M;}
+function visitXP(p){return p.c==="monu"?((p.tg&&(p.tg.wikipedia||p.tg.wikidata))?25:15):p.c==="odd"?15:5;}
 function checkVisits(ll){
-  const P=allPois();Object.values(P).forEach(p=>{if(S.visits[p.id]||distM(ll,p.ll)>VISIT_M)return;const x=5*evMult(p.c);S.visits[p.id]={ts:Date.now(),x:x,c:p.c};refreshPOI(p.id);SFX.pop();buzz(30);toast(CATS[p.c].e+" "+(p.n||CATS[p.c].n)+" · descubierto +"+x+" XP");});
+  const P=allPois();Object.values(P).forEach(p=>{if(distM(ll,p.ll)>radiusOf(p))return;
+    if(!S.visits[p.id]){const x=visitXP(p)*evMult(p.c);if(p.c==="monu"||p.c==="odd"){S.visits[p.id]={ts:Date.now(),x:x,c:p.c};refreshPOI(p.id);revealQ.push({k:"monu",id:p.id,x:x});if($("#reveal").hidden){cancelAnimationFrame(walkAnim);setTimeout(nextReveal,250);}return;}S.visits[p.id]={ts:Date.now(),x:x,c:p.c};refreshPOI(p.id);SFX.pop();buzz(30);toast(CATS[p.c].e+" "+(p.n||CATS[p.c].n)+" · descubierto +"+x+" XP");}
+    const cf=S.confirms[p.id];if(!p.mine&&(!cf||Date.now()-cf.ts>30*864e5)&&askQ.indexOf(p.id)<0&&askCur!==p.id){askQ.push(p.id);nextAsk();}});
 }
+function nextAsk(){if(askCur||!askQ.length)return;const id=askQ.shift(),p=allPois()[id];if(!p)return nextAsk();askCur=id;const c=CATS[p.c],el=$("#ask");
+  el.innerHTML='<b>'+c.e+' '+esc(p.n||c.n)+' · ¿sigue aquí?</b><small>Confirmarlo ayuda a que el mapa sea fiable · +3 XP</small><div class="btnrow"><button type="button" class="btn" data-conf="1">Sí, sigue aquí</button><button type="button" class="btn glassb" data-conf="0">No está</button></div>';
+  el.classList.add("show");clearTimeout(askT);askT=setTimeout(()=>{closeAsk();},15000);}
+function closeAsk(){const el=$("#ask");el.classList.remove("show");askCur=null;setTimeout(nextAsk,600);}
+function answerAsk(ok){const id=askCur;if(!id)return;S.confirms[id]={ok:ok,ts:Date.now(),x:3};save();updateHud();SFX.pop();buzz(20);
+  if(!ok){S.reports[id]=(S.reports[id]||0)+1;sbSendReport(id);toast("Gracias: lo marcamos para revisar");}else{sbSendConfirm(id);toast("¡Gracias! +3 XP");}refreshPOI(id);clearTimeout(askT);closeAsk();}
 function poiFacts(p){const t=p.tg||{},f=[];
   if(t.fee==="no")f.push("Gratis");else if(t.fee==="yes")f.push("De pago");
   if(t.wheelchair==="yes")f.push("Adaptado");else if(t.wheelchair==="limited")f.push("Adaptado en parte");
@@ -1622,12 +1740,13 @@ function poiFacts(p){const t=p.tg||{},f=[];
 function commTags(p){const c=CATS[p.c],h=hash(p.id+"t");return [c.tags[h%c.tags.length],c.tags[(h>>>4)%c.tags.length]].filter((v,i,a)=>a.indexOf(v)===i).map((t,i)=>[t,55+((h>>>(8+i*5))%40)]);}
 function routeURL(ll){return "https://maps.apple.com/?daddr="+ll[0].toFixed(6)+","+ll[1].toFixed(6)+"&dirflg=w";}
 function openPOI(id){
-  const p=allPois()[id];if(!p)return;const c=CATS[p.c],d=distM(here(),p.ll),near=d<=RATE_M,r=rateOf(p),me=S.rates[id],facts=poiFacts(p);
+  const p=allPois()[id];if(!p)return;const c=CATS[p.c],d=distM(here(),p.ll),near=d<=(p.c==="monu"||p.c==="odd"?BIG_M:RATE_M),r=rateOf(p),me=S.rates[id],facts=poiFacts(p);
   rateDraft=near?{id:id,s:me?me.s:0,t:new Set(me?me.t:[]),ph:null}:null;
-  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+(p.by?' · añadido por @'+esc(p.by):'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht">'+esc(p.n||c.n)+'</div>'+openLabel(p);
-  h+='<div class="rate-sum">'+(r.n?'<b class="num">'+fmt(r.avg,1)+'</b>'+starsHTML(r.avg,true)+'<small>'+r.n+(r.n===1?" valoración":" valoraciones")+(r.sample?' (de ejemplo hasta que conectemos el servidor)':'')+'</small>':'<small>Todavía nadie lo ha valorado. ¡Sé el primero!</small>')+'</div>';
-  if(r.sample)h+='<div class="ctags">'+commTags(p).map(t=>'<span>'+esc(t[0])+' <em>'+t[1]+' %</em></span>').join("")+'</div>';
+  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+(p.by?' · añadido por @'+esc(p.by):'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht"'+(p.n?' translate="no"':'')+'>'+esc(p.n||c.n)+'</div>'+openLabel(p);
+  h+='<div class="rate-sum">'+(r.n?'<b class="num">'+fmt(r.avg,1)+'</b>'+starsHTML(r.avg,true)+'<small>'+r.n+(r.n===1?" valoración":" valoraciones")+(r.sample?' (de ejemplo hasta que conectemos el servidor)':'')+'</small>':'<small>'+(sbOn()?'Todavía nadie lo ha valorado. ¡Sé el primero!':'Sin valoraciones todavía. Las de la gente aparecerán al conectar el servidor.')+'</small>')+'</div>';
+  h+='<div id="poiInfo"></div>';
   if(facts.length)h+='<div class="facts2">'+facts.map(f=>'<span>'+esc(f)+'</span>').join("")+'</div>';
+  {const cf=S.confirms[id];if(cf)h+='<p class="srcnote">'+(cf.ok?'✓ Confirmaste que sigue aquí':'✗ Avisaste de que no está')+' el '+new Date(cf.ts).toLocaleDateString("es-ES",{day:"numeric",month:"long"})+'.</p>';}
   h+='<div id="poiComm"></div>';
   if(me&&(me.ph||me.photoUrl))h+='<img src="'+esc(me.photoUrl||me.ph)+'" alt="Tu foto" style="display:block;width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-top:10px">';
   if(me)h+='<p class="shp mine">Tu valoración: '+starsHTML(me.s)+(me.t&&me.t.length?' · '+esc(me.t.join(", ")):'')+(me.c?'<br><i>“'+esc(me.c)+'”</i>':'')+'</p>';
@@ -1637,13 +1756,13 @@ function openPOI(id){
       '<label class="sharebtn" for="phIn" id="phLbl">📷 Añadir foto</label><img id="phPrev" alt="Vista previa" hidden>'+
       '<button type="button" class="btn full" data-rate="'+esc(id)+'">Enviar valoración · +'+(me?0:10*evMult(p.c))+' XP</button>'+
       '<button type="button" class="link rep" data-report="'+esc(id)+'">Avisar: está cerrado o ya no existe</button></div>';}
-  else h+='<p class="shp">Para valorarlo tienes que estar a menos de <b>'+RATE_M+' m</b>. Ahora estás a <b>'+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</b>.</p><div class="btnrow"><a class="btn dark" href="'+routeURL(p.ll)+'" target="_blank" rel="noopener">Cómo llegar</a>'+(gpsWatch==null&&d<=4000?'<button type="button" class="btn grey" data-walkp="'+esc(id)+'">Ir (demo)</button>':'<button type="button" class="btn grey" data-center="'+esc(id)+'">Ver en el mapa</button>')+'</div>';
+  else h+='<p class="shp">Para valorarlo tienes que estar a menos de <b>'+radiusOf(p)+' m</b>. Ahora estás a <b>'+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</b>.</p><div class="btnrow"><a class="btn dark" href="'+routeURL(p.ll)+'" target="_blank" rel="noopener">Cómo llegar</a>'+(gpsWatch==null&&d<=4000?'<button type="button" class="btn grey" data-walkp="'+esc(id)+'">Ir (demo)</button>':'<button type="button" class="btn grey" data-center="'+esc(id)+'">Ver en el mapa</button>')+'</div>';
   h+='<button type="button" class="sharebtn" data-share-poi="'+esc(id)+'">'+ICON.share+'Compartir</button>';
   if(!p.demo&&!p.mine&&!p.shared)h+='<p class="srcnote">Dato de OpenStreetMap, el mapa libre que hace la gente.</p>';
-  openSheet(h);loadComments(id);
+  openSheet(h);loadComments(id);loadInfo(p);
 }
 function submitRate(id){
-  const p=allPois()[id];if(!p||!rateDraft||rateDraft.id!==id)return;if(distM(here(),p.ll)>RATE_M){toast("Acércate a menos de "+RATE_M+" m para valorarlo");return;}
+  const p=allPois()[id];if(!p||!rateDraft||rateDraft.id!==id)return;if(distM(here(),p.ll)>radiusOf(p)){toast("Acércate a menos de "+radiusOf(p)+" m para valorarlo");return;}
   if(!rateDraft.s){toast("Elige de 1 a 5 estrellas");return;}
   const prev=S.rates[id],lv0=levelOf(xp());S.rates[id]={s:rateDraft.s,t:[...rateDraft.t],c:(($("#rateTxt")||{}).value||"").trim().slice(0,140),ts:Date.now(),x:prev?prev.x:10*evMult(p.c),cat:p.c};
   if(rateDraft.ph)S.rates[id].ph=rateDraft.ph;else if(prev&&(prev.ph||prev.photoUrl)){S.rates[id].ph=prev.ph;S.rates[id].photoUrl=prev.photoUrl;}
@@ -1661,7 +1780,19 @@ function nearestToilet(){
 function openAdd(){openSheet('<div class="shk">Añadir un sitio útil aquí</div><div class="sht">¿Qué has encontrado?</div><p class="shp">Se añade justo donde estás. Ganas 25 XP y apareces como su descubridor.</p><div class="addgrid">'+CAT_ORDER.map(c=>'<button type="button" data-addc="'+c+'"><span style="background:'+CATS[c].col+'">'+CATS[c].e+'</span>'+esc(CATS[c].n)+'</button>').join("")+'</div>');}
 function addPOI(c){const h=here();if(!S.added)S.added={};const id="u"+Date.now().toString(36);S.added[id]={id:id,c:c,ll:[+h[0].toFixed(6),+h[1].toFixed(6)],n:"",tg:{},mine:1,ts:Date.now()};sbSendPlace(S.added[id]);S.visits[id]={ts:Date.now(),x:5,c:c};save();closeSheet();renderPOIs();updateHud();SFX.chime();toast(CATS[c].e+" Añadido · +25 XP");setTimeout(()=>openPOI(id),300);}
 function reportPOI(id){S.reports[id]=(S.reports[id]||0)+1;sbSendReport(id);save();closeSheet();toast("Gracias por avisar. Lo revisaremos con más avisos de la gente");}
-function renderFilters(){const el=$("#filters");if(!el)return;el.innerHTML='<button type="button" class="opnchip" data-open="1" aria-pressed="'+(!!S.openOnly)+'">🟢 Abierto ahora</button><button type="button" data-f="" aria-pressed="'+(!filt)+'">Todo</button>'+CAT_ORDER.map(c=>'<button type="button" data-f="'+c+'" aria-pressed="'+(filt===c)+'"><span>'+CATS[c].e+'</span>'+esc(CATS[c].pl)+'</button>').join("");}
+function hasTag(p,t){const me=S.rates[p.id];return !!(me&&me.t&&me.t.indexOf(t)>=0);}
+function fxOk(p){const fx=S.fx||{},t=p.tg||{};
+  if(fx.free&&!(t.fee==="no"||t["internet_access:fee"]==="no"||hasTag(p,"Gratis")||hasTag(p,"Gratis de verdad")||(["water","bench","play","dog","aed"].includes(p.c)&&t.fee!=="yes")))return false;
+  if(fx.wheel&&!(t.wheelchair==="yes"||t.wheelchair==="limited"||hasTag(p,"Adaptado")))return false;
+  if(fx.baby&&!(t.changing_table==="yes"||hasTag(p,"Cambiador")))return false;return true;}
+function openSearch(){openSheet('<div class="shk">Buscar</div><div class="sht">¿Adónde vas?</div><div class="srchbox"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#8E8E93" d="M10 3a7 7 0 1 0 4.2 12.6l5.1 5.1 1.4-1.4-5.1-5.1A7 7 0 0 0 10 3zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg><input id="qIn" type="search" enterkeyhint="search" placeholder="Barrio, calle o sitio (p. ej. Sagrada Familia)" autocomplete="off"></div><div class="group srchres" id="qRes" style="margin-top:10px"></div><p class="srcnote">Busca un sitio y verás los baños, fuentes y demás que hay allí.</p>');
+  setTimeout(()=>{const i=$("#qIn");if(i){i.focus();i.addEventListener("keydown",e=>{if(e.key==="Enter")doSearch(i.value);});let t=0;i.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(()=>doSearch(i.value),450);});}},80);}
+let qSeq=0;
+function doSearch(q){q=(q||"").trim();const box=$("#qRes");if(!box)return;if(q.length<3){box.innerHTML="";return;}const my=++qSeq,h=here();box.innerHTML='<p class="empty">Buscando…</p>';
+  fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language="+(LANG==="en"?"en":"es")+"&q="+encodeURIComponent(q)+"&viewbox="+(h[1]-.5)+","+(h[0]+.5)+","+(h[1]+.5)+","+(h[0]-.5)).then(r=>r.json()).then(rows=>{if(my!==qSeq||!box.isConnected)return;
+    box.innerHTML=rows.length?rows.map(r=>{const parts=(r.display_name||"").split(", ");return '<div class="row" translate="no" data-goto="'+(+r.lat).toFixed(6)+','+(+r.lon).toFixed(6)+'"><div><b>'+esc(parts[0])+'</b><small>'+esc(parts.slice(1,4).join(", "))+'</small></div></div>';}).join(""):'<p class="empty">No encuentro nada con ese nombre.</p>';})
+    .catch(()=>{if(box.isConnected)box.innerHTML='<p class="empty">Sin conexión para buscar ahora mismo.</p>';});}
+function renderFilters(){const el=$("#filters");if(!el)return;const fx=S.fx||{};el.innerHTML='<button type="button" class="opnchip" data-open="1" aria-pressed="'+(!!S.openOnly)+'">🟢 Abierto ahora</button>'+[["free","Gratis"],["wheel","♿ Adaptado"],["baby","🚼 Cambiador"]].map(x=>'<button type="button" class="fx" data-fx="'+x[0]+'" aria-pressed="'+(!!fx[x[0]])+'">'+x[1]+'</button>').join("")+'<span class="sep"></span><button type="button" data-f="" aria-pressed="'+(!filt)+'">Todo</button>'+CAT_ORDER.map(c=>'<button type="button" data-f="'+c+'" aria-pressed="'+(filt===c)+'"><span>'+CATS[c].e+'</span>'+esc(CATS[c].pl)+'</button>').join("");}
 /* Nombre del barrio (Nominatim, una vez por zona) */
 let znWait={};
 function zoneName(ll){const k=zoneKey(ll);if(!S.zname)S.zname={};if(S.zname[k])return S.zname[k];if(!znWait[k]){znWait[k]=1;fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=es&lat="+ll[0].toFixed(5)+"&lon="+ll[1].toFixed(5))
@@ -1708,6 +1839,7 @@ async function sbSendRate(id){
   }catch(e){}
 }
 function sbSendPlace(p){if(!sbOn())return;fetch(SB.url+"/rest/v1/places",{method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({id:p.id,cat:p.c,lat:p.ll[0],lng:p.ll[1],name:p.n||null,device_id:devId(),user_name:prof().name})}).then(r=>{if(r.ok){p.synced=1;save();}}).catch(()=>{});}
+function sbSendConfirm(id){if(!sbOn())return;fetch(SB.url+"/rest/v1/confirms",{method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({poi_id:id,device_id:devId()})}).catch(()=>{});}
 function sbSendReport(id){if(!sbOn())return;fetch(SB.url+"/rest/v1/reports",{method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({poi_id:id,device_id:devId()})}).catch(()=>{});}
 function sbSyncPending(){if(!sbOn())return;Object.keys(S.rates).forEach(id=>{if(!S.rates[id].synced)sbSendRate(id);});Object.values(S.added||{}).forEach(p=>{if(!p.synced)sbSendPlace(p);});}
 function loadComments(id){const el=$("#poiComm");if(!el)return;
@@ -1715,7 +1847,7 @@ function loadComments(id){const el=$("#poiComm");if(!el)return;
   fetch(SB.url+"/rest/v1/ratings?select=stars,tags,comment,photo_url,user_name,created_at&poi_id=eq."+encodeURIComponent(id)+"&order=created_at.desc&limit=8",{headers:sbH()}).then(r=>r.ok?r.json():[]).then(rows=>{if(!el.isConnected)return;
     const ph=rows.filter(r=>r.photo_url).slice(0,6),cm=rows.filter(r=>r.comment||(r.tags&&r.tags.length)).slice(0,5);
     el.innerHTML=(ph.length?'<div class="phstrip">'+ph.map(r=>'<img src="'+esc(r.photo_url)+'" alt="Foto de @'+esc(r.user_name||"")+'" loading="lazy">').join("")+'</div>':'')+
-      (cm.length?'<p class="rf-t" style="margin-top:14px">Lo que dice la gente</p>'+cm.map(r=>'<div class="cmt"><b>@'+esc(r.user_name||"anónimo")+'</b> '+starsHTML(r.stars)+(r.tags&&r.tags.length?'<small> · '+esc(r.tags.join(", "))+'</small>':'')+(r.comment?'<p>'+esc(r.comment)+'</p>':'')+'</div>').join(""):'');}).catch(()=>{});}
+      (cm.length?'<p class="rf-t" style="margin-top:14px">Lo que dice la gente</p>'+cm.map(r=>'<div class="cmt"><b>@'+esc(r.user_name||"anónimo")+'</b> '+starsHTML(r.stars)+(r.tags&&r.tags.length?'<small> · '+esc(r.tags.join(", "))+'</small>':'')+(r.comment?'<p translate="no">'+esc(r.comment)+'</p>':'')+'</div>').join(""):'');}).catch(()=>{});}
 
 /* ---------- Horarios: ¿está abierto ahora? ---------- */
 function ohOpen(oh,d){
@@ -1782,6 +1914,7 @@ function useRaster(){
 function syncGL(){if(!gl||map._animatingZoom)return;const c=map.getCenter();gl.jumpTo({center:[c.lng,c.lat],zoom:map.getZoom()-1});}
 function tuneStyle(){if(!gl||gl.__tuned===gl.__url)return;try{const st=gl.getStyle();if(!st||!st.layers)return;st.layers.forEach(l=>{if(/poi|housenum|aeroway|transit|rail_station|mountain_peak|building-3d/i.test(l.id))gl.setLayoutProperty(l.id,"visibility","none");});gl.__tuned=gl.__url;}catch(e){}}
 function initGL(){
+  if(!window.maplibregl){if(initGL.loading)return;initGL.loading=1;const sc=document.createElement("script");sc.src="maplibre-gl.js";sc.async=true;sc.onload=()=>initGL();sc.onerror=()=>useRaster();document.head.appendChild(sc);setTimeout(()=>{if(!window.maplibregl)useRaster();},12000);return;}
   let ok=false;try{ok=!!(window.maplibregl&&document.createElement("canvas").getContext("webgl"));}catch(e){}
   if(!ok){useRaster();return;}
   const box=document.createElement("div");box.id="glmap";box.className="glmap";box.setAttribute("aria-hidden","true");map.getContainer().insertBefore(box,map.getContainer().firstChild);
@@ -1800,6 +1933,67 @@ function initGL(){
 /* ---------- Foto al valorar ---------- */
 function readRatePhoto(file){const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const k=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
   if(rateDraft){rateDraft.ph=c.toDataURL("image/jpeg",.72);const pv=$("#phPrev");if(pv){pv.src=rateDraft.ph;pv.hidden=false;}const lb=$("#phLbl");if(lb)lb.textContent="📷 Cambiar foto";}};img.onerror=()=>toast("No se ha podido leer la imagen");img.src=fr.result;};fr.readAsDataURL(file);}
+
+/* ---------- Información real de cada sitio: dónde está, descripción y fotos ---------- */
+const INFO_KEY="explorador-info-v1";let INFO={};try{INFO=JSON.parse(localStorage.getItem(INFO_KEY)||"{}")||{};}catch(e){}
+function saveInfo(){try{const ks=Object.keys(INFO);if(ks.length>250)ks.sort((a,b)=>INFO[a].t-INFO[b].t).slice(0,ks.length-250).forEach(k=>delete INFO[k]);localStorage.setItem(INFO_KEY,JSON.stringify(INFO));}catch(e){}}
+const ES=LANG!=="en";
+const KIND={supermarket:["supermercado","supermarket"],convenience:["tienda","shop"],mall:["centro comercial","shopping centre"],department_store:["grandes almacenes","department store"],bakery:["panadería","bakery"],clothes:["tienda de ropa","clothes shop"],
+  cafe:["cafetería","café"],restaurant:["restaurante","restaurant"],bar:["bar","bar"],pub:["bar","pub"],fast_food:["comida rápida","fast food"],ice_cream:["heladería","ice-cream shop"],library:["biblioteca","library"],townhall:["ayuntamiento","town hall"],
+  marketplace:["mercado","market"],hospital:["hospital","hospital"],clinic:["centro de salud","clinic"],pharmacy:["farmacia","pharmacy"],fuel:["gasolinera","petrol station"],university:["universidad","university"],school:["escuela","school"],
+  place_of_worship:["iglesia","church"],community_centre:["centro cívico","community centre"],cinema:["cine","cinema"],theatre:["teatro","theatre"],bus_station:["estación de autobuses","bus station"],parking:["parking","car park"],
+  station:["estación","station"],park:["parque","park"],garden:["jardín","garden"],playground:["parque infantil","playground"],sports_centre:["polideportivo","sports centre"],stadium:["estadio","stadium"],beach_resort:["playa","beach"],
+  museum:["museo","museum"],attraction:["atracción turística","attraction"],hotel:["hotel","hotel"],information:["punto de información","information point"],viewpoint:["mirador","viewpoint"]};
+function kindOf(t){for(const k of ["shop","amenity","leisure","tourism","railway","public_transport","building"]){const v=t[k];if(v&&KIND[v])return KIND[v][ES?0:1];if(v&&k==="shop")return ES?"tienda":"shop";}return "";}
+function placeInfo(p){
+  if(INFO[p.id]&&Date.now()-INFO[p.id].t<30*864e5)return Promise.resolve(INFO[p.id]);
+  if(placeInfo.w&&placeInfo.w[p.id])return placeInfo.w[p.id];placeInfo.w=placeInfo.w||{};
+  const lat=p.ll[0].toFixed(6),lng=p.ll[1].toFixed(6),info={t:Date.now()},big=p.c==="monu"||p.c==="odd";
+  const near=fetch(OVERPASS[0],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent('[out:json][timeout:12];nwr(around:'+(big?20:45)+','+lat+','+lng+')["name"][~"^(shop|amenity|leisure|tourism|railway|public_transport)$"~"."];out center tags 15;')})
+    .then(r=>r.ok?r.json():{elements:[]}).then(d=>{const own=p.id.slice(1);const list=(d.elements||[]).filter(e=>String(e.id)!==own&&e.tags&&e.tags.amenity!=="bench").map(e=>{const q=e.lat!=null?[e.lat,e.lon]:e.center?[e.center.lat,e.center.lon]:null;return q?{n:e.tags["name:"+LANG]||e.tags.name,k:kindOf(e.tags),d:distM(p.ll,q)}:null;}).filter(Boolean).sort((a,b)=>a.d-b.d);
+      if(list[0])info.near={n:list[0].n.slice(0,60),k:list[0].k,d:Math.round(list[0].d)};}).catch(()=>{});
+  const addr=fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&accept-language="+(ES?"es":"en")+"&lat="+lat+"&lon="+lng).then(r=>r.json()).then(d=>{const a=d&&d.address||{};
+      const road=a.road||a.pedestrian||a.footway||a.square||a.path||"";info.addr=[road+(road&&a.house_number?", "+a.house_number:""),a.neighbourhood||a.quarter||a.suburb||"",a.city||a.town||a.village||""].filter(Boolean).join(" · ").slice(0,120);}).catch(()=>{});
+  const pics=fetch("https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggsnamespace=6&ggslimit=6&ggsradius="+(big?120:70)+"&ggscoord="+lat+"|"+lng+"&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=520")
+    .then(r=>r.json()).then(d=>{const pg=d&&d.query&&d.query.pages?Object.values(d.query.pages):[];info.ph=pg.filter(x=>x.imageinfo&&x.imageinfo[0]&&x.imageinfo[0].thumburl).sort((a,b)=>(a.index||0)-(b.index||0)).slice(0,6).map(x=>{const ii=x.imageinfo[0],em=ii.extmetadata||{},au=em.Artist?String(em.Artist.value).replace(/<[^>]+>/g,"").trim().slice(0,40):"";return {u:ii.thumburl,l:ii.descriptionurl,a:au};});}).catch(()=>{});
+  const wiki=wikiFor(p).then(w=>{if(w)info.w=w;}).catch(()=>{});
+  placeInfo.w[p.id]=Promise.all([near,addr,pics,wiki]).then(()=>{INFO[p.id]=info;saveInfo();delete placeInfo.w[p.id];return info;});
+  return placeInfo.w[p.id];
+}
+function wikiFor(p){const t=p.tg||{};let lang=null,title=null;
+  if(t.wikipedia){const m=/^([a-z\-]+):(.+)$/.exec(t.wikipedia);if(m){lang=m[1];title=m[2];}}
+  const summ=(lg,ti)=>fetch("https://"+lg+".wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(ti.replace(/ /g,"_"))).then(r=>r.ok?r.json():null).then(j=>j&&j.extract?{x:j.extract.slice(0,600),u:j.content_urls&&j.content_urls.mobile?j.content_urls.mobile.page:"https://"+lg+".wikipedia.org/wiki/"+encodeURIComponent(ti),i:j.thumbnail?j.thumbnail.source:(j.originalimage?j.originalimage.source:null),lg:lg}:null);
+  if(t.wikidata){const want=ES?["eswiki","cawiki","enwiki"]:["enwiki","eswiki"];return fetch("https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&origin=*&props=sitelinks|claims&ids="+encodeURIComponent(t.wikidata)).then(r=>r.json()).then(d=>{const e=d&&d.entities&&d.entities[t.wikidata];if(!e)return lang?summ(lang,title):null;
+      const sl=e.sitelinks||{},pick=want.find(w=>sl[w]);const img=e.claims&&e.claims.P18&&e.claims.P18[0]&&e.claims.P18[0].mainsnak.datavalue?e.claims.P18[0].mainsnak.datavalue.value:null;
+      const pr=pick?summ(pick.replace("wiki",""),sl[pick].title):(lang?summ(lang,title):Promise.resolve(null));return pr.then(w=>{if(!w&&img)w={x:"",u:"https://www.wikidata.org/wiki/"+t.wikidata,i:null};if(w&&!w.i&&img)w.i="https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(img)+"?width=600";return w;});});}
+  if(lang)return summ(lang,title);return Promise.resolve(null);}
+function describe(p,info){
+  const t=p.tg||{},c=p.c,bits=[];const nm=info&&info.near;
+  if(c==="toilets"){const a=[];if(t.fee==="no")a.push(ES?"gratuito":"free");else if(t.fee==="yes")a.push(ES?"de pago":"paid");if(t.wheelchair==="yes")a.push(ES?"adaptado":"accessible");
+    bits.push(ES?("Baño público"+(a.length?" "+a.join(" y "):"")+(t.changing_table==="yes"?", con cambiador":"")+"."):((a.length?a.join(", ").replace(/^./,x=>x.toUpperCase())+" public toilet":"Public toilet")+(t.changing_table==="yes"?" with a changing table":"")+"."));
+    if(t.access==="customers")bits.push(ES?"Solo para clientes"+(nm?" de "+nm.n:"")+".":"For customers only"+(nm?" of "+nm.n:"")+".");}
+  else if(c==="monu"||c==="odd"){const h=t.historic||t.tourism||t.artwork_type||"",HT={monument:["Monumento","Monument"],memorial:["Memorial","Memorial"],castle:["Castillo","Castle"],ruins:["Ruinas","Ruins"],archaeological_site:["Yacimiento arqueológico","Archaeological site"],city_gate:["Puerta de la ciudad","City gate"],fort:["Fortificación","Fort"],museum:["Museo","Museum"],viewpoint:["Mirador","Viewpoint"],attraction:["Atracción turística","Tourist attraction"],artwork:["Obra de arte en la calle","Street artwork"],mural:["Mural","Mural"],sculpture:["Escultura","Sculpture"],statue:["Estatua","Statue"],graffiti:["Grafiti","Graffiti"],fountain:["Fuente monumental","Monumental fountain"],tower:["Torre","Tower"],church:["Iglesia","Church"],boundary_stone:["Mojón antiguo","Old boundary stone"],wayside_cross:["Cruz de término","Wayside cross"],wayside_shrine:["Capilla de camino","Wayside shrine"],milestone:["Hito kilométrico antiguo","Old milestone"],cannon:["Cañón histórico","Historic cannon"],locomotive:["Locomotora histórica","Historic locomotive"],aircraft:["Avión histórico","Historic aircraft"],ship:["Barco histórico","Historic ship"],tank:["Tanque histórico","Historic tank"],clock:["Reloj singular","Notable clock"],obelisk:["Obelisco","Obelisk"],place_of_worship:["Templo","Place of worship"]};
+    const ty=HT[t.artwork_type]||HT[t.historic]||HT[t.man_made]||HT[t.tourism]||HT[t.amenity]||null;if(ty)bits.push(ty[ES?0:1]+(t.start_date?(ES?" de ":" from ")+t.start_date:"")+(t.artist_name?(ES?", obra de ":", by ")+t.artist_name:"")+".");
+    if(t["description:"+LANG]||t.description)bits.push(t["description:"+LANG]||t.description);if(t.inscription)bits.push((ES?"Inscripción: “":"Inscription: “")+t.inscription.slice(0,120)+"”");
+    if(t.heritage)bits.push(ES?"Patrimonio protegido.":"Protected heritage.");}
+  else{const n=CATS[c].n;bits.push((ES?n:trText(n))+".");if(t["internet_access:fee"]==="no")bits.push(ES?"WiFi gratuita.":"Free WiFi.");if(t.fee==="no")bits.push(ES?"Gratis.":"Free.");}
+  if(nm&&nm.d<=(c==="monu"||c==="odd"?25:50)&&c!=="monu")bits.push(nm.d<=12?(ES?"Está en ":"It's at ")+nm.n+(nm.k?" ("+nm.k+")":"")+".":(ES?"Junto a ":"Next to ")+nm.n+(nm.k?" ("+nm.k+")":"")+(ES?", a "+nm.d+" m.":", "+nm.d+" m away."));
+  if(t.level)bits.push((ES?"Planta ":"Floor ")+t.level+".");if(t.operator)bits.push((ES?"Lo gestiona ":"Run by ")+t.operator+".");
+  if(t.opening_hours)bits.push((ES?"Horario: ":"Hours: ")+(t.opening_hours==="24/7"?(ES?"abierto 24 h":"open 24 h"):t.opening_hours)+".");
+  return bits.join(" ");
+}
+function infoHTML(p,info){
+  let h='';const w=info&&info.w,big=p.c==="monu"||p.c==="odd";
+  const ph=[];if(w&&w.i)ph.push({u:w.i,l:w.u,a:"Wikipedia"});(info&&info.ph||[]).forEach(x=>{if(ph.length<6&&!ph.some(y=>y.u===x.u))ph.push(x);});
+  if(ph.length)h+='<div class="phstrip big">'+ph.map(x=>'<a href="'+esc(x.l||x.u)+'" target="_blank" rel="noopener"><img src="'+esc(x.u)+'" alt="" loading="lazy"></a>').join("")+'</div><p class="credit">'+(ES?"Fotos de este punto · Wikimedia Commons":"Photos of this spot · Wikimedia Commons")+(ph[0].a?" · "+esc(ph[0].a):"")+'</p>';
+  if(w&&w.x)h+='<p class="desc" translate="no">'+esc(w.x)+' <a href="'+esc(w.u)+'" target="_blank" rel="noopener">'+(ES?"Leer más en Wikipedia":"Read more on Wikipedia")+'</a></p>';
+  const d=describe(p,info);if(d)h+='<p class="desc" translate="no">'+esc(d)+'</p>';
+  if(info&&info.addr)h+='<p class="addr" translate="no">📍 '+esc(info.addr)+'</p>';
+  if(!h)h='<p class="srcnote">'+(ES?"No hay más datos de este sitio todavía.":"No more details about this place yet.")+'</p>';
+  return h;
+}
+function loadInfo(p){const box=$("#poiInfo");if(!box)return;const cached=INFO[p.id];box.innerHTML=cached?infoHTML(p,cached):'<p class="srcnote">'+(ES?"Buscando dónde está exactamente…":"Finding exactly where it is…")+'</p>';
+  placeInfo(p).then(info=>{if(box.isConnected)box.innerHTML=infoHTML(p,info);const nn=info&&info.near;if(!p.n&&nn&&nn.d<=12){const t=$("#sheetBody .sht");if(t&&t.isConnected)t.textContent=CATS[p.c].n+(ES?" · ":" · ")+nn.n;}}).catch(()=>{});}
 
 function confetti(root,colors){const c=document.createElement("div");c.className="confetti";for(let i=0;i<60;i++){const e=document.createElement("i");e.style.left=(Math.random()*100)+"%";e.style.background=colors[i%colors.length];e.style.animationDuration=(1.6+Math.random()*1.6)+"s";e.style.animationDelay=(Math.random()*.5)+"s";c.appendChild(e);}root.appendChild(c);setTimeout(()=>c.remove(),3800);}
 function updateZoneRect(ll){if(!map)return;const b=zoneBounds(ll);if(!zoneRect)zoneRect=L.rectangle(b,{pane:"zone",color:"#FFD60A",weight:2,dashArray:"6 8",fill:false,interactive:false,className:"zonebox"}).addTo(map);else zoneRect.setBounds(b);}
@@ -1822,7 +2016,18 @@ function useFlare(){
 }
 
 /* ---------- Nubes ---------- */
-function makeBrush(){const b=document.createElement("canvas");b.width=b.height=128;const g=b.getContext("2d"),gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,"rgba(0,0,0,1)");gr.addColorStop(.55,"rgba(0,0,0,.95)");gr.addColorStop(1,"rgba(0,0,0,0)");g.fillStyle=gr;g.fillRect(0,0,128,128);return b;}
+function makeBrush(){const b=document.createElement("canvas");b.width=b.height=128;const g=b.getContext("2d"),gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,"rgba(0,0,0,1)");gr.addColorStop(.78,"rgba(0,0,0,1)");gr.addColorStop(.9,"rgba(0,0,0,.55)");gr.addColorStop(1,"rgba(0,0,0,0)");g.fillStyle=gr;g.fillRect(0,0,128,128);return b;}
+const lockPats={};
+function makeLocks(light){
+  const N=88,c=document.createElement("canvas");c.width=c.height=N;const g=c.getContext("2d");
+  g.fillStyle=light?"#C4C9D3":"#2A2B31";g.fillRect(0,0,N,N);
+  g.strokeStyle=light?"rgba(30,42,64,.22)":"rgba(255,255,255,.14)";g.fillStyle=g.strokeStyle;g.lineWidth=2;g.lineCap="round";
+  const lock=(x,y)=>{g.beginPath();g.arc(x,y-4,5.5,Math.PI,0);g.lineTo(x+5.5,y);g.moveTo(x-5.5,y-4);g.lineTo(x-5.5,y);g.stroke();
+    g.beginPath();if(g.roundRect)g.roundRect(x-8.5,y,17,13,3);else g.rect(x-8.5,y,17,13);g.stroke();g.beginPath();g.arc(x,y+5.5,1.8,0,6.3);g.fill();g.fillRect(x-.9,y+6,1.8,3.5);};
+  lock(22,18);lock(66,62);
+  g.globalAlpha=.5;g.lineWidth=1;g.beginPath();for(let k=-N;k<N*2;k+=11){g.moveTo(k,0);g.lineTo(k+N,N);}g.strokeStyle=light?"rgba(40,52,74,.05)":"rgba(255,255,255,.025)";g.stroke();g.globalAlpha=1;
+  return c;
+}
 function makeClouds(){
   const N=512,c=document.createElement("canvas");c.width=c.height=N;const g=c.getContext("2d");
   g.fillStyle="#C9CED9";g.fillRect(0,0,N,N);
@@ -1839,9 +2044,9 @@ function drawFog(){
   if(fogCanvas.width!==Math.round(size.x*dpr)||fogCanvas.height!==Math.round(size.y*dpr)){fogCanvas.width=Math.round(size.x*dpr);fogCanvas.height=Math.round(size.y*dpr);fogCanvas.style.width=size.x+"px";fogCanvas.style.height=size.y+"px";cloudPat=null;}
   L.DomUtil.setPosition(fogCanvas,map.containerPointToLayerPoint([0,0]));fogBounds=map.getBounds();
   const g=fogCtx;g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.clearRect(0,0,size.x,size.y);
-  if(!cloudPat)cloudPat=g.createPattern(clouds,"repeat");
-  const an=map.latLngToContainerPoint([0,0]);
-  const lt=document.body.classList.contains("maplight");if(lt){g.fillStyle="rgba(48,58,80,.5)";g.fillRect(0,0,size.x,size.y);}g.save();g.globalAlpha=lt?.5:.58;g.translate(((an.x%512)+512)%512-512,((an.y%512)+512)%512-512);g.fillStyle=cloudPat;g.fillRect(0,0,size.x+1024,size.y+1024);g.restore();
+  const lt=document.body.classList.contains("maplight"),pk=lt?"l":"d";if(!lockPats[pk])lockPats[pk]=g.createPattern(makeLocks(lt),"repeat");
+  const an=map.latLngToContainerPoint([0,0]),T=88;
+  g.save();g.globalAlpha=lt?.93:.94;g.translate(((an.x%T)+T)%T-T,((an.y%T)+T)%T-T);g.fillStyle=lockPats[pk];g.fillRect(0,0,size.x+T*2,size.y+T*2);g.restore();
   const ctr=map.getCenter(),mpp=156543.03392*Math.cos(ctr.lat*Math.PI/180)/Math.pow(2,map.getZoom()),r=RADIUS_M/mpp*1.35;
   const st=W();g.globalCompositeOperation="destination-out";
   st.pts.forEach(p=>{const cp=map.latLngToContainerPoint(p);if(cp.x<-r||cp.y<-r||cp.x>size.x+r||cp.y>size.y+r)return;g.drawImage(brush,cp.x-r,cp.y-r,2*r,2*r);});
@@ -1908,10 +2113,14 @@ function nextReveal(){
     h='<p class="rv-k">'+esc(RAR[p.r][0])+' · '+esc(TYPES[p.t][0])+'</p><p class="rv-t">'+(p.r==="l"?"Legendario<br>desbloqueado":"Lugar<br>desbloqueado")+'</p><div class="rv-card">'+cardHTML(p)+'</div><span class="rv-xp num">+'+RAR[p.r][1]+' XP</span>'+
       (p.t==="mirador"?'<p class="rv-sub"><b style="color:#FFD60A">Mirador:</b> desde aquí lo ves todo. Se han despejado '+MIRADOR_R+' m a la redonda.</p>':'<p class="rv-sub">Nuevo cromo para tu colección.</p>')+
       '<div class="rv-btns">'+(p.r!=="c"?'<button type="button" class="btn" data-share-place="'+p.id+'">'+ICON.share+'Presumir</button><button type="button" class="btn glassb" data-rv="next">Seguir</button>':'<button type="button" class="btn" data-rv="next">Seguir</button>')+'</div>';}
+  else if(it.k==="monu"){const p=allPois()[it.id];if(!p){nextReveal();return;}const c=CATS[p.c],inf=INFO[p.id];cls="relic";
+    h='<p class="rv-k">'+(p.c==="monu"?"Monumento desbloqueado":"Curiosidad desbloqueada")+'</p><p class="rv-t" translate="no" style="font-size:1.9rem">'+esc(p.n||c.n)+'</p><div class="rv-photo" id="rvPh">'+c.e+'</div><span class="rv-xp num">+'+it.x+' XP</span><p class="rv-sub" id="rvDesc"></p>'+
+      '<div class="rv-btns"><button type="button" class="btn" data-rvpoi="'+esc(p.id)+'">Ver la ficha</button><button type="button" class="btn glassb" data-rv="next">Seguir</button></div>';
+    setTimeout(()=>{placeInfo(p).then(info=>{const ph=$("#rvPh"),ds=$("#rvDesc");const u=info&&((info.w&&info.w.i)||(info.ph&&info.ph[0]&&info.ph[0].u));if(ph&&u){ph.style.backgroundImage="url('"+u.replace(/'/g,"%27")+"')";ph.textContent="";}if(ds){const tx=(info&&info.w&&info.w.x)||describe(p,info);ds.textContent=tx.length>180?tx.slice(0,177)+"…":tx;}}).catch(()=>{});},30);}
   else if(it.k==="treas"){const t=findTreasure(it.id);if(!t){nextReveal();return;}
     h='<p class="rv-k">'+esc(t.sp)+'</p><p class="rv-t">Recompensa<br>desbloqueada</p><div class="rv-big">'+ICON.gift+'</div><p style="font-size:1.15rem;font-weight:700;margin:14px 0 0">'+esc(t.pr)+'</p><p class="rv-sub">Enseña este código en el local</p><span class="rv-code">'+esc(S.treas[t.id].code)+'</span><div class="rv-btns"><button type="button" class="btn" data-rv="next">Seguir</button></div>';}
   else{h='<p class="rv-k">Subes de nivel</p><p class="rv-t">Nivel '+it.l+'</p><div class="rv-big"><b class="num">'+it.l+'</b></div><p class="rv-sub">Ganas una <b style="color:#FFD60A">bengala</b>: úsala para despejar 200 m de golpe.</p><div class="rv-btns"><button type="button" class="btn" data-rv="next">Seguir</button></div>';}
-  const rv=$("#reveal");rv.hidden=true;rv.className="reveal "+cls;if(it.k==="relic"){const x=S.relics[it.id]||relicById(it.id);rv.style.setProperty("--rc",RELRAR[x.r][2]);}
+  const rv=$("#reveal");rv.hidden=true;rv.className="reveal "+cls;if(it.k==="relic"){const x=S.relics[it.id]||relicById(it.id);rv.style.setProperty("--rc",RELRAR[x.r][2]);}if(it.k==="monu")rv.style.setProperty("--rc",CATS[(allPois()[it.id]||{}).c||"monu"].col);
   void rv.offsetWidth;$("#rvIn").innerHTML=h;rv.hidden=false;try{const rr=it.k==="relic"?((S.relics[it.id]||{}).r):it.k==="place"?((findPlace(it.id)||{}).r):"";if(it.k==="level")SFX.level();else if(rr==="l")SFX.legend();else SFX.chime();}catch(e){}hydrate(rv);if(it.k==="relic"&&(S.relics[it.id]||{}).r==="l")confetti(rv,["#FFD60A","#FFFFFF"]);buzz(it.k==="relic"?[40,60,40,60,160]:[50,40,90]);
 }
 function closeReveal(){$("#reveal").hidden=true;}
@@ -1943,7 +2152,7 @@ function openTreasure(id){
 /* ---------- GPS ---------- */
 let lastFix=null,wakeLock=null,weakWarned=false;
 async function keepAwake(){try{if("wakeLock" in navigator&&gpsWatch!=null&&document.visibilityState==="visible")wakeLock=await navigator.wakeLock.request("screen");}catch(e){}}
-let hintT=0;function setHint(){const hh=$("#hint");hh.hidden=false;clearTimeout(hintT);hintT=setTimeout(()=>{hh.hidden=true;},9000);hh.innerHTML=gpsWatch!=null?'<span class="live">En directo</span> · Camina para despejar las nubes y descubrir sitios.':'Modo demo: toca el mapa para <b>ir hasta allí</b>. Activa <b>GPS</b> para usar tu ubicación real.';}
+let hintT=0;function setHint(){const hh=$("#hint");hh.hidden=false;clearTimeout(hintT);hintT=setTimeout(()=>{hh.hidden=true;},9000);hh.innerHTML=gpsWatch!=null?'<span class="live">En directo</span> · Camina para desbloquear el mapa y descubrir sitios.':'Modo demo: toca el mapa para <b>ir hasta allí</b>. Activa <b>GPS</b> para usar tu ubicación real.';}
 function stopGps(){if(gpsWatch!=null&&navigator.geolocation)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;lastFix=null;$("#gpsBtn").setAttribute("aria-pressed","false");try{if(wakeLock)wakeLock.release();}catch(e){}wakeLock=null;setHint();}
 function onFix(p){
   const ll=[p.coords.latitude,p.coords.longitude],acc=p.coords.accuracy||0,now=Date.now();
@@ -1960,29 +2169,28 @@ function startGps(){
   S.gps=true;save();keepAwake();setHint();
 }
 function toggleGps(){if(gpsWatch!=null){stopGps();S.gps=false;save();toast("GPS apagado · modo demo");}else{toast("Buscando tu ubicación");startGps();}}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")keepAwake();});
+let gpsPaused=false;document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){keepAwake();if(gpsPaused){gpsPaused=false;startGps();}}else if(gpsWatch!=null){gpsPaused=true;navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;}});
 
 /* ---------- HUD ---------- */
 function updateHud(){
-  const li=lvlInfo(),nr=Object.keys(S.relics).length;
-  $("#area").textContent=fmt(areaKm2(),2);$("#zpct").textContent=fmt(zonePct())+" %";$("#km").textContent=fmt(W().km,2);
-  $("#lvlTxt").textContent="Nivel "+li.level;$("#xpFill").style.width=li.pct.toFixed(1)+"%";
-  const nc=Object.keys(S.found).length;$("#relTxt").textContent=nr+(nr===1?" reliquia":" reliquias")+" · "+nc+(nc===1?" cromo":" cromos");
+  const li=lvlInfo();
+  $("#zpct").textContent=fmt(zonePct())+" %";$("#lvlTxt").textContent="Nivel "+li.level;$("#xpFill").style.width=li.pct.toFixed(1)+"%";
+  const ha=$("#hudAv");if(ha&&ha.dataset.k!==JSON.stringify(prof())){ha.dataset.k=JSON.stringify(prof());ha.innerHTML=avatarHTML(34);}
   {const zn=zoneName(here());$("#regTxt").textContent=zn?"Estás en":"Mundo abierto";$("#zoneTxt").textContent=zn;}$("#flareN").textContent=S.flares||0;$("#flareBtn").disabled=!(S.flares>0);
 }
 function stats(){
   const ids=Object.keys(S.found),rel=Object.values(S.relics),li=lvlInfo();
   const rv=Object.values(S.rates||{}),vv=Object.values(S.visits||{});
-  return {rated:rv.length,ratedToilets:rv.filter(r=>r.cat==="toilets").length,aed:vv.filter(v=>v.c==="aed").length,water:vv.filter(v=>v.c==="water").length,added:Object.keys(S.added||{}).length,visits:vv.length,km:W().km,area:areaKm2(),pts:W().pts.length>1?1:0,places:ids.length,legend:ids.filter(id=>{const p=findPlace(id);return p&&p.r==="l";}).length,
+  return {monu:vv.filter(v=>v.c==="monu").length,odd:vv.filter(v=>v.c==="odd").length,rated:rv.length,ratedToilets:rv.filter(r=>r.cat==="toilets").length,aed:vv.filter(v=>v.c==="aed").length,water:vv.filter(v=>v.c==="water").length,added:Object.keys(S.added||{}).length,visits:vv.length,km:W().km,area:areaKm2(),pts:W().pts.length>1?1:0,places:ids.length,legend:ids.filter(id=>{const p=findPlace(id);return p&&p.r==="l";}).length,
     treas:Object.keys(S.treas).length,relics:rel.length,relLeg:rel.filter(x=>x.r==="l").length,night:S.night||0,bumps:Object.keys(S.bumps||{}).length,zone:zonePct(),zbest:bestZone(),hawk:S.hawk||0,bestday:Math.max(0,...Object.values(S.daily||{})),score:li.xp,level:li.level};
 }
 
 /* ---------- Colección ---------- */
 function renderAlbum(){
   const got=Object.keys(S.found).length,rel=Object.keys(S.relics).map(id=>Object.assign({id:id},S.relics[id])).sort((a,b)=>b.ts-a.ts);
-  let h='<h1 class="large">Guía</h1><div class="sub">Tus sitios útiles, lugares y reliquias</div>'+
-    '<div class="seg" role="group" aria-label="Ver"><button type="button" data-alb="lugares" aria-pressed="'+(albMode==="lugares")+'">Lugares</button><button type="button" data-alb="sitios" aria-pressed="'+(albMode==="sitios")+'">Sitios</button><button type="button" data-alb="reliquias" aria-pressed="'+(albMode==="reliquias")+'">Reliquias</button></div>';
-  if(albMode==="lugares"){
+  let h='<h1 class="large">Guía</h1><div class="sub">Tus sitios útiles y tus reliquias</div>'+
+    '<div class="seg" role="group" aria-label="Ver"><button type="button" data-alb="sitios" aria-pressed="'+(albMode==="sitios")+'">Sitios</button><button type="button" data-alb="reliquias" aria-pressed="'+(albMode==="reliquias")+'">Reliquias</button></div>';
+  if(albMode==="lugares_off"){
     [["l","Legendarios"],["r","Raros"],["c","Comunes"]].forEach(gr=>{const list=PLACES.filter(p=>p.r===gr[0]).sort((a,b)=>(S.found[b.id]?1:0)-(S.found[a.id]?1:0)),nf=list.filter(p=>S.found[p.id]).length;
       h+='<div class="sec"><span>'+gr[1]+'</span><span>'+nf+' de '+list.length+'</span></div><div class="cards">'+list.map(p=>'<button type="button" class="cardbtn" data-place="'+p.id+'" aria-label="'+(S.found[p.id]?esc(p.n):"Cromo por desbloquear")+'">'+cardHTML(p)+'</button>').join("")+'</div>';});
     h+='<p class="hintp">Las fotos son de Wikimedia Commons. Si un sitio no tiene, la app real usará la de Google Maps. Lugares de ejemplo: en la app real saldrán de OpenStreetMap en todo el mundo.</p>';
@@ -2002,9 +2210,10 @@ function renderSitiosHTML(){
   const mine=Object.keys(S.rates).map(id=>({id:id,r:S.rates[id],p:P[id]})).sort((a,b)=>b.r.ts-a.r.ts).slice(0,8);
   return '<div class="dex"><div class="ring" style="--p:'+Math.min(100,st.rated*10)+'"><div><span><b>'+st.rated+'</b><small>valorados</small></span></div></div><div style="min-width:0"><h2>'+esc(myTitle())+'</h2><p>'+st.visits+' sitios descubiertos · '+st.added+' añadidos por ti</p><span class="herechip">⭐ Valorar da 10 XP · descubrir 5 XP</span></div></div>'+
     '<div class="sec"><span>Descubiertos por tipo</span></div><div class="catgrid">'+CAT_ORDER.map(c=>'<div class="catcard"><span style="background:'+CATS[c].col+'">'+CATS[c].e+'</span><b class="num">'+(cnt[c]||0)+'</b><small>'+esc(CATS[c].pl)+'</small></div>').join("")+'</div>'+
+    (()=>{const mv=Object.keys(S.visits).filter(id=>S.visits[id].c==="monu"||S.visits[id].c==="odd").map(id=>P[id]).filter(Boolean).slice(-12).reverse();return '<div class="sec"><span>Monumentos y curiosidades</span><span>'+mv.length+'</span></div>'+(mv.length?'<div class="mgrid">'+mv.map(p=>{const inf=INFO[p.id],u=inf&&((inf.w&&inf.w.i)||(inf.ph&&inf.ph[0]&&inf.ph[0].u));return '<button type="button" class="mcard" data-poi="'+esc(p.id)+'"><span class="mimg" style="'+(u?"background-image:url('"+esc(u)+"')":"background:"+CATS[p.c].col)+'">'+(u?"":CATS[p.c].e)+'</span><b translate="no">'+esc(p.n||CATS[p.c].n)+'</b><small>'+esc(CATS[p.c].n)+'</small></button>';}).join("")+'</div>':'<div class="group"><p class="empty">Pasa a menos de 40 m de un monumento o de una curiosidad del mapa para desbloquearlo con su foto e historia.</p></div>');})()+
     '<div class="sec"><span>Mejores baños cerca</span></div><div class="group toplist">'+(best.length?best.map((o,i)=>'<div class="row" data-poi="'+esc(o.p.id)+'" style="cursor:pointer"><span class="pos num">'+(i+1)+'</span><div class="nm"><b>'+esc(o.p.n||"Baño público")+'</b><small>'+starsHTML(o.r.avg)+' '+fmt(o.r.avg,1)+' · a '+(o.d<1000?fmt(o.d)+" m":fmt(o.d/1000,1)+" km")+'</small></div></div>').join(""):'<p class="empty">Muévete por el mapa para cargar los baños de tu zona.</p>')+'</div>'+
     '<div class="sec"><span>Tus valoraciones</span></div><div class="group toplist">'+(mine.length?mine.map(o=>'<div class="row" data-poi="'+esc(o.id)+'" style="cursor:pointer"><span class="pos">'+(o.p?CATS[o.p.c].e:"📍")+'</span><div class="nm"><b>'+esc(o.p?(o.p.n||CATS[o.p.c].n):"Sitio")+'</b><small>'+starsHTML(o.r.s)+(o.r.c?' · “'+esc(o.r.c)+'”':'')+'</small></div></div>').join(""):'<p class="empty">Acércate a menos de 10 m de un baño, una fuente o un banco para valorarlo.</p>')+'</div>'+
-    '<p class="hintp">Los sitios salen de OpenStreetMap, el mapa libre que hace la gente. Las valoraciones de otros son de ejemplo hasta que la app tenga usuarios reales.</p>';
+    '<p class="hintp">Todos los sitios son reales: salen de OpenStreetMap, las fotos de Wikimedia Commons y las historias de Wikipedia.</p>';
 }
 
 /* ---------- Retos ---------- */
@@ -2017,17 +2226,14 @@ function renderRetos(){
   $("#retos").innerHTML='<h1 class="large">Retos</h1><div class="sub">Valen en cualquier parte del mundo</div>'+
     '<div class="evt"><div style="position:relative"><span class="k">Evento de la semana</span><h3>'+esc(ev.n)+'</h3><p>'+esc(ev.d)+'</p><span class="tm">'+evEnds()+'</span></div><span style="font-size:4.2rem;text-align:center;line-height:1;position:relative">'+ev.e+'</span></div>'+
     '<div class="sec"><span>Esta semana</span></div><div class="group">'+
-      quest("Primeros 500 m","Camina 500 m",s.km,0.5,"km",20)+quest("Curioso","Desbloquea 3 lugares",s.places,3,"",40)+quest("Cazador","Encuentra 2 reliquias ocultas",s.relics,2,"",50)+quest("Inspector","Valora 3 baños públicos",s.ratedToilets,3,"",40)+quest("Hidratado","Descubre 2 fuentes de agua",s.water,2,"",30)+quest("Quedada","Choca el móvil con un amigo en persona",s.bumps,1,"",40)+quest("Tu zona","Descubre el 25 % de la zona en la que estás",s.zone,25,"%",60)+quest("Sin nubes","Despeja 0,25 km² de mapa",s.area,0.25,"km²",50)+'</div>'+
+      quest("Primeros 500 m","Camina 500 m",s.km,0.5,"km",20)+quest("Curioso","Descubre 5 sitios útiles",s.visits,5,"",30)+quest("Cazador","Encuentra 2 reliquias ocultas",s.relics,2,"",50)+quest("Inspector","Valora 3 baños públicos",s.ratedToilets,3,"",40)+quest("Hidratado","Descubre 2 fuentes de agua",s.water,2,"",30)+quest("Turista","Visita 3 monumentos",s.monu,3,"",50)+quest("Rarezas","Encuentra 3 curiosidades de tu ciudad",s.odd,3,"",60)+quest("Tu zona","Descubre el 25 % de la zona en la que estás",s.zone,25,"%",60)+quest("Sin nubes","Despeja 0,25 km² de mapa",s.area,0.25,"km²",50)+'</div>'+
     '<div class="sec"><span>Para presumir</span></div><div class="group">'+
       quest("Noctámbulo","Encuentra algo entre las 0:00 y las 5:00",s.night,1,"",150,["hard","Difícil"])+
       quest("Ojo de halcón","Encuentra una reliquia menos de 3 min después de que salte el radar",s.hawk,1,"",150,["hard","Difícil"])+
       quest("10 km en un día","Camina 10 km en un mismo día",s.bestday,10,"km",200,["hard","Difícil"])+
       quest("Leyenda","Encuentra 3 reliquias legendarias",s.relLeg,3,"",500,["epic","Épico"])+quest("Salvavidas","Encuentra 3 desfibriladores. Saber dónde están puede salvar una vida",s.aed,3,"",300,["hard","Difícil"])+quest("Pionero","Añade 5 sitios útiles que no estaban en el mapa",s.added,5,"",500,["epic","Épico"])+
       quest("Cartógrafo","Despeja 1 km² de mapa",s.area,1,"km²",400,["epic","Épico"])+quest("Zona al 100 %","Descubre una zona entera, calle a calle",s.zbest,100,"%",1000,["epic","Épico"])+'</div>'+
-    '<div class="sec"><span>Ranking · de ejemplo</span></div>'+
-    '<div class="seg" role="group" aria-label="Ranking" style="margin:0 0 10px"><button type="button" data-lb="cerca" aria-pressed="'+(lbMode==="cerca")+'">% de esta zona</button><button type="button" data-lb="global" aria-pressed="'+(lbMode==="global")+'">Mundo</button></div>'+
-    '<div class="group lb">'+rows.slice(0,8).map((r,i)=>'<div class="row'+(r[0]==="Tú"?" me":"")+'"><span class="pos num">'+(i+1)+'</span><span class="n">'+esc(r[0])+'</span><span class="v num">'+fmt(r[1])+'<em>'+(zone?"%":"XP")+'</em></span></div>').join("")+'</div>'+
-    '<p class="hintp">El mundo está dividido en zonas de 1 km. Compite con tus amigos por descubrir el 100 % de la tuya. XP: lugares 10, 25 o 60; reliquias 15, 40 o 120; descubrir un sitio, 5; valorarlo, 10; añadirlo, 25; choques, 40; cada km, 20.</p>';
+    '<p class="hintp">El mundo está dividido en zonas de 1 km. Intenta descubrir el 100 % de la tuya. XP: descubrir un sitio, 5; confirmarlo, 3; valorarlo, 10; añadirlo, 25; reliquias, 15, 40 o 120; cada km, 20. El ranking llegará con las cuentas de usuario.</p>';
 }
 
 /* ---------- Perfil ---------- */
@@ -2036,18 +2242,17 @@ function renderPerfil(){
   const coupons=Object.keys(S.treas).map(id=>{const t=findTreasure(id);return t?'<div class="row coupon"><div><b>'+esc(t.pr)+'</b><small>'+esc(t.sp)+'</small></div><span class="code">'+esc(S.treas[id].code)+'</span></div>':"";}).join("");
   $("#perfil").innerHTML='<h1 class="large">Perfil</h1>'+
     '<div class="pcard"><div class="pav">'+avatarHTML(62)+'<div style="min-width:0"><h2>@'+esc(prof().name)+'</h2><span class="lvlchip">Nivel '+li.level+'</span><br><span class="ptitle">'+esc(myTitle())+'</span></div><button type="button" class="editbtn" id="editProf">Editar</button></div><div class="bar"><i style="width:'+li.pct.toFixed(1)+'%"></i></div><small>'+fmt(li.xp)+' XP · faltan '+fmt(li.toNext)+' para el nivel '+(li.level+1)+' · '+(S.flares||0)+((S.flares||0)===1?' bengala':' bengalas')+'</small></div>'+
-    '<div class="sec"><span>Estadísticas</span></div><div class="group kgrid"><div><b class="num">'+fmt(s.km,1)+'</b><small>km caminados</small></div><div><b class="num">'+fmt(s.area,2)+'</b><small>km² despejados</small></div><div><b class="num">'+s.places+'</b><small>lugares</small></div><div><b class="num">'+s.relics+'</b><small>reliquias</small></div><div><b class="num">'+s.rated+'</b><small>sitios valorados</small></div><div><b class="num">'+s.bumps+'</b><small>choques</small></div></div>'+
+    '<div class="sec"><span>Estadísticas</span></div><div class="group kgrid"><div><b class="num">'+fmt(s.km,1)+'</b><small>km caminados</small></div><div><b class="num">'+fmt(s.area,2)+'</b><small>km² despejados</small></div><div><b class="num">'+s.added+'</b><small>sitios añadidos</small></div><div><b class="num">'+s.relics+'</b><small>reliquias</small></div><div><b class="num">'+s.rated+'</b><small>sitios valorados</small></div><div><b class="num">'+s.visits+'</b><small>sitios descubiertos</small></div></div>'+
     '<div class="sec"><span>Medallas</span><span>'+BADGES.filter(b=>s[b.k]>=b.need).length+' de '+BADGES.length+'</span></div><div class="group medals">'+BADGES.map(b=>{const ok=s[b.k]>=b.need,v=Math.min(s[b.k],b.need);
       return '<div class="medal'+(ok?"":" locked")+(b.epic?" epic":"")+'"><span class="hexm" aria-hidden="true">'+esc(b.g)+'</span><b>'+esc(b.n)+'</b><small>'+(ok?"Conseguida":b.epic?"Épica":b.hard?"Difícil":(b.k==="km"||b.k==="area"?fmt(v,1):fmt(v))+"/"+b.need)+'</small></div>';}).join("")+'</div>'+
-    '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo se juega</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div></div>'+
-    '<div class="sec"><span>Recompensas</span></div><div class="group">'+(coupons||'<p class="empty">Aún no has desbloqueado recompensas de locales.</p>')+'</div>'+
+    '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Idioma</b><div class="segset" role="group" aria-label="Idioma">'+[["","Auto"],["es","Español"],["en","English"]].map(o=>'<button type="button" data-lang="'+o[0]+'" aria-pressed="'+((S.lang||"")===o[0])+'" translate="no">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo se juega</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div></div>'+
     '<div class="sec"><span>Privacidad</span></div><div class="group"><p class="empty">Tu recorrido se guarda solo en este móvil y no se envía a ningún sitio. <button type="button" class="link" id="resetBtn">Borrar mi recorrido</button></p></div>';
 }
 
 /* ---------- Tutorial ---------- */
 const COACH=[
-  {i:"map",t:"Despeja el mundo",d:"El mapa está cubierto de nubes. Camina y se irá despejando a tu paso. Compite con tus amigos por el 100 % de tu zona."},
-  {em:"⭐",t:"Encuentra y valora lo útil",d:"Baños, fuentes, WiFi, desfibriladores… se ven aunque haya nubes. Acércate a menos de 10 m para valorarlos con estrellas y ayudar a los demás."},
+  {i:"map",t:"Desbloquea el mapa",d:"Todo empieza bloqueado 🔒. Camina y el mapa se abre a tu paso. Intenta llegar al 100 % de tu zona."},
+  {em:"⭐",t:"Encuentra y valora lo útil",d:"Baños, fuentes, WiFi, desfibriladores… se ven aunque la zona esté bloqueada. Acércate a menos de 10 m para valorarlos con estrellas y ayudar a los demás."},
   {i:"gem",t:"Caza reliquias y presume",d:"Hay reliquias ocultas que no salen en el mapa. Sigue el radar de frío y caliente y comparte las legendarias."}];
 let coachStep=0;
 function openCoach(i){coachStep=i||0;const c=COACH[coachStep];
@@ -2080,7 +2285,7 @@ function handleShareClicks(e){
 
 /* ---------- Inicio ---------- */
 function start(){
-  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","daily","zones","bumps"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
+  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","confirms","daily","zones","bumps"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
   fillIcons();
   const afterStart=()=>{SFX.unlock();if(!S.coached)setTimeout(()=>openCoach(0),450);};
   $("#startGps").addEventListener("click",()=>{S.started=true;save();$("#startOv").hidden=true;afterStart();if(map){toast("Buscando tu ubicación");startGps();}});
@@ -2101,7 +2306,8 @@ function start(){
   initGL();
   meMk=L.marker(st.pos,{icon:L.divIcon({html:meHTML(),iconSize:[44,44],iconAnchor:[22,22]}),interactive:false,zIndexOffset:1000}).addTo(map);
   buildMarkers();buildFriends();updateZoneRect(st.pos);
-  map.on("move zoomend resize viewreset",drawFog);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
+  let fogRaf=0;const fogSoon=()=>{if(fogRaf)return;fogRaf=requestAnimationFrame(()=>{fogRaf=0;drawFog();});};
+  map.on("move",fogSoon);map.on("zoomend resize viewreset",drawFog);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
   map.on("click",e=>{closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
   applyMapStyle();drawFog();updateHud();setHint();updateRadar(st.pos);renderFilters();fetchPOIs(st.pos);renderPOIs();openSharedFromHash();sbSyncPending();setInterval(applyMapStyle,600000);
 
@@ -2124,6 +2330,7 @@ function start(){
     const rt=e.target.closest("[data-rate]");if(rt){submitRate(rt.dataset.rate);return;}
     const rp=e.target.closest("[data-report]");if(rp){reportPOI(rp.dataset.report);return;}
     const shp=e.target.closest("[data-share-poi]");if(shp){sharePOI(shp.dataset.sharePoi);return;}
+    const gt=e.target.closest("[data-goto]");if(gt){const a=gt.dataset.goto.split(",").map(Number);closeSheet();map.flyTo(a,17,{duration:1.2});SFX.tap();toast("Mostrando los sitios útiles de esa zona");return;}
     const ad=e.target.closest("[data-addc]");if(ad){addPOI(ad.dataset.addc);return;}
     const wp=e.target.closest("[data-walkp]");if(wp){const p=allPois()[wp.dataset.walkp];closeSheet();if(p)walkTo([p.ll[0]+0.00003,p.ll[1]]);return;}
     const ce=e.target.closest("[data-center]");if(ce){const p=allPois()[ce.dataset.center];closeSheet();if(p)map.flyTo(p.ll,18,{duration:.6});return;}
@@ -2133,11 +2340,12 @@ function start(){
     if(e.target.closest("[data-saveprof]")){const v=(($("#nmIn")||{}).value||"").toLowerCase().replace(/[^a-z0-9._ñ]/g,"").slice(0,20);if(v)prof().name=v;save();setMe();closeSheet();if(current==="perfil")renderPerfil();toast("Perfil guardado");return;}
 
   });
-  $("#reveal").addEventListener("click",e=>{if(handleShareClicks(e))return;if(e.target.closest("[data-rv]"))nextReveal();});
+  $("#reveal").addEventListener("click",e=>{if(handleShareClicks(e))return;const rp=e.target.closest("[data-rvpoi]");if(rp){const id=rp.dataset.rvpoi;closeReveal();revealQ.length=0;openPOI(id);return;}if(e.target.closest("[data-rv]"))nextReveal();});
   $("#album").addEventListener("click",e=>{const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
   $("#retos").addEventListener("click",e=>{const b=e.target.closest("[data-lb]");if(b){lbMode=b.dataset.lb;renderRetos();}});
   $("#perfil").addEventListener("click",e=>{
     if(e.target.closest("#editProf")){openEditProfile();return;}
+    const lg=e.target.closest("[data-lang]");if(lg){S.lang=lg.dataset.lang||null;saveNow();location.reload();return;}
     const ms=e.target.closest("[data-mapst]");if(ms){S.mapStyle=ms.dataset.mapst;save();applyMapStyle();SFX.tap();const y=$("#v-perfil").scrollTop;renderPerfil();$("#v-perfil").scrollTop=y;return;}
     if(e.target.closest("#sndSw")){S.sound=S.sound===false;save();const y=$("#v-perfil").scrollTop;renderPerfil();$("#v-perfil").scrollTop=y;if(S.sound!==false)SFX.pop();return;}
     if(e.target.closest("#coachBtn")){openCoach(0);return;}
@@ -2145,15 +2353,18 @@ function start(){
     if(e.target.closest("#resetBtn")){stopGps();cancelAnimationFrame(walkAnim);S=fresh();S.started=true;try{localStorage.removeItem(KEY);}catch(_){}const s2=W();s2.pos=START.slice();addPoint(s2.pos,true);bigReveal(s2.pos,START_R);buildMarkers();buildFriends();updateZoneRect(s2.pos);renderPOIs();setMe();meMk.setLatLng(s2.pos);map.setView(s2.pos,16,{animate:false});updateHud();renderPerfil();toast("Recorrido borrado");}
   });
   $("#wcBtn").addEventListener("click",openSOS);
+  $("#ask").addEventListener("click",e=>{const b=e.target.closest("[data-conf]");if(b)answerAsk(b.dataset.conf==="1");});
+  $("#searchBtn").addEventListener("click",()=>{SFX.tap();openSearch();});
   $("#sosX").addEventListener("click",closeSOS);
   $("#sosNext").addEventListener("click",()=>{if(!sos)return;sos.i=(sos.i+1)%sos.list.length;sos.arrived=false;SFX.tap();sosDraw();});
   $("#sosRate").addEventListener("click",()=>{if(!sos)return;const id=sos.list[sos.i].p.id;closeSOS();openPOI(id);});
   $("#phIn").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(f)readRatePhoto(f);});
   $("#addBtn").addEventListener("click",()=>{SFX.tap();openAdd();});
-  $("#filters").addEventListener("click",e=>{if(e.target.closest("[data-open]")){S.openOnly=!S.openOnly;save();SFX.tap();renderFilters();renderPOIs();toast(S.openOnly?"Solo lo que está abierto ahora (si se conoce el horario)":"Mostrando todo");return;}const b=e.target.closest("[data-f]");if(!b)return;filt=b.dataset.f||null;SFX.tap();renderFilters();renderPOIs();});
+  $("#filters").addEventListener("click",e=>{const fxb=e.target.closest("[data-fx]");if(fxb){S.fx=S.fx||{};const k=fxb.dataset.fx;S.fx[k]=!S.fx[k];save();SFX.tap();renderFilters();renderPOIs();if(S.fx[k])toast("Solo los sitios donde consta: "+fxb.textContent.trim());return;}if(e.target.closest("[data-open]")){S.openOnly=!S.openOnly;save();SFX.tap();renderFilters();renderPOIs();toast(S.openOnly?"Solo lo que está abierto ahora (si se conoce el horario)":"Mostrando todo");return;}const b=e.target.closest("[data-f]");if(!b)return;filt=b.dataset.f||null;SFX.tap();renderFilters();renderPOIs();});
   $("#avIn").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(f)readAvatar(f);});
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>go(b.dataset.t)));
   go("mapa");
+  startI18n();
   if(S.started&&S.gps&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:"geolocation"}).then(r=>{if(r.state==="granted")startGps();else{S.gps=false;save();}}).catch(()=>{});}
 }
 start();
