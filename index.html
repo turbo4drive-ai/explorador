@@ -1042,6 +1042,31 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .nrow .nr{flex:none;font-weight:700;font-size:.86rem;color:#C99400}.kgrid.k3{grid-template-columns:repeat(3,1fr)}
 .lvl.av{padding:0;background:none;border:0}
 a.btn{text-decoration:none}
+.fab.plan{background:var(--y,#FFD60A);color:#0E0E0E;box-shadow:0 8px 22px rgba(255,190,0,.45)}
+.ppin{position:relative;width:46px;height:46px;border-radius:50% 50% 50% 6px;transform:rotate(-45deg);background:var(--pc);border:3px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.35);display:grid;place-items:center}
+.ppin span{transform:rotate(45deg);font-size:1.35rem;line-height:1}
+.ppin em{position:absolute;transform:rotate(45deg);top:-14px;right:-22px;background:#0E0E0E;color:#fff;font-style:normal;font-weight:800;font-size:.68rem;padding:3px 6px;border-radius:8px;white-space:nowrap;border:1.5px solid #fff}
+.ppin.live em{background:#FF2D55}.ppin.live{animation:ppulse 1.8s ease-in-out infinite}
+@keyframes ppulse{0%,100%{box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 0 rgba(255,45,85,.5)}50%{box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 0 12px rgba(255,45,85,0)}}
+.pkinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 6px}
+.pkinds button{border:2px solid transparent;border-radius:14px;background:var(--ios);padding:10px 4px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:inherit}
+.pkinds button span{font-size:1.5rem}.pkinds button[aria-pressed="true"]{border-color:#0E0E0E;background:#FFF6CC}
+.pf{display:block;margin-top:12px}.pf>span{display:block;font-size:.78rem;font-weight:700;color:var(--label2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+.pf input,.pf select,.pf textarea{width:100%;box-sizing:border-box;border:0;border-radius:12px;background:var(--ios);padding:11px 12px;font:inherit;font-size:16px;color:inherit;-webkit-appearance:none;appearance:none;resize:none;min-height:44px}
+.pf2{display:grid;grid-template-columns:1.6fr 1fr;gap:10px}.pf2 .switch{margin-top:6px}
+.pwhere{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;background:var(--ios);border-radius:12px;padding:10px 12px}.pwhere b{font-size:.98rem}.pwhere small{grid-column:1;color:var(--label2)}
+.pwhere .btn{grid-column:2;grid-row:1/span 2;margin:0;padding:9px 12px;font-size:.82rem}
+.psafe{font-size:.8rem;color:var(--label2);margin:12px 0 0}.psafe.warn{color:#C25E00}
+.pwhen{font-size:1.05rem;font-weight:700;margin:8px 0 0}.pwhen small{font-weight:600;color:#FF2D55;margin-left:6px}
+.pmeta{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 0 4px;font-size:.86rem;color:var(--label2)}
+body.picking .hud.bottom,body.picking .hud.right,body.picking .tabbar{visibility:hidden}
+.pickbar{position:absolute;inset:0;z-index:1200;pointer-events:none}.pickbar[hidden]{display:none}
+.pickpin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);font-size:2.6rem;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.pickctl{position:absolute;left:12px;right:12px;bottom:calc(24px + env(safe-area-inset-bottom));padding:14px;border-radius:20px;pointer-events:auto;text-align:center}.pickctl b{display:block;margin-bottom:10px}.pickctl .btn{margin:0}
+.pcards{display:flex;gap:10px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}.pcards::-webkit-scrollbar{display:none}
+.pcardb{flex:none;width:190px;text-align:left;border:0;border-radius:18px;padding:12px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.04);border-top:5px solid var(--pc);cursor:pointer;font:inherit;color:#0E0E0E;display:flex;flex-direction:column;gap:3px}
+.pcardb .pe{font-size:1.5rem}.pcardb b{font-size:.98rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.pcardb small{color:#6E6E73;font-size:.78rem}.pcardb i{color:#30A14E;font-style:normal;font-weight:700}
+.link{background:none;border:0;color:#0A84FF;font:inherit;font-weight:600;cursor:pointer;padding:0}
 .phstrip{display:flex;gap:6px;overflow-x:auto;margin-top:12px;scrollbar-width:none}
 .phstrip img{width:104px;height:104px;object-fit:cover;border-radius:12px;flex:none;background:var(--ios)}
 .cmt{padding:8px 0;border-top:.5px solid var(--sep);font-size:.88rem}
@@ -1326,8 +1351,9 @@ a.btn{text-decoration:none}
     <button class="glass pillb" id="gpsBtn" type="button" aria-pressed="false" aria-label="Explorar con el GPS"><i></i>GPS</button>
     <button class="glass pillb" id="addBtn" type="button" aria-label="Añadir un sitio útil aquí"><span style="font-size:1.1rem;line-height:1">＋</span>Añadir</button>
   </div>
+  <div class="pickbar" id="pickBar" hidden><div class="pickpin" aria-hidden="true">📍</div><div class="glass pickctl"><b>Mueve el mapa para colocar el plan</b><div class="btnrow"><button type="button" class="btn grey" id="pickNo">Cancelar</button><button type="button" class="btn" id="pickOk">Aquí</button></div></div></div>
   <div class="hud bottom">
-    <div class="fabrow"><button class="fab" type="button" id="wcBtn"><span>🚻</span>Necesito un baño</button></div>
+    <div class="fabrow"><button class="fab plan" type="button" id="planBtn"><span>🎉</span>Monta un plan</button><button class="fab" type="button" id="wcBtn"><span>🚻</span>Necesito un baño</button></div>
     <div class="glass poistat" id="poiStatus" role="status" hidden></div>
     <div class="glass radar" id="radar" hidden role="status"><span class="rdish" id="rdish" data-icon="gem"></span><div><b id="rdTxt">Frío</b><small id="rdSub">Hay una reliquia oculta cerca</small></div></div>
     <div class="glass hint" id="hint"></div>
@@ -1511,8 +1537,22 @@ const EN_EXACT={
 "Los sitios salen de OpenStreetMap, el mapa libre que hace la gente. Si un horario está mal o falta algo, avisa desde su ficha.":"Places come from OpenStreetMap, the free map made by people. If some hours are wrong or something is missing, report it from its page.",
 "Se añade justo donde estás para que otros lo encuentren.":"It's added right where you are so others can find it.",
 "Confirmarlo ayuda a que el mapa sea fiable":"Confirming it keeps the map reliable"
+,"Monta un plan":"Start a plan","🎉 Monta un plan":"🎉 Start a plan","¿Qué montamos?":"What are we doing?","Fiesta":"Party","Quedada":"Meetup","Deporte":"Sport","Paseo":"Walk","Cultura":"Culture","Otro plan":"Other plan",
+"Título":"Title","Cuándo empieza":"Starts","Dura":"Lasts","Dónde":"Where","Nombre del sitio (opcional)":"Place name (optional)","Cuéntalo un poco (opcional)":"Tell people a bit (optional)","Plazas (opcional)":"Spots (optional)",
+"Solo +18":"18+ only","Cambiar en el mapa":"Change on map","Punto del mapa":"Map point","Queda siempre en sitios públicos y no pongas tu dirección de casa.":"Always meet in public places and never post your home address.",
+"Publicar plan":"Publish plan","Me apunto":"I'm in","Completo":"Full","Invitar":"Invite","Cancelar el plan":"Cancel the plan","Denunciar este plan":"Report this plan","Ahora mismo":"Happening now","Ahora":"Now",
+"Planes cerca":"Plans nearby","＋ Monta uno":"＋ Start one","No hay planes cerca todavía. ¡Monta el primero!":"No plans nearby yet. Start the first one!","Planes":"Plans","Sitios":"Places",
+"Mueve el mapa para colocar el plan":"Move the map to place the plan","Aquí":"Here","Cancelar":"Cancel","Toda la noche":"All night","Todo el día":"All day","vas":"going",
+"Modo prueba: hasta que conectemos el servidor, tus planes solo los ves tú.":"Test mode: until we connect the server, only you can see your plans.",
+"Modo prueba: los planes de los demás aparecerán al conectar el servidor.":"Test mode: other people's plans will show up once the server is connected.",
+"Ya tienes 3 planes activos. Espera a que termine alguno para montar otro.":"You already have 3 active plans. Wait for one to end before starting another.",
+"Monta un plan":"Start a plan","Crea una fiesta, una quedada, un partido o un paseo. Sale en el mapa y se puede apuntar quien quiera.":"Create a party, a meetup, a game or a walk. It shows up on the map and anyone can join."
+,"Cargando sitios de la zona…":"Loading places in this area…","El servidor de mapas va lento. Lo reintento en unos segundos…":"The map server is slow. Retrying in a few seconds…","No hay sitios registrados aquí todavía. ¡Añade el primero!":"No places listed here yet. Add the first one!"
 };
 const EN_RX=[
+ [/^Hoy · (.+)$/,"Today · $1"],[/^Mañana · (.+)$/,"Tomorrow · $1"],[/^(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo) (\d+) · (.+)$/,(m,d,n,t)=>({Lunes:"Monday",Martes:"Tuesday","Miércoles":"Wednesday",Jueves:"Thursday",Viernes:"Friday","Sábado":"Saturday",Domingo:"Sunday"}[d])+" "+n+" · "+t],
+ [/^Empieza en (\d+) (min|h)$/,"Starts in $1 $2"],[/^👥 (\d+)(?: de (\d+))? apuntados?$/,(m,n,o)=>"👥 "+n+(o?" of "+o:"")+" going"],[/^Lo monta @(.+)$/,"Hosted by @$1"],[/^✓ Te has apuntado · Ya no voy$/,"✓ You're going · Can't make it"],
+ [/^(\d[\d.,]*) m de ti$/,"$1 m from you"],
  [/^Abierto · cierra a las (.+)$/,"Open · closes at $1"],[/^Cierra pronto · a las (.+)$/,"Closing soon · at $1"],[/^Abre pronto · a las (.+)$/,"Opens soon · at $1"],
  [/^Cerrado · abre hoy a las (.+)$/,"Closed · opens today at $1"],[/^Cerrado · abre mañana a las (.+)$/,"Closed · opens tomorrow at $1"],[/^Cerrado · abre el (\S+) a las (.+)$/,(m,d,t)=>"Closed · opens "+({lunes:"Monday",martes:"Tuesday","miércoles":"Wednesday",jueves:"Thursday",viernes:"Friday","sábado":"Saturday",domingo:"Sunday"}[d]||d)+" at "+t],
  [/^(.+) · a menos de 2 km$/,"$1 · within 2 km"],[/^(\d+) valoraciones$/,"$1 ratings"],[/^1 valoración$/,"1 rating"],
@@ -1709,7 +1749,7 @@ const CATS={
   odd:{n:"Curiosidad",pl:"Curiosidades",e:"🗿",col:"#BF5AF2",tags:["Sorprendente","Escondido","Buenas fotos"]}};
 const CAT_ORDER=["bar","night","market","toilets","water","wifi","charge","atm","monu","odd","aed","bench","dog","play"];
 const TITLES={bar:"Experto en bares",night:"Rey de la noche",market:"Cazador de mercadillos",toilets:"Inspector de baños",water:"Catador de fuentes",wifi:"Cazador de WiFi",charge:"Señor de los enchufes",bench:"Experto en bancos",aed:"Guardián salvavidas",atm:"Rastreador de cajeros",dog:"Amigo de los perros",play:"Explorador de parques",monu:"Cazador de monumentos",odd:"Coleccionista de rarezas"};
-const RATE_M=10,VISIT_M=10,BIG_M=40,POI_KEY="explorador-poi-v3",POI_CELL=0.01,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+const RATE_M=10,VISIT_M=10,BIG_M=40,POI_KEY="explorador-poi-v3",POI_CELL=0.01,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.private.coffee/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
 let POI={},poiMk={},poiCells={},poiLoading={},filt=null,rateDraft=null;
 try{const c=JSON.parse(localStorage.getItem(POI_KEY)||"{}");if(c&&c.cells){poiCells=c.cells;POI=c.poi||{};Object.keys(POI).forEach(id=>{if(POI[id].demo)delete POI[id];});Object.keys(poiCells).forEach(k=>{if(!(poiCells[k].ids||[]).length)delete poiCells[k];});}}catch(e){}
 function savePoiCache(){try{const ks=Object.keys(poiCells);if(ks.length>30){ks.sort((a,b)=>poiCells[a].t-poiCells[b].t).slice(0,ks.length-30).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>delete POI[id]);delete poiCells[k];});}
@@ -1730,23 +1770,31 @@ function dedupePOIs(){const g={},sc=p=>{const t=p.tg||{};return (t.wikidata?4:0)
 function poiCellKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI_CELL);}
 function allPois(){return Object.assign({},POI,S.added||{});}
 function fetchPOIs(ll){
-  const k=poiCellKey(ll);if(poiLoading[k])return;const c=poiCells[k];if(c&&Date.now()-c.t<7*864e5)return;
-  const i=+k.split(":")[0],j=+k.split(":")[1],lat=((i+.5)*POI_CELL).toFixed(5),lng=((j+.5)*POI_CELL).toFixed(5),R=850,A="(around:"+R+","+lat+","+lng+")";
-  const q='[out:json][timeout:25];(nwr["amenity"="toilets"]'+A+';node["amenity"="drinking_water"]'+A+';nwr["amenity"~"^(bar|pub|biergarten|nightclub|marketplace)$"]'+A+';nwr["emergency"="defibrillator"]'+A+';node["amenity"="atm"]'+A+';nwr["amenity"="device_charging_station"]'+A+';nwr["leisure"~"^(dog_park|playground)$"]'+A+';nwr["internet_access"~"^(wlan|yes)$"]'+A+';node["amenity"="bench"](around:500,'+lat+','+lng+');nwr["tourism"~"^(attraction|museum|viewpoint|artwork)$"]'+A+';nwr["historic"~"^(monument|memorial|castle|ruins|archaeological_site|city_gate|fort|tower|church|boundary_stone|wayside_cross|wayside_shrine|milestone|cannon|aircraft|locomotive|ship|tank)$"]'+A+';nwr["man_made"~"^(obelisk|clock)$"]["name"]'+A+';nwr["amenity"="place_of_worship"]["wikidata"]'+A+';);out center tags;';
-  poiLoading[k]=1;setPoiStatus("Buscando sitios útiles cerca…");
-  const tryAt=n=>fetch(OVERPASS[n],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q)}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
-    .catch(e=>{if(n+1<OVERPASS.length)return tryAt(n+1);throw e;});
-  tryAt(0).then(d=>{const ids=[];(d.elements||[]).forEach(e=>{const t=e.tags||{},c=catOf(t);if(!c)return;const pll=e.lat!=null?[e.lat,e.lon]:e.center?[e.center.lat,e.center.lon]:null;if(!pll)return;
-      const id=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[id]={id:id,c:c,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};ids.push(id);});
-      poiCells[k]={t:Date.now(),ids:ids};dedupePOIs();savePoiCache();delete poiLoading[k];if(current==="album")renderAlbum();setPoiStatus(ids.length?"":"No hay sitios útiles registrados aquí todavía. ¡Añade el primero!");renderPOIs();})
-    .catch(()=>{delete poiLoading[k];poiCells[k]={t:Date.now()-6.97*864e5,ids:[]};setPoiStatus("No he podido cargar los sitios de esta zona. Lo vuelvo a intentar en un momento.");});
+  const k=poiCellKey(ll);if(poiLoading[k])return;const c=poiCells[k];if(c&&Date.now()-c.t<7*864e5&&(c.ids||[]).length)return;if(c&&c.retry&&Date.now()<c.retry)return;
+  const i=+k.split(":")[0],j=+k.split(":")[1],m=.003,BB="[bbox:"+(i*POI_CELL-m).toFixed(4)+","+(j*POI_CELL-m).toFixed(4)+","+((i+1)*POI_CELL+m).toFixed(4)+","+((j+1)*POI_CELL+m).toFixed(4)+"]";
+  const QA='[out:json][timeout:20]'+BB+';(nwr["amenity"~"^(toilets|bar|pub|biergarten|nightclub|marketplace)$"];node["amenity"~"^(drinking_water|atm)$"];nwr["emergency"="defibrillator"];);out center tags;';
+  const QB='[out:json][timeout:20]'+BB+';(nwr["amenity"="device_charging_station"];nwr["leisure"~"^(dog_park|playground)$"];nwr["internet_access"~"^(wlan|yes)$"];node["amenity"="bench"];nwr["tourism"~"^(attraction|museum|viewpoint)$"];nwr["historic"~"^(monument|castle|ruins|archaeological_site|city_gate|fort|tower|church)$"];nwr["historic"]["wikidata"];nwr["tourism"="artwork"]["wikidata"];nwr["man_made"~"^(obelisk|clock)$"]["wikidata"];nwr["amenity"="place_of_worship"]["wikidata"];);out center tags;';
+  poiLoading[k]=1;setPoiStatus("Cargando sitios de la zona…",true);
+  const one=(q,n)=>{const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{if(ac)ac.abort();},16000);
+    return fetch(OVERPASS[n],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q),signal:ac?ac.signal:undefined})
+      .then(r=>{clearTimeout(tm);if(!r.ok)throw new Error(r.status);return r.json();}).then(d=>{if(d&&d.remark&&/timed out|runtime error/i.test(d.remark)&&!(d.elements||[]).length)throw new Error("remark");return d;})
+      .catch(e=>{clearTimeout(tm);if(n+1<OVERPASS.length)return one(q,n+1);throw e;});};
+  const ids=[];let okN=0,failN=0;
+  const take=d=>{(d.elements||[]).forEach(e=>{const t=e.tags||{},cc=catOf(t);if(!cc)return;const pll=e.lat!=null?[e.lat,e.lon]:e.center?[e.center.lat,e.center.lon]:null;if(!pll)return;
+      const id=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[id]={id:id,c:cc,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};if(ids.indexOf(id)<0)ids.push(id);});
+    okN++;dedupePOIs();renderPOIs();if(current==="album")renderAlbum();};
+  const done=()=>{if(okN+failN<2)return;delete poiLoading[k];
+    if(okN){poiCells[k]={t:Date.now(),ids:ids};savePoiCache();setPoiStatus(ids.length?"":"No hay sitios registrados aquí todavía. ¡Añade el primero!");}
+    else{poiCells[k]={t:0,ids:[],retry:Date.now()+20000};setPoiStatus("El servidor de mapas va lento. Lo reintento en unos segundos…");setTimeout(()=>{if(poiCellKey(here())===k||poiCellKey([map.getCenter().lat,map.getCenter().lng])===k)fetchPOIs(ll);},21000);}};
+  one(QA,0).then(take).catch(()=>{failN++;}).then(done);
+  one(QB,0).then(take).catch(()=>{failN++;}).then(done);
 }
 function seedDemo(ll){
   if(Object.values(POI).some(p=>p.demo&&distM(p.ll,ll)<600))return;let s=hash(poiCellKey(ll));const R=()=>{s=(Math.imul(s,16807)>>>0)%2147483647;return s/2147483647;};
   const plan=["toilets","toilets","toilets","water","water","water","wifi","wifi","charge","bench","bench","bench","bench","aed","aed","atm","atm","dog","play","play"];
   plan.forEach((c,n)=>{const a=R()*Math.PI*2,d=(n<2?25+R()*60:60+R()*480),id="x"+poiCellKey(ll)+"_"+n;POI[id]={id:id,c:c,demo:1,ll:[ll[0]+Math.cos(a)*d/111320,ll[1]+Math.sin(a)*d/(111320*Math.cos(ll[0]*Math.PI/180))],n:"",tg:c==="toilets"?(n%2?{fee:"no",wheelchair:"yes"}:{fee:"yes",changing_table:"yes"}):{}};});
 }
-function setPoiStatus(t){const el=$("#poiStatus");if(!el)return;el.textContent=t;el.hidden=!t;if(t)clearTimeout(el._t),el._t=setTimeout(()=>{el.hidden=true;},5000);}
+function setPoiStatus(t,keep){const el=$("#poiStatus");if(!el)return;el.textContent=t;el.hidden=!t;clearTimeout(el._t);if(t&&!keep)el._t=setTimeout(()=>{el.hidden=true;},6000);}
 function rateOf(p){if(sbOn()){const st=SBSTAT[p.id]||{n:0,avg:0},me0=S.rates[p.id];let n=st.n,avg=st.avg;if(me0&&!me0.synced){avg=(avg*n+me0.s)/(n+1);n++;}return {n:n,avg:avg,sample:false};}const me=S.rates[p.id];return me?{n:1,avg:me.s,sample:false}:{n:0,avg:0,sample:false};}
 function starsHTML(v,big){let h='<span class="stars'+(big?" big":"")+'" aria-label="'+fmt(v,1)+' de 5">';for(let i=1;i<=5;i++){const f=Math.max(0,Math.min(1,v-i+1));h+='<i style="--f:'+(f*100).toFixed(0)+'%">★</i>';}return h+'</span>';}
 function poiIcon(p){const c=CATS[p.c],r=rateOf(p),vis=S.visits[p.id];
@@ -1756,7 +1804,7 @@ function renderPOIs(){
   Object.values(P).filter(p=>!p.dup&&(!filt||p.c===filt)&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)&&!(S.openOnly&&ohOpen(p.tg&&p.tg.opening_hours)===false)&&fxOk(p)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).filter((o,i,arr)=>{const cc=arr.__c||(arr.__c={});cc[o.p.c]=(cc[o.p.c]||0)+1;return cc[o.p.c]<=(o.p.c==="bar"?70:50);}).slice(0,260).forEach(o=>want[o.p.id]=o.p);
   Object.keys(poiMk).forEach(id=>{if(!want[id]){poiMk[id].remove();delete poiMk[id];}});
   Object.values(want).forEach(p=>{if(poiMk[p.id])return;const m=L.marker(p.ll,{icon:poiIcon(p),title:CATS[p.c].n,keyboard:true,zIndexOffset:200,riseOnHover:true}).addTo(map);m.on("click",()=>openPOI(p.id));poiMk[p.id]=m;});
-  sbStats(Object.keys(want));sbPlaces(cll);
+  sbStats(Object.keys(want));sbPlaces(cll);sbPlans(cll);renderPlans();
 }
 function refreshPOI(id){const p=allPois()[id];if(p&&poiMk[id])poiMk[id].setIcon(poiIcon(p));}
 let askQ=[],askT=0,askCur=null;
@@ -1886,7 +1934,7 @@ async function sbSendRate(id){
 function sbSendPlace(p){if(!sbOn())return;fetch(SB.url+"/rest/v1/places",{method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({id:p.id,cat:p.c,lat:p.ll[0],lng:p.ll[1],name:p.n||null,device_id:devId(),user_name:prof().name})}).then(r=>{if(r.ok){p.synced=1;save();}}).catch(()=>{});}
 function sbSendConfirm(id){if(!sbOn())return;fetch(SB.url+"/rest/v1/confirms",{method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({poi_id:id,device_id:devId()})}).catch(()=>{});}
 function sbSendReport(id){if(!sbOn())return;fetch(SB.url+"/rest/v1/reports",{method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({poi_id:id,device_id:devId()})}).catch(()=>{});}
-function sbSyncPending(){if(!sbOn())return;Object.keys(S.rates).forEach(id=>{if(!S.rates[id].synced)sbSendRate(id);});Object.values(S.added||{}).forEach(p=>{if(!p.synced)sbSendPlace(p);});}
+function sbSyncPending(){if(!sbOn())return;Object.values(S.plans||{}).forEach(p=>{if(p.mine&&!p.synced&&!p.cancelled&&new Date(p.ends_at)>new Date()){const b=Object.assign({},p,{device_id:devId()});["mine","synced","n"].forEach(k=>delete b[k]);sbPost("plans",b).then(r=>{if(r.ok){sbPost("plan_joins",{plan_id:p.id,device_id:devId(),user_name:prof().name});p.synced=1;save();}}).catch(()=>{});}});Object.keys(S.rates).forEach(id=>{if(!S.rates[id].synced)sbSendRate(id);});Object.values(S.added||{}).forEach(p=>{if(!p.synced)sbSendPlace(p);});}
 function loadComments(id){const el=$("#poiComm");if(!el)return;
   if(!sbOn()){el.innerHTML='';return;}
   fetch(SB.url+"/rest/v1/ratings?select=stars,tags,comment,photo_url,user_name,created_at&poi_id=eq."+encodeURIComponent(id)+"&order=created_at.desc&limit=8",{headers:sbH()}).then(r=>r.ok?r.json():[]).then(rows=>{if(!el.isConnected)return;
@@ -1953,12 +2001,99 @@ function sosDraw(){
   $("#sosRate").hidden=!(d<=RATE_M+5);
 }
 
+/* ---------- Planes: monta una fiesta, una quedada o lo que sea ---------- */
+const PKINDS={fiesta:{n:"Fiesta",e:"🎉",col:"#FF2D55"},quedada:{n:"Quedada",e:"🍻",col:"#FF9500"},deporte:{n:"Deporte",e:"⚽",col:"#34C759"},paseo:{n:"Paseo",e:"🚶",col:"#0A84FF"},cultura:{n:"Cultura",e:"🎨",col:"#AF52DE"},otro:{n:"Otro plan",e:"✨",col:"#C9A400"}};
+let PL={},planMk={},plansDone={},planDraft=null,pickMode=false;
+function allPlans(){const o={};Object.values(S.plans||{}).forEach(p=>{o[p.id]=p;});Object.values(PL).forEach(p=>{o[p.id]=Object.assign({},o[p.id]||{},p);});
+  const now=Date.now();Object.keys(o).forEach(id=>{const p=o[id];if(p.cancelled||(S.hiddenPlans&&S.hiddenPlans[id])||new Date(p.ends_at).getTime()<now)delete o[id];});return o;}
+function planCount(p){let n=+(p.n||0);const j=!!(S.joined&&S.joined[p.id]);if(!sbOn())return (p.mine?1:0)+(j&&!p.mine?1:0);if(j&&!(p.n_me))n=Math.max(n,1);return n;}
+function two(n){return String(n).padStart(2,"0");}
+function planWhen(p){const s=new Date(p.starts_at),e=new Date(p.ends_at),now=new Date();if(now>=s&&now<e)return "Ahora mismo";
+  const a=new Date(now);a.setHours(0,0,0,0);const b=new Date(s);b.setHours(0,0,0,0);const n=Math.round((b-a)/864e5),hh=s.getHours()+":"+two(s.getMinutes());
+  return (n===0?"Hoy":n===1?"Mañana":DIAS[s.getDay()].replace(/^./,x=>x.toUpperCase())+" "+s.getDate())+" · "+hh;}
+function planSoon(p){const d=new Date(p.starts_at).getTime()-Date.now();if(d<=0)return "";if(d<3600e3)return "Empieza en "+Math.max(1,Math.round(d/6e4))+" min";if(d<12*3600e3)return "Empieza en "+Math.round(d/3600e3)+" h";return "";}
+function planIcon(p){const k=PKINDS[p.kind]||PKINDS.otro,live=Date.now()>=new Date(p.starts_at).getTime();
+  return L.divIcon({className:"",html:'<div class="ppin'+(live?" live":"")+'" style="--pc:'+k.col+'"><span>'+k.e+'</span><em>'+(live?"Ahora":esc(new Date(p.starts_at).getHours()+":"+two(new Date(p.starts_at).getMinutes())))+'</em></div>',iconSize:[46,56],iconAnchor:[23,54]});}
+function renderPlans(){if(!map)return;const P=allPlans();
+  Object.keys(planMk).forEach(id=>{if(!P[id]){planMk[id].remove();delete planMk[id];}});
+  Object.values(P).forEach(p=>{const key=p.starts_at+"|"+(Date.now()>=new Date(p.starts_at).getTime());if(planMk[p.id]){if(planMk[p.id]._k!==key){planMk[p.id].setIcon(planIcon(p));planMk[p.id]._k=key;}return;}
+    const m=L.marker([p.lat,p.lng],{icon:planIcon(p),title:p.title,keyboard:true,zIndexOffset:900,riseOnHover:true}).addTo(map);m._k=key;m.on("click",()=>openPlan(p.id));planMk[p.id]=m;});}
+function sbPlans(ll,force){if(!sbOn())return;const k=Math.round(ll[0]*50)+":"+Math.round(ll[1]*50);if(!force&&plansDone[k]&&Date.now()-plansDone[k]<60000)return;plansDone[k]=Date.now();const d=.04,now=new Date(),wk=new Date(Date.now()+8*864e5);
+  fetch(SB.url+"/rest/v1/plans_public?select=*&lat=gte."+(ll[0]-d)+"&lat=lte."+(ll[0]+d)+"&lng=gte."+(ll[1]-d)+"&lng=lte."+(ll[1]+d)+"&ends_at=gte."+encodeURIComponent(now.toISOString())+"&starts_at=lte."+encodeURIComponent(wk.toISOString())+"&order=starts_at.asc&limit=200",{headers:sbH()})
+    .then(r=>r.ok?r.json():[]).then(rows=>{(rows||[]).forEach(r=>{PL[r.id]=r;});renderPlans();if(current==="album")renderAlbum();}).catch(()=>{delete plansDone[k];});}
+function sbPlanById(id){if(!sbOn())return Promise.resolve(null);return fetch(SB.url+"/rest/v1/plans_public?select=*&id=eq."+encodeURIComponent(id),{headers:sbH()}).then(r=>r.ok?r.json():[]).then(rows=>{if(rows&&rows[0]){PL[id]=rows[0];renderPlans();return rows[0];}return null;}).catch(()=>null);}
+function sbPost(path,body,extra){return fetch(SB.url+"/rest/v1/"+path,Object.assign({method:"POST",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify(body)},extra||{}));}
+function localDT(t){const d=new Date(t);return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())+"T"+two(d.getHours())+":"+two(d.getMinutes());}
+function nearestNamed(ll){let best=null;Object.values(allPois()).forEach(p=>{if(!p.n||p.dup)return;const d=distM(ll,p.ll);if(d<=40&&(!best||d<best.d))best={n:p.n,d:d};});return best?best.n:"";}
+function openCreatePlan(){
+  if(!planDraft){const c=map.getCenter(),t=new Date(Date.now()+3600e3);t.setMinutes(0,0,0);planDraft={kind:"quedada",title:"",descr:"",place:"",ll:[c.lat,c.lng],start:localDT(t),dur:3,max:"",adult:false};}
+  const d=planDraft;if(!d.place)d.place=nearestNamed(d.ll);const mine=Object.values(S.plans||{}).filter(p=>!p.cancelled&&new Date(p.ends_at)>new Date()).length;
+  let h='<div class="shk">Monta un plan</div><div class="sht">¿Qué montamos?</div>'+
+    '<div class="pkinds">'+Object.keys(PKINDS).map(k=>'<button type="button" data-pk="'+k+'" aria-pressed="'+(d.kind===k)+'"><span>'+PKINDS[k].e+'</span>'+PKINDS[k].n+'</button>').join("")+'</div>'+
+    '<label class="pf"><span>Título</span><input id="pTitle" maxlength="60" placeholder="Ej.: Cañas después del curro" value="'+esc(d.title)+'"></label>'+
+    '<div class="pf2"><label class="pf"><span>Cuándo empieza</span><input id="pStart" type="datetime-local" value="'+esc(d.start)+'" min="'+localDT(Date.now())+'"></label>'+
+    '<label class="pf"><span>Dura</span><select id="pDur">'+[[1,"1 h"],[2,"2 h"],[3,"3 h"],[5,"5 h"],[8,"Toda la noche"],[12,"Todo el día"]].map(o=>'<option value="'+o[0]+'"'+(+d.dur===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select></label></div>'+
+    '<div class="pf"><span>Dónde</span><div class="pwhere"><b translate="no">'+esc(d.place||"Punto del mapa")+'</b><small>'+fmt(distM(here(),d.ll))+' m de ti</small><button type="button" class="btn grey" data-ppick="1">Cambiar en el mapa</button></div></div>'+
+    '<label class="pf"><span>Nombre del sitio (opcional)</span><input id="pPlace" maxlength="60" placeholder="Ej.: Bar Pinotxo, Parque de la Ciutadella" value="'+esc(d.place)+'"></label>'+
+    '<label class="pf"><span>Cuéntalo un poco (opcional)</span><textarea id="pDescr" maxlength="280" rows="3" placeholder="Qué vais a hacer, qué llevar, cómo reconoceros…">'+esc(d.descr)+'</textarea></label>'+
+    '<div class="pf2"><label class="pf"><span>Plazas (opcional)</span><input id="pMax" type="number" inputmode="numeric" min="2" max="500" placeholder="Sin límite" value="'+esc(d.max)+'"></label>'+
+    '<div class="pf"><span>Solo +18</span><button type="button" class="switch" role="switch" id="pAdult" aria-checked="'+(!!d.adult)+'" aria-label="Solo mayores de 18"></button></div></div>'+
+    '<p class="psafe">Queda siempre en sitios públicos y no pongas tu dirección de casa.</p>'+
+    (sbOn()?'':'<p class="psafe warn">Modo prueba: hasta que conectemos el servidor, tus planes solo los ves tú.</p>')+
+    (mine>=3?'<p class="psafe warn">Ya tienes 3 planes activos. Espera a que termine alguno para montar otro.</p>':'<button type="button" class="btn full" data-ppub="1">Publicar plan</button>');
+  openSheet(h);
+}
+function readPlanForm(){const d=planDraft;if(!d)return;const v=id=>{const e=$(id);return e?e.value:null;};
+  ["title","start","place","descr","max"].forEach(k=>{const x=v({title:"#pTitle",start:"#pStart",place:"#pPlace",descr:"#pDescr",max:"#pMax"}[k]);if(x!=null)d[k]=x;});const du=v("#pDur");if(du!=null)d.dur=+du;}
+function startPick(){readPlanForm();closeSheet();pickMode=true;document.body.classList.add("picking");map.setView(planDraft.ll,Math.max(map.getZoom(),17),{animate:true});$("#pickBar").hidden=false;}
+function endPick(ok){pickMode=false;document.body.classList.remove("picking");$("#pickBar").hidden=true;if(ok){const c=map.getCenter();planDraft.ll=[c.lat,c.lng];planDraft.place=nearestNamed(planDraft.ll);}openCreatePlan();}
+function publishPlan(){readPlanForm();const d=planDraft,s=new Date(d.start);
+  if((d.title||"").trim().length<3){toast("Ponle un título al plan");return;}
+  if(isNaN(s)){toast("Elige cuándo empieza");return;}
+  if(s.getTime()<Date.now()-30*6e4){toast("La hora de inicio ya ha pasado");return;}
+  if(s.getTime()>Date.now()+60*864e5){toast("Solo se pueden montar planes para los próximos 2 meses");return;}
+  const max=parseInt(d.max,10);
+  const p={id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind:d.kind,title:d.title.trim().slice(0,60),descr:(d.descr||"").trim().slice(0,280)||null,place_name:(d.place||"").trim().slice(0,60)||null,
+    lat:+d.ll[0].toFixed(6),lng:+d.ll[1].toFixed(6),starts_at:s.toISOString(),ends_at:new Date(s.getTime()+(d.dur||3)*3600e3).toISOString(),max_people:max>=2?max:null,adult_only:!!d.adult,user_name:prof().name,n:1};
+  if(!S.plans)S.plans={};S.plans[p.id]=Object.assign({mine:1},p);if(!S.joined)S.joined={};S.joined[p.id]=Date.now();save();planDraft=null;
+  if(sbOn()){const body=Object.assign({},p,{device_id:devId()});delete body.n;sbPost("plans",body).then(r=>{if(r.ok){sbPost("plan_joins",{plan_id:p.id,device_id:devId(),user_name:prof().name});S.plans[p.id].synced=1;save();}else toast("No se ha podido publicar en el servidor. Lo reintento luego");}).catch(()=>{});}
+  closeSheet();renderPlans();SFX.chime();buzz([30,40,30]);toast(PKINDS[p.kind].e+" ¡Plan publicado!");setTimeout(()=>openPlan(p.id),350);}
+function openPlan(id){const p=allPlans()[id];if(!p){toast("Este plan ya no está disponible");return;}const k=PKINDS[p.kind]||PKINDS.otro,d=distM(here(),[p.lat,p.lng]),j=!!(S.joined&&S.joined[id]),mine=!!(S.plans&&S.plans[id]&&S.plans[id].mine),n=planCount(p),full=p.max_people&&n>=p.max_people&&!j,soon=planSoon(p);
+  let h='<div class="shk"><span class="cdot" style="--pc:'+k.col+'">'+k.e+'</span>'+esc(k.n)+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+(p.adult_only?' · +18':'')+'</div><div class="sht" translate="no">'+esc(p.title)+'</div>'+
+    '<p class="pwhen">'+esc(planWhen(p))+(soon?' <small>'+esc(soon)+'</small>':'')+'</p>'+
+    (p.place_name?'<p class="addr" translate="no">📍 '+esc(p.place_name)+'</p>':'')+
+    (p.descr?'<p class="desc" translate="no">'+esc(p.descr)+'</p>':'')+
+    '<div class="pmeta"><span>👥 '+n+(p.max_people?" de "+p.max_people:"")+(n===1&&!p.max_people?" apuntado":" apuntados")+'</span><span>Lo monta @'+esc(p.user_name||"anónimo")+(mine?" (tú)":"")+'</span></div>';
+  if(mine)h+='<div class="btnrow"><a class="btn dark" href="'+routeURL([p.lat,p.lng])+'" target="_blank" rel="noopener">Cómo llegar</a><button type="button" class="btn grey" data-pshare="'+esc(id)+'">Invitar</button></div><button type="button" class="link rep" data-pcancel="'+esc(id)+'">Cancelar el plan</button>';
+  else h+=(j?'<button type="button" class="btn full grey" data-pleave="'+esc(id)+'">✓ Te has apuntado · Ya no voy</button>':full?'<button type="button" class="btn full grey" disabled>Completo</button>':'<button type="button" class="btn full" data-pjoin="'+esc(id)+'">Me apunto</button>')+
+    '<div class="btnrow"><a class="btn dark" href="'+routeURL([p.lat,p.lng])+'" target="_blank" rel="noopener">Cómo llegar</a><button type="button" class="btn grey" data-pshare="'+esc(id)+'">Compartir</button></div>'+
+    '<button type="button" class="link rep" data-prep="'+esc(id)+'">Denunciar este plan</button>';
+  if(!sbOn())h+='<p class="srcnote">Modo prueba: los planes de los demás aparecerán al conectar el servidor.</p>';
+  openSheet(h);}
+function joinPlan(id,on){if(!S.joined)S.joined={};const p=allPlans()[id];if(on)S.joined[id]=Date.now();else delete S.joined[id];save();
+  if(p&&PL[id])PL[id].n=Math.max(0,(+PL[id].n||0)+(on?1:-1));
+  if(sbOn()){if(on)sbPost("plan_joins",{plan_id:id,device_id:devId(),user_name:prof().name}).catch(()=>{});else fetch(SB.url+"/rest/v1/plan_joins?plan_id=eq."+encodeURIComponent(id)+"&device_id=eq."+encodeURIComponent(devId()),{method:"DELETE",headers:sbH()}).catch(()=>{});}
+  SFX.tap();buzz(25);toast(on?"¡Apuntado! Te lo guardamos en Cerca":"Te has desapuntado");openPlan(id);}
+function cancelPlan(id){if(!confirmCancel[id]){confirmCancel[id]=1;toast("Pulsa otra vez para cancelarlo");setTimeout(()=>{delete confirmCancel[id];},4000);return;}
+  if(S.plans&&S.plans[id])S.plans[id].cancelled=true;if(PL[id])PL[id].cancelled=true;save();
+  if(sbOn())fetch(SB.url+"/rest/v1/plans?id=eq."+encodeURIComponent(id)+"&device_id=eq."+encodeURIComponent(devId()),{method:"PATCH",headers:sbH({"Content-Type":"application/json",Prefer:"return=minimal"}),body:JSON.stringify({cancelled:true})}).catch(()=>{});
+  closeSheet();renderPlans();toast("Plan cancelado");}
+const confirmCancel={};
+function reportPlan(id){if(!S.hiddenPlans)S.hiddenPlans={};S.hiddenPlans[id]=1;save();if(sbOn())sbPost("plan_reports",{plan_id:id,device_id:devId()}).catch(()=>{});closeSheet();renderPlans();toast("Gracias. Lo ocultamos y lo revisaremos");}
+function sharePlan(id){const p=allPlans()[id];if(!p)return;const k=PKINDS[p.kind]||PKINDS.otro,url=location.origin+location.pathname+"#p="+encodeURIComponent(id),text=k.e+" "+p.title+" · "+planWhen(p)+(p.place_name?" · "+p.place_name:"")+" — apúntate en Patea";
+  try{if(navigator.share){navigator.share({title:"Patea",text:text,url:url}).catch(()=>{});return;}}catch(e){}
+  try{navigator.clipboard.writeText(text+" "+url).then(()=>toast("Enlace copiado: pégalo en WhatsApp"),()=>toast(url));}catch(e){toast(url);}}
+function plansNearHTML(h0){const list=Object.values(allPlans()).map(p=>({p:p,d:distM(h0,[p.lat,p.lng])})).filter(o=>o.d<5000||(S.joined&&S.joined[o.p.id])).sort((a,b)=>new Date(a.p.starts_at)-new Date(b.p.starts_at)).slice(0,20);
+  let h='<div class="sec"><span>Planes cerca</span><span><button type="button" class="link" data-pnew="1">＋ Monta uno</button></span></div>';
+  if(!list.length)return h+'<div class="group"><p class="empty">No hay planes cerca todavía. ¡Monta el primero!</p></div>';
+  return h+'<div class="pcards">'+list.map(o=>{const p=o.p,k=PKINDS[p.kind]||PKINDS.otro,j=S.joined&&S.joined[p.id],n=planCount(p);return '<button type="button" class="pcardb" data-plan="'+esc(p.id)+'" style="--pc:'+k.col+'"><span class="pe">'+k.e+'</span><b translate="no">'+esc(p.title)+'</b><small>'+esc(planWhen(p))+'</small><small>'+(o.d<1000?fmt(o.d)+" m":fmt(o.d/1000,1)+" km")+' · 👥 '+n+(j?' · <i>vas</i>':'')+'</small></button>';}).join("")+'</div>';}
+
 /* ---------- Compartir un sitio ---------- */
 function shareURL(p){return location.origin+location.pathname+"#s="+encodeURIComponent([p.id,p.c,p.ll[0].toFixed(6),p.ll[1].toFixed(6),(p.n||"").slice(0,40)].join("|"));}
 function sharePOI(id){const p=allPois()[id];if(!p)return;const c=CATS[p.c],r=rateOf(p),url=shareURL(p),text=c.e+" "+(p.n||c.n)+(r.n?" · "+fmt(r.avg,1)+"★":"")+" — míralo en Patea";
   try{if(navigator.share){navigator.share({title:"Patea",text:text,url:url}).catch(()=>{});return;}}catch(e){}
   try{navigator.clipboard.writeText(text+" "+url).then(()=>toast("Enlace copiado: pégalo en WhatsApp"),()=>toast(url));}catch(e){toast(url);}}
-function openSharedFromHash(){const m=/^#s=(.+)$/.exec(location.hash||"");if(!m)return;try{const a=decodeURIComponent(m[1]).split("|"),id=a[0],c=a[1],ll=[+a[2],+a[3]];if(!CATS[c]||isNaN(ll[0]))return;
+function openSharedFromHash(){{const mp=/^#p=(.+)$/.exec(location.hash||"");if(mp){const id=decodeURIComponent(mp[1]);history.replaceState(null,"",location.pathname);const go2=pl=>{if(pl){map.setView([pl.lat,pl.lng],17,{animate:false});followMe=false;renderPlans();setTimeout(()=>openPlan(id),400);}else toast("Este plan ya no está disponible");};if(allPlans()[id])go2(allPlans()[id]);else sbPlanById(id).then(go2);return;}}const m=/^#s=(.+)$/.exec(location.hash||"");if(!m)return;try{const a=decodeURIComponent(m[1]).split("|"),id=a[0],c=a[1],ll=[+a[2],+a[3]];if(!CATS[c]||isNaN(ll[0]))return;
   if(!allPois()[id])POI[id]={id:id,c:c,ll:ll,n:a[4]||"",tg:{},shared:1};history.replaceState(null,"",location.pathname);map.setView(ll,18,{animate:false});fetchPOIs(ll);renderPOIs();setTimeout(()=>openPOI(id),400);}catch(e){}}
 
 /* ---------- Mapa claro / oscuro ---------- */
@@ -2252,12 +2387,13 @@ let nearCat="",nearOpen=false;
 const NEAR_G={salir:["bar","night"],market:["market"],basic:["toilets","water","wifi","charge","atm","aed","dog","play"],ver:["monu","odd"]};
 function renderAlbum(){
   const h0=here(),P=allPois(),zn=zoneName(h0);fetchPOIs(h0);
-  let list=Object.values(P).filter(p=>!p.dup&&p.c!=="bench"&&!(S.reports[p.id]>=1&&p.mine)&&(!nearCat||NEAR_G[nearCat].indexOf(p.c)>=0)).map(p=>({p:p,d:distM(h0,p.ll),st:ohStatus(p.tg&&p.tg.opening_hours),r:rateOf(p)})).filter(o=>o.d<2000);
+  let list=nearCat==="planes"?[]:Object.values(P).filter(p=>!p.dup&&p.c!=="bench"&&!(S.reports[p.id]>=1&&p.mine)&&(!nearCat||NEAR_G[nearCat].indexOf(p.c)>=0)).map(p=>({p:p,d:distM(h0,p.ll),st:ohStatus(p.tg&&p.tg.opening_hours),r:rateOf(p)})).filter(o=>o.d<2000);
   if(nearOpen)list=list.filter(o=>o.st&&o.st.open);
   list.sort((a,b)=>a.d-b.d);const total=list.length;list=list.slice(0,60);
-  const segs=[["","Todo"],["salir","Para salir"],["market","Mercadillos"],["basic","Básicos"],["ver","Turismo"]];
+  const segs=[["","Todo"],["planes","Planes"],["salir","Para salir"],["market","Mercadillos"],["basic","Básicos"],["ver","Turismo"]];
   let h='<h1 class="large">Cerca</h1><div class="sub" translate="no">'+(zn?esc(zn)+" · ":"")+(ES?"a menos de 2 km":"within 2 km")+'</div>'+
     '<div class="nchips" role="group" aria-label="Tipo">'+segs.map(x=>'<button type="button" data-near="'+x[0]+'" aria-pressed="'+(nearCat===x[0])+'">'+x[1]+'</button>').join("")+'<button type="button" class="nopen" data-nearopen="1" aria-pressed="'+nearOpen+'">Abierto ahora</button></div>';
+  if(!nearCat||nearCat==="planes"){sbPlans(h0);h+=plansNearHTML(h0);if(nearCat==="planes"){h+='<button type="button" class="btn full" data-pnew="1" style="margin-top:14px">🎉 Monta un plan</button>';$("#album").innerHTML=h;hydrate($("#album"));return;}h+='<div class="sec"><span>Sitios</span></div>';}
   if(!list.length)h+='<div class="group"><p class="empty">'+(nearOpen?"No hay nada de este tipo abierto ahora mismo (o no consta su horario).":"Todavía no hay sitios cargados aquí. Dale un momento o mueve el mapa.")+'</p></div>';
   else h+='<div class="group toplist nlist">'+list.map(o=>{const p=o.p,c=CATS[p.c],lab=openLabel(p);return '<div class="row nrow" data-poi="'+esc(p.id)+'"><span class="nic" style="background:'+c.col+'">'+c.e+'</span><div class="nm"><b'+(p.n?' translate="no"':'')+'>'+esc(p.n||c.n)+'</b><small>'+esc(c.n)+' · '+(o.d<1000?fmt(o.d)+" m":fmt(o.d/1000,1)+" km")+'</small>'+lab+'</div>'+(o.r.n?'<span class="nr">★ '+fmt(o.r.avg,1)+'</span>':'')+'</div>';}).join("")+'</div>'+(total>60?'<p class="hintp">Se muestran los 60 más cercanos.</p>':'');
   h+='<p class="hintp">Los sitios salen de OpenStreetMap, el mapa libre que hace la gente. Si un horario está mal o falta algo, avisa desde su ficha.</p>';
@@ -2311,6 +2447,7 @@ function renderPerfil(){
 const COACH=[
   {em:"📍",t:"Lo útil, cerca",d:"Bares, discotecas, mercadillos, baños, fuentes, cajeros… todo lo que tienes alrededor, en el mapa y en la pestaña Cerca."},
   {em:"🕒",t:"¿Está abierto?",d:"Cada sitio te dice si está abierto ahora, a qué hora cierra o cuándo vuelve a abrir. Usa «Abierto ahora» para ver solo lo que puedes visitar ya."},
+  {em:"🎉",t:"Monta un plan",d:"Crea una fiesta, una quedada, un partido o un paseo. Sale en el mapa y se puede apuntar quien quiera."},
   {em:"⭐",t:"Valora con estrellas",d:"Cuando estés allí, dale estrellas y un comentario. Solo se puede valorar estando en el sitio, así las notas son de verdad."}];
 let coachStep=0;
 function openCoach(i){coachStep=i||0;const c=COACH[coachStep];
@@ -2343,7 +2480,7 @@ function handleShareClicks(e){
 
 /* ---------- Inicio ---------- */
 function start(){
-  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","confirms","daily","zones","bumps"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
+  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","confirms","daily","zones","bumps","plans","joined","hiddenPlans"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
   fillIcons();
   const afterStart=()=>{SFX.unlock();if(!S.coached)setTimeout(()=>openCoach(0),450);};
   $("#startGps").addEventListener("click",()=>{S.started=true;save();$("#startOv").hidden=true;afterStart();if(map){toast("Buscando tu ubicación");startGps();}});
@@ -2366,7 +2503,7 @@ function start(){
   buildMarkers();buildFriends();updateZoneRect(st.pos);
   let fogRaf=0;const fogSoon=()=>{if(fogRaf)return;fogRaf=requestAnimationFrame(()=>{fogRaf=0;drawFog();});};
   map.on("move",fogSoon);map.on("zoomend resize viewreset",drawFog);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
-  map.on("click",e=>{closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
+  map.on("click",e=>{if(pickMode)return;closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
   applyMapStyle();drawFog();updateHud();setHint();updateRadar(st.pos);renderFilters();fetchPOIs(st.pos);renderPOIs();openSharedFromHash();sbSyncPending();setInterval(applyMapStyle,600000);
 
   $("#zin").addEventListener("click",()=>{map.zoomIn(1);SFX.tap();});
@@ -2378,6 +2515,16 @@ function start(){
   $("#sheetX").addEventListener("click",closeSheet);
   $("#sheetBody").addEventListener("click",e=>{
     if(handleShareClicks(e))return;
+    {const t=e.target;let x;
+      if((x=t.closest("[data-pk]"))){readPlanForm();planDraft.kind=x.dataset.pk;if(x.dataset.pk==="fiesta")planDraft.adult=true;openCreatePlan();return;}
+      if(t.closest("#pAdult")){readPlanForm();planDraft.adult=!planDraft.adult;openCreatePlan();return;}
+      if(t.closest("[data-ppick]")){startPick();return;}
+      if(t.closest("[data-ppub]")){publishPlan();return;}
+      if((x=t.closest("[data-pjoin]"))){joinPlan(x.dataset.pjoin,true);return;}
+      if((x=t.closest("[data-pleave]"))){joinPlan(x.dataset.pleave,false);return;}
+      if((x=t.closest("[data-pcancel]"))){cancelPlan(x.dataset.pcancel);return;}
+      if((x=t.closest("[data-prep]"))){reportPlan(x.dataset.prep);return;}
+      if((x=t.closest("[data-pshare]"))){sharePlan(x.dataset.pshare);return;}}
     const w=e.target.closest("[data-walk]");if(w){const p=findPlace(w.dataset.walk);closeSheet();if(p)walkTo(p.ll);return;}
     const wt=e.target.closest("[data-walkt]");if(wt){const t=findTreasure(wt.dataset.walkt);closeSheet();if(t)walkTo(t.ll);return;}
     const wf=e.target.closest("[data-walkf]");if(wf){const f=findFriend(wf.dataset.walkf);closeSheet();if(f)walkTo([f.ll[0]-0.0002,f.ll[1]]);return;}
@@ -2399,7 +2546,7 @@ function start(){
 
   });
   $("#reveal").addEventListener("click",e=>{if(handleShareClicks(e))return;const rp=e.target.closest("[data-rvpoi]");if(rp){const id=rp.dataset.rvpoi;closeReveal();revealQ.length=0;openPOI(id);return;}if(e.target.closest("[data-rv]"))nextReveal();});
-  $("#album").addEventListener("click",e=>{const nc=e.target.closest("[data-near]");if(nc){nearCat=nc.dataset.near;SFX.tap();renderAlbum();return;}if(e.target.closest("[data-nearopen]")){nearOpen=!nearOpen;SFX.tap();renderAlbum();return;}const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
+  $("#album").addEventListener("click",e=>{{const pl=e.target.closest("[data-plan]");if(pl){openPlan(pl.dataset.plan);return;}if(e.target.closest("[data-pnew]")){planDraft=null;openCreatePlan();return;}}const nc=e.target.closest("[data-near]");if(nc){nearCat=nc.dataset.near;SFX.tap();renderAlbum();return;}if(e.target.closest("[data-nearopen]")){nearOpen=!nearOpen;SFX.tap();renderAlbum();return;}const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
   $("#retos").addEventListener("click",e=>{const b=e.target.closest("[data-lb]");if(b){lbMode=b.dataset.lb;renderRetos();}});
   $("#perfil").addEventListener("click",e=>{
     {const po=e.target.closest("[data-poi]");if(po){openPOI(po.dataset.poi);return;}}
@@ -2412,6 +2559,8 @@ function start(){
     if(e.target.closest("#resetBtn")){stopGps();cancelAnimationFrame(walkAnim);S=fresh();S.started=true;try{localStorage.removeItem(KEY);}catch(_){}const s2=W();s2.pos=START.slice();addPoint(s2.pos,true);bigReveal(s2.pos,START_R);buildMarkers();buildFriends();updateZoneRect(s2.pos);renderPOIs();setMe();meMk.setLatLng(s2.pos);map.setView(s2.pos,16,{animate:false});updateHud();renderPerfil();toast("Recorrido borrado");}
   });
   $("#wcBtn").addEventListener("click",openSOS);
+  $("#planBtn").addEventListener("click",()=>{planDraft=null;SFX.tap();openCreatePlan();});
+  $("#pickOk").addEventListener("click",()=>endPick(true));$("#pickNo").addEventListener("click",()=>endPick(false));
   $("#ask").addEventListener("click",e=>{const b=e.target.closest("[data-conf]");if(b)answerAsk(b.dataset.conf==="1");});
   $("#searchBtn").addEventListener("click",()=>{SFX.tap();openSearch();});
   $("#sosX").addEventListener("click",closeSOS);
