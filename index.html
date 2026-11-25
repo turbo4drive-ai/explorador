@@ -100,8 +100,8 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
 .leaflet-tile{filter:inherit;visibility:hidden}
 .leaflet-tile-loaded{visibility:inherit}
-.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;mix-blend-mode:plus-lighter}
-.leaflet-tile-pane{filter:brightness(1.75) contrast(1.1) saturate(1.1)}
+.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.92) saturate(.55)}
 .leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}
 .leaflet-interactive{cursor:pointer}
 .leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:grabbing}
@@ -1882,7 +1882,7 @@ function start(){
   if(typeof L==="undefined"){$("#map").innerHTML='<p style="padding:200px 20px;text-align:center;color:#8E8E93">No se ha podido cargar el mapa.</p>';return;}
   brush=makeBrush();clouds=makeClouds();
   map=L.map("map",{zoomControl:false,zoomAnimation:false,attributionControl:true,minZoom:3,maxZoom:19,worldCopyJump:true});
-  const tl=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:20,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'}).addTo(map);
+  const tl=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
   tl.on("tileload",()=>{tilesOk++;});tl.on("tileerror",()=>{tilesErr++;if(!tilesOk&&tilesErr>=4)$("#mapNote").hidden=false;});
   setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},7000);
   map.createPane("zone");map.getPane("zone").style.zIndex=460;map.getPane("zone").style.pointerEvents="none";
