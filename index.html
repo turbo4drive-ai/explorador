@@ -101,7 +101,7 @@ button,.tab,.cardbtn,.acard{touch-action:manipulation}
 .leaflet-tile{filter:inherit;visibility:hidden}
 .leaflet-tile-loaded{visibility:inherit}
 .leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;mix-blend-mode:plus-lighter}
-.leaflet-tile-pane{filter:brightness(1.2) contrast(1.05)}
+.leaflet-tile-pane{filter:brightness(1.75) contrast(1.1) saturate(1.1)}
 .leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}
 .leaflet-interactive{cursor:pointer}
 .leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:grabbing}
@@ -1262,7 +1262,7 @@ const TYPES={mirador:["Mirador","eye"],monumento:["Monumento","columns"],mercado
 const RAR={c:["Común",10,1],r:["Rara",25,2],l:["Legendaria",60,3]};
 const RELRAR={c:["Común",15,"#AEB4BE"],r:["Rara",40,"#5AC8FA"],l:["Legendaria",120,"#FFD60A"]};
 const RELNAMES={c:["Chapa de metro","Moneda antigua","Billete de tranvía","Llave oxidada","Postal perdida","Ficha de futbolín","Botón de latón","Canica de cristal"],r:["Brújula de bolsillo","Disco de vinilo","Reloj de cadena","Mapa rasgado","Cámara de carrete","Medalla de 1929"],l:["Estatuilla dorada","Diamante urbano","Corona de neón","Llave de la ciudad"]};
-const RADIUS_M=45,CELL=0.00045,FIND_M=45,RELIC_FIND=25,RADAR_M=300,MIRADOR_R=350,FLARE_R=200,RG=0.006,CELL_KM2=Math.pow(CELL*111320/1000,2);
+const START_R=150,RADIUS_M=55,CELL=0.00045,FIND_M=45,RELIC_FIND=25,RADAR_M=300,MIRADOR_R=350,FLARE_R=200,RG=0.006,CELL_KM2=Math.pow(CELL*111320/1000,2);
 function P(id,n,t,r,lat,lng){return {id:id,n:n,t:t,r:r,ll:[lat,lng]};}
 const PLACES=[
   P("b1","Catedral de Barcelona","monumento","r",41.3839,2.1762),P("b2","Plaça Reial","plaza","c",41.3801,2.1754),P("b3","Mercat de la Boqueria","mercado","c",41.3817,2.1716),P("b4","Palau de la Música","monumento","l",41.3875,2.1753),P("b5","Carrer del Bisbe","calle","r",41.3832,2.1770),P("b6","Mirador de Colom","mirador","r",41.3758,2.1778),
@@ -1597,7 +1597,7 @@ function drawFog(){
   const g=fogCtx;g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.clearRect(0,0,size.x,size.y);
   if(!cloudPat)cloudPat=g.createPattern(clouds,"repeat");
   const an=map.latLngToContainerPoint([0,0]);
-  g.save();g.globalAlpha=.72;g.translate(((an.x%512)+512)%512-512,((an.y%512)+512)%512-512);g.fillStyle=cloudPat;g.fillRect(0,0,size.x+1024,size.y+1024);g.restore();
+  g.save();g.globalAlpha=.58;g.translate(((an.x%512)+512)%512-512,((an.y%512)+512)%512-512);g.fillStyle=cloudPat;g.fillRect(0,0,size.x+1024,size.y+1024);g.restore();
   const ctr=map.getCenter(),mpp=156543.03392*Math.cos(ctr.lat*Math.PI/180)/Math.pow(2,map.getZoom()),r=RADIUS_M/mpp*1.35;
   const st=W();g.globalCompositeOperation="destination-out";
   st.pts.forEach(p=>{const cp=map.latLngToContainerPoint(p);if(cp.x<-r||cp.y<-r||cp.x>size.x+r||cp.y>size.y+r)return;g.drawImage(brush,cp.x-r,cp.y-r,2*r,2*r);});
@@ -1713,7 +1713,7 @@ function onFix(p){
   if(acc>60){if(!weakWarned){weakWarned=true;toast("Señal GPS débil");}return;}
   if(lastFix){const dt=(now-lastFix.t)/1000,d=distM(lastFix.ll,ll);if(dt>0&&d/dt>12&&d>60)return;}
   const first=!lastFix;lastFix={ll:ll,t:now};
-  if(first){map.setView(ll,17,{animate:false});toast("Ubicación encontrada · a caminar");}
+  if(first){map.setView(ll,17,{animate:false});const near=W().big.some(b=>distM([b[0],b[1]],ll)<START_R*2)||W().pts.some(q=>distM(q,ll)<80);if(!near)bigReveal(ll,START_R);toast("Ubicación encontrada · a caminar");}
   setPos(ll,true);
 }
 function startGps(){
@@ -1889,7 +1889,8 @@ function start(){
   map.createPane("fog");map.getPane("fog").style.zIndex=450;map.getPane("fog").style.pointerEvents="none";
   fogCanvas=L.DomUtil.create("canvas","",map.getPane("fog"));fogCtx=fogCanvas.getContext("2d");
   const st=W();if(!st.pos){st.pos=START.slice();addPoint(st.pos,true);}
-  map.setView(st.pos,16);
+  if(!st.big.length)bigReveal(st.pos,START_R);
+  map.setView(st.pos,17);
   meMk=L.marker(st.pos,{icon:L.divIcon({html:meHTML(),iconSize:[44,44],iconAnchor:[22,22]}),interactive:false,zIndexOffset:1000}).addTo(map);
   buildMarkers();buildFriends();updateZoneRect(st.pos);
   map.on("move zoomend resize viewreset",drawFog);
@@ -1924,7 +1925,7 @@ function start(){
     if(e.target.closest("#sndSw")){S.sound=S.sound===false;save();const y=$("#v-perfil").scrollTop;renderPerfil();$("#v-perfil").scrollTop=y;if(S.sound!==false)SFX.pop();return;}
     if(e.target.closest("#coachBtn")){openCoach(0);return;}
     const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}
-    if(e.target.closest("#resetBtn")){stopGps();cancelAnimationFrame(walkAnim);S=fresh();S.started=true;try{localStorage.removeItem(KEY);}catch(_){}const s2=W();s2.pos=START.slice();addPoint(s2.pos,true);clearAnimals();buildMarkers();buildFriends();updateZoneRect(s2.pos);updateAnimals(s2.pos);meMk.setLatLng(s2.pos);map.setView(s2.pos,16,{animate:false});updateHud();renderPerfil();toast("Recorrido borrado");}
+    if(e.target.closest("#resetBtn")){stopGps();cancelAnimationFrame(walkAnim);S=fresh();S.started=true;try{localStorage.removeItem(KEY);}catch(_){}const s2=W();s2.pos=START.slice();addPoint(s2.pos,true);bigReveal(s2.pos,START_R);clearAnimals();buildMarkers();buildFriends();updateZoneRect(s2.pos);updateAnimals(s2.pos);meMk.setLatLng(s2.pos);map.setView(s2.pos,16,{animate:false});updateHud();renderPerfil();toast("Recorrido borrado");}
   });
   $("#snapX").addEventListener("click",()=>{if(snap&&!snap.busy){closeSnap();toast("Lo has dejado ir");}});
   $("#shoot").addEventListener("click",shoot);
