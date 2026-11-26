@@ -1447,6 +1447,13 @@ body.scanning .wave{animation:wave 1.8s ease-out infinite}
 @keyframes wave2{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1);opacity:0}}
 body.scanning .me2 .wave{opacity:1;animation:wave2 3.2s cubic-bezier(.2,.6,.3,1) infinite}body.scanning .me2 .wave.w2{animation-delay:1.6s}
 .me2 .r1{animation-duration:3.6s}
+.zrefresh{display:flex;width:fit-content;align-items:center;gap:6px;margin:10px auto 0;height:32px;padding:0 13px 0 10px;border:0;border-radius:16px;background:#fff;color:#0A64D6;font:700 .8rem/1 var(--sf);box-shadow:0 6px 16px rgba(40,70,120,.2);cursor:pointer;animation:zrin .35s cubic-bezier(.2,1.4,.4,1)}
+.zrefresh[hidden]{display:none}
+.zrefresh svg{width:16px;height:16px;fill:currentColor}
+.zrefresh.busy svg{animation:zrspin 1s linear infinite}.zrefresh.busy{color:#5A6880}
+.zrefresh.ok{color:#1E9E48}.zrefresh.ok svg{display:none}.zrefresh.ok span::before{content:"✓ "}
+@keyframes zrspin{to{transform:rotate(360deg)}}
+@keyframes zrin{from{transform:translateY(-8px) scale(.9);opacity:0}to{transform:none;opacity:1}}
 </style>
 </head>
 <body>
@@ -1460,6 +1467,7 @@ body.scanning .me2 .wave{opacity:1;animation:wave2 3.2s cubic-bezier(.2,.6,.3,1)
       <button type="button" class="rbtn srch" id="searchBtn" aria-label="Buscar una zona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 1 0 4.2 12.6l5.1 5.1 1.4-1.4-5.1-5.1A7 7 0 0 0 10 3zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg></button>
       <button class="rbtn av" id="playerBtn" type="button" aria-label="Ver tu perfil"><span id="hudAv"></span></button>
     </div>
+    <button type="button" class="zrefresh" id="zoneRefresh" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 0 6.7 9h-2.1A5 5 0 1 1 12 7c1.4 0 2.6.6 3.5 1.5L13 11h7V4l-2.6 2.6A8.9 8.9 0 0 0 12 5z"/></svg><span>Actualizar esta zona</span></button>
   </div>
   <div class="hud right">
     <div class="glass ctl"><button type="button" id="zin" aria-label="Acercar">+</button><button type="button" id="zout" aria-label="Alejar">−</button><button type="button" id="zme" aria-label="Centrar en mí" data-icon="target"></button><button type="button" id="z3d" class="z3d" aria-pressed="true" aria-label="Vista 3D">3D</button></div>
@@ -1722,6 +1730,7 @@ const EN_EXACT={
 "Monta un plan":"Start a plan","Crea una fiesta, una quedada, un partido o un paseo. Sale en el mapa y se puede apuntar quien quiera.":"Create a party, a meetup, a game or a walk. It shows up on the map and anyone can join."
 ,"Cargando sitios de la zona…":"Loading places in this area…","El servidor de mapas va lento. Lo reintento en unos segundos…":"The map server is slow. Retrying in a few seconds…","No hay sitios registrados aquí todavía. ¡Añade el primero!":"No places listed here yet. Add the first one!"
 ,"Veterinario":"Vet","Veterinarios":"Vets","Urgencias veterinarias":"Emergency vet","Vet. urgencias":"Emergency vets","Atiende urgencias · llama antes de ir":"Handles emergencies · call before going","Urgencias 24 horas":"Emergencies 24 hours","Buen trato":"Kind staff","Precio justo":"Fair price","Atienden rápido":"Quick service","Explican bien":"Clear explanations","Abren de verdad 24 h":"Really open 24 h"
+,"Actualizar esta zona":"Refresh this area","Buscando sitios…":"Finding places…","Zona actualizada":"Area updated","No se ha podido cargar":"Couldn't load"
 };
 const EN_RX=[
  [/^Hoy · (.+)$/,"Today · $1"],[/^Mañana · (.+)$/,"Tomorrow · $1"],[/^(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo) (\d+) · (.+)$/,(m,d,n,t)=>({Lunes:"Monday",Martes:"Tuesday","Miércoles":"Wednesday",Jueves:"Thursday",Viernes:"Friday","Sábado":"Saturday",Domingo:"Sunday"}[d])+" "+n+" · "+t],
@@ -1953,9 +1962,9 @@ function smallKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI
 function smallMid(k){const a=k.split(":").map(Number);return [(a[0]+.5)*POI_CELL,(a[1]+.5)*POI_CELL];}
 function cellFresh(k){const c=poiCells[k];return !!(c&&c.t&&Date.now()-c.t<7*864e5);}
 function areaLoaded(ll){const i=Math.floor(ll[0]/POI_CELL),j=Math.floor(ll[1]/POI_CELL);for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++)if(!cellFresh((i+di)+":"+(j+dj)))return false;return true;}
-function fetchPOIs(ll){if(!ll||areaLoaded(ll))return;
-  if(Object.keys(poiLoading).some(k=>poiLoading[k]&&distM(poiLoading[k],ll)<300))return;
-  poiQ=poiQ.filter(q=>distM(q.ll,ll)>=300);poiQ.unshift({ll:ll});if(poiQ.length>3)poiQ.length=3;
+function fetchPOIs(ll,force){if(!ll||(!force&&areaLoaded(ll)))return;
+  if(!force&&Object.keys(poiLoading).some(k=>poiLoading[k]&&distM(poiLoading[k],ll)<300))return;
+  poiQ=poiQ.filter(q=>distM(q.ll,ll)>=300);poiQ.unshift({ll:ll,force:!!force});if(poiQ.length>3)poiQ.length=3;
   pumpPOI();}
 function pumpPOI(){while(poiActive<2&&poiQ.length)runPOI(poiQ.shift());scanSet(poiActive>0);}
 const QA_LIST=['nwr["amenity"~"^(toilets|bar|pub|biergarten|nightclub|marketplace|veterinary)$"]','node["amenity"="atm"]','nwr["emergency"="defibrillator"]','nwr["amenity"="device_charging_station"]','nwr["internet_access"~"^(wlan|yes)$"]["name"]','node["amenity"="bench"]','nwr["tourism"~"^(attraction|museum|viewpoint)$"]','nwr["historic"~"^(monument|castle|ruins|archaeological_site|city_gate|fort|tower|church)$"]','nwr["historic"]["wikidata"]','nwr["tourism"="artwork"]["wikidata"]','nwr["amenity"="place_of_worship"]["wikidata"]'];
@@ -1971,12 +1980,15 @@ function runPOI(job){const ll=job.ll,id="j"+Math.random().toString(36).slice(2,7
         const pid=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[pid]={id:pid,c:cc,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};});
       const i0=Math.floor(ll[0]/POI_CELL),j0=Math.floor(ll[1]/POI_CELL),now=Date.now();
       for(let di=-3;di<=3;di++)for(let dj=-3;dj<=3;dj++){const k=(i0+di)+":"+(j0+dj),m=smallMid(k);if(distM(m,ll)<NEAR_R-260){const ids=Object.values(POI).filter(x=>smallKey(x.ll)===k).map(x=>x.id);poiCells[k]={t:now,ids:ids};}}
-      dedupePOIs();renderPOIs();if(current==="album")renderAlbum();
+      dedupePOIs();renderPOIs();if(current==="album")renderAlbum();if(job.force)zrDone(true);
       clearTimeout(poiSaveT);poiSaveT=setTimeout(savePoiCache,1500);if(poiFail){poiFail=0;setPoiStatus("");}})
-    .catch(e=>{poiFail++;const why=e&&e.errors?e.errors.map(x=>x&&x.message).join(", "):(e&&e.message)||"";
+    .catch(e=>{if(job.force)zrDone(false);poiFail++;const why=e&&e.errors?e.errors.map(x=>x&&x.message).join(", "):(e&&e.message)||"";
       setPoiStatus("No consigo cargar los sitios ("+(why||"sin respuesta").slice(0,40)+"). Lo reintento solo…",true);
       clearTimeout(poiRetryT);poiRetryT=setTimeout(()=>fetchPOIs(cellRef()),Math.min(60000,8000*poiFail));})
     .then(()=>{delete poiLoading[id];poiActive--;pumpPOI();});}
+let zrAt=null,zrT=0;
+function zrShow(){const b=$("#zoneRefresh");if(!b||!map)return;const c=cellRef();if(zrAt&&distM(zrAt,c)<200)return;b.classList.remove("busy","ok");b.querySelector("span").textContent="Actualizar esta zona";b.hidden=false;}
+function zrDone(ok){const b=$("#zoneRefresh");if(!b)return;b.classList.remove("busy");b.classList.toggle("ok",ok);b.querySelector("span").textContent=ok?"Zona actualizada":"No se ha podido cargar";clearTimeout(zrT);zrT=setTimeout(()=>{b.hidden=true;b.classList.remove("ok");},ok?1400:2600);}
 function scanSet(on){document.body.classList.toggle("scanning",!!on);}
 function seedDemo(ll){
   if(Object.values(POI).some(p=>p.demo&&distM(p.ll,ll)<600))return;let s=hash(poiCellKey(ll));const R=()=>{s=(Math.imul(s,16807)>>>0)%2147483647;return s/2147483647;};
@@ -2716,6 +2728,8 @@ function start(){
   buildMarkers();buildFriends();updateZoneRect(st.pos);
   let fogRaf=0;const fogSoon=()=>{if(fogRaf)return;fogRaf=requestAnimationFrame(()=>{fogRaf=0;drawFog();});};
   map.on("move",fogSoon);map.on("zoomend resize viewreset",drawFog);map.on("zoomend",()=>{document.body.classList.toggle("zlab",map.getZoom()>=17.5);});document.body.classList.toggle("zlab",map.getZoom()>=17.5);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
+  map.on("dragstart",()=>{setTimeout(zrShow,0);});map.on("moveend",()=>{const b=$("#zoneRefresh");if(b&&!b.hidden&&!b.classList.contains("busy")&&!b.classList.contains("ok")){clearTimeout(zrT);zrT=setTimeout(()=>{if(!b.classList.contains("busy"))b.hidden=true;},12000);}});
+  $("#zoneRefresh").addEventListener("click",()=>{const b=$("#zoneRefresh");if(b.classList.contains("busy"))return;const c=cellRef();zrAt=c;clearTimeout(zrT);b.classList.add("busy");b.querySelector("span").textContent="Buscando sitios…";SFX.tap();buzz(12);fetchPOIs(c,true);});
   map.on("click",e=>{if(pickMode)return;closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
   applyMapStyle();drawFog();updateHud();setHint();updateRadar(st.pos);renderFilters();fetchPOIs(st.pos);renderPOIs();openSharedFromHash();sbSyncPending();setInterval(applyMapStyle,600000);setInterval(updateHud,30000);
 
