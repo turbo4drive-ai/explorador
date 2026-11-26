@@ -1438,6 +1438,10 @@ body.scanning .me2 .sweep{opacity:1}body.scanning .me2 .wave{opacity:1}
 body.scanning .wave{animation:wave 1.8s ease-out infinite}
 .leaflet-marker-icon .pinw{animation:pinpop .45s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes pinpop{from{transform:scale(.2) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.mlmk{will-change:transform}
+.maplibregl-ctrl-attrib{font-size:10px;opacity:.7}.maplibregl-ctrl-bottom-left{bottom:calc(150px + env(safe-area-inset-bottom))!important}
+.hud.right .ctl .z3d{font:800 .82rem/1 var(--sf);color:#8A94A6}.hud.right .ctl .z3d[aria-pressed="true"]{color:#0A84FF}
+#map{touch-action:none}
 </style>
 </head>
 <body>
@@ -1453,7 +1457,7 @@ body.scanning .wave{animation:wave 1.8s ease-out infinite}
     </div>
   </div>
   <div class="hud right">
-    <div class="glass ctl"><button type="button" id="zin" aria-label="Acercar">+</button><button type="button" id="zout" aria-label="Alejar">−</button><button type="button" id="zme" aria-label="Centrar en mí" data-icon="target"></button></div>
+    <div class="glass ctl"><button type="button" id="zin" aria-label="Acercar">+</button><button type="button" id="zout" aria-label="Alejar">−</button><button type="button" id="zme" aria-label="Centrar en mí" data-icon="target"></button><button type="button" id="z3d" class="z3d" aria-pressed="true" aria-label="Vista 3D">3D</button></div>
     <button class="glass pillb" id="gpsBtn" type="button" aria-pressed="false" aria-label="Explorar con el GPS"><i></i>GPS</button>
     <button class="glass pillb" id="addBtn" type="button" aria-label="Añadir un sitio útil aquí"><span style="font-size:1.1rem;line-height:1">＋</span>Añadir</button>
   </div>
@@ -1523,10 +1527,65 @@ body.scanning .wave{animation:wave 1.8s ease-out infinite}
 
 <link rel="preload" href="maplibre-gl.js" as="script">
 <link rel="stylesheet" href="maplibre-gl.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="maplibre-gl.js"></script>
 <script>
 (function(){
 "use strict";
+let L=null;
+/* ---------- Motor de mapa: MapLibre (3D) con una capa que habla como Leaflet ---------- */
+function makeShim(){
+  const toLL=a=>Array.isArray(a)?[+a[1],+a[0]]:[+a.lng,+a.lat];
+  const EV={click:"click",move:"move",moveend:"moveend",zoomend:"zoomend",zoom:"zoom",dragstart:"dragstart",resize:"resize",movestart:"movestart"};
+  function MapW(id){
+    const el=document.getElementById(id);this._el=el;
+    this._gl=new maplibregl.Map({container:el,style:glStyleURL(),center:[START[1],START[0]],zoom:16,pitch:45,maxPitch:65,minZoom:2,maxZoom:19.5,
+      attributionControl:false,dragRotate:true,touchPitch:true,pitchWithRotate:true,fadeDuration:180,pixelRatio:Math.min(window.devicePixelRatio||1,2),maxTileCacheSize:300,refreshExpiredTiles:false,clickTolerance:4});
+    this._gl.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:'<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'}),"bottom-left");
+    this.attributionControl={addAttribution(){}};this._panes={};
+  }
+  const P=MapW.prototype;
+  P.on=function(names,cb){names.split(/\s+/).forEach(n=>{const g=EV[n];if(!g)return;if(n==="click")this._gl.on("click",e=>cb({latlng:{lat:e.lngLat.lat,lng:e.lngLat.lng}}));else this._gl.on(g,e=>cb(e||{}));});return this;};
+  P.getCenter=function(){const c=this._gl.getCenter();return {lat:c.lat,lng:c.lng};};
+  P.getZoom=function(){return this._gl.getZoom()+1;};
+  P.setZoom=function(z){this._gl.easeTo({zoom:z-1,duration:300});return this;};
+  P.setView=function(ll,z,o){const opt={center:toLL(ll),zoom:(z!=null?z:this.getZoom())-1};if(o&&o.animate===false)this._gl.jumpTo(opt);else this._gl.easeTo(Object.assign(opt,{duration:500}));return this;};
+  P.flyTo=function(ll,z,o){this._gl.flyTo({center:toLL(ll),zoom:(z!=null?z:this.getZoom())-1,duration:((o&&o.duration)||.8)*1000,essential:true});return this;};
+  P.panTo=function(ll,o){this._gl.easeTo({center:toLL(ll),duration:((o&&o.duration)||.3)*1000,easing:t=>t});return this;};
+  P.panInside=function(ll,o){const pd=(o&&o.padding)||[0,0],pt=this._gl.project(toLL(ll)),c=this._gl.getCanvas(),w=c.clientWidth,h=c.clientHeight;if(pt.x<pd[0]||pt.y<pd[1]||pt.x>w-pd[0]||pt.y>h-pd[1])this._gl.easeTo({center:toLL(ll),duration:300});return this;};
+  P.zoomIn=function(){this._gl.zoomIn({duration:300});return this;};
+  P.zoomOut=function(){this._gl.zoomOut({duration:300});return this;};
+  P.invalidateSize=function(){this._gl.resize();return this;};
+  P.getContainer=function(){return this._el;};
+  P.getSize=function(){const c=this._gl.getCanvas();return {x:c.clientWidth,y:c.clientHeight};};
+  P.latLngToContainerPoint=function(ll){const p=this._gl.project(toLL(ll));return {x:p.x,y:p.y};};
+  P.containerPointToLayerPoint=function(p){return {x:p[0]||0,y:p[1]||0};};
+  P.getBounds=function(){return this._gl.getBounds();};
+  P.getZoomScale=function(){return 1;};
+  P._latLngBoundsToNewLayerBounds=function(){return {min:{x:0,y:0}};};
+  P.createPane=function(n){const d=document.createElement("div");this._panes[n]=d;return d;};
+  P.getPane=function(n){return this._panes[n]||this.createPane(n);};
+  function MarkerW(ll,o){this._ll=ll;this._o=o||{};this._cbs=[];this._map=null;}
+  const M=MarkerW.prototype;
+  M._build=function(){const ic=this._o.icon||{},w=document.createElement("div"),sz=ic.iconSize||[30,30],an=ic.iconAnchor||[sz[0]/2,sz[1]/2];
+    w.className="leaflet-marker-icon mlmk"+(this._o.interactive===false?"":" leaflet-interactive")+" "+(ic.className||"");w.style.width=sz[0]+"px";w.style.height=sz[1]+"px";w.innerHTML=ic.html||"";
+    if(this._o.title){w.title=this._o.title;w.setAttribute("aria-label",this._o.title);}
+    if(this._o.interactive===false)w.style.pointerEvents="none";else{w.setAttribute("role","button");w.tabIndex=0;w.style.cursor="pointer";
+      const fire=e=>{e.stopPropagation();this._cbs.forEach(f=>f(e));};w.addEventListener("click",fire);w.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fire(e);}});}
+    if(this._o.zIndexOffset)w.style.zIndex=String(this._o.zIndexOffset);
+    this._w=w;this._mk=new maplibregl.Marker({element:w,anchor:"top-left",offset:[-an[0],-an[1]],pitchAlignment:"viewport",rotationAlignment:"viewport"}).setLngLat(toLL(this._ll));};
+  M.addTo=function(map){this._build();this._mk.addTo(map._gl);this._map=map;return this;};
+  M.on=function(n,cb){if(n==="click")this._cbs.push(cb);return this;};
+  M.setLatLng=function(ll){this._ll=ll;if(this._mk)this._mk.setLngLat(toLL(ll));return this;};
+  M.getLatLng=function(){const a=Array.isArray(this._ll)?this._ll:[this._ll.lat,this._ll.lng];return {lat:a[0],lng:a[1]};};
+  M.setIcon=function(ic){this._o.icon=ic;if(this._w){const sz=ic.iconSize||[30,30],an=ic.iconAnchor||[sz[0]/2,sz[1]/2];this._w.innerHTML=ic.html||"";this._w.style.width=sz[0]+"px";this._w.style.height=sz[1]+"px";this._mk.setOffset([-an[0],-an[1]]);}return this;};
+  M.setZIndexOffset=function(z){if(this._w)this._w.style.zIndex=String(z);return this;};
+  M.getElement=function(){return this._w;};
+  M.remove=function(){if(this._mk)this._mk.remove();this._map=null;return this;};
+  const NOOP={addTo(){return this;},remove(){return this;},setBounds(){return this;},setStyle(){return this;},on(){return this;}};
+  return {map:(id)=>new MapW(id),marker:(ll,o)=>new MarkerW(ll,o),divIcon:o=>o,rectangle:()=>Object.create(NOOP),tileLayer:()=>Object.create(NOOP),
+    DomUtil:{create:(t,c,parent)=>{const e=document.createElement(t);if(c)e.className=c;if(parent)parent.appendChild(e);return e;},setPosition(){},setTransform(){}}};
+}
+
 const ICON={
   eye:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-2.2a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z"/></svg>',
   columns:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7v2h20V7zM4 10h3v8H4zm6.5 0h3v8h-3zM17 10h3v8h-3zM2 19h20v3H2z"/></svg>',
@@ -2226,19 +2285,21 @@ function openSharedFromHash(){{const mp=/^#p=(.+)$/.exec(location.hash||"");if(m
 
 /* ---------- Mapa claro / oscuro ---------- */
 function isLightMap(){const m=S.mapStyle||"auto";if(m==="dark")return false;if(m==="light"||m==="auto")return true;return true;}
-function applyMapStyle(){document.body.classList.toggle("maplight",isLightMap());if(gl&&gl.__url!==glStyleURL()){gl.__url=glStyleURL();gl.__tuned=null;gl.setStyle(gl.__url);gl.once("idle",tuneStyle);}if(typeof drawFog==="function")drawFog();}
+function applyMapStyle(){document.body.classList.toggle("maplight",isLightMap());if(gl&&!gl.__raster&&gl.__url!==glStyleURL()){gl.__url=glStyleURL();gl.__tuned=null;gl.setStyle(gl.__url);gl.once("idle",tuneStyle);}if(typeof drawFog==="function")drawFog();}
 /* ---------- Mapa vectorial minimalista (OpenFreeMap + MapLibre) con plan B ---------- */
 let gl=null,glOk=false,rasterLayer=null;
 const STY={light:"https://tiles.openfreemap.org/styles/positron",dark:"https://tiles.openfreemap.org/styles/dark"};
 function glStyleURL(){return isLightMap()?STY.light:STY.dark;}
-function useRaster(){
-  if(rasterLayer||!map)return;if(gl){try{gl.remove();}catch(e){}gl=null;}const d=$("#glmap");if(d)d.remove();document.body.classList.add("raster");
-  rasterLayer=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
-  rasterLayer.on("tileload",()=>{tilesOk++;});rasterLayer.on("tileerror",()=>{tilesErr++;if(!tilesOk&&tilesErr>=4)$("#mapNote").hidden=false;});
-  setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},7000);
-}
-function syncGL(){if(!gl||map._animatingZoom)return;const c=map.getCenter();gl.jumpTo({center:[c.lng,c.lat],zoom:map.getZoom()-1});}
-function tuneStyle(){if(!gl||gl.__tuned===gl.__url)return;try{const st=gl.getStyle();if(!st||!st.layers)return;st.layers.forEach(l=>{if(/poi|housenum|aeroway|transit|rail_station|mountain_peak|building-3d/i.test(l.id))gl.setLayoutProperty(l.id,"visibility","none");});if(gl.__url===STY.light)clayStyle(st);gl.__tuned=gl.__url;}catch(e){}}
+const RASTER_STYLE={version:8,sources:{osm:{type:"raster",tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],tileSize:256,maxzoom:19}},layers:[{id:"bg",type:"background",paint:{"background-color":"#EDF1F7"}},{id:"osm",type:"raster",source:"osm",paint:{"raster-saturation":-0.3}}]};
+function useRaster(){if(!gl||gl.__raster)return;gl.__raster=1;gl.__url="raster";gl.__tuned="raster";document.body.classList.add("raster");try{gl.setStyle(RASTER_STYLE);}catch(e){}setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},8000);gl.on("data",ev=>{if(ev&&ev.dataType==="source"&&ev.tile)tilesOk++;});}
+function syncGL(){}
+function tuneStyle(){if(!gl||gl.__tuned===gl.__url)return;try{const st=gl.getStyle();if(!st||!st.layers)return;st.layers.forEach(l=>{if(/poi|housenum|aeroway|transit|rail_station|mountain_peak|building-3d/i.test(l.id))gl.setLayoutProperty(l.id,"visibility","none");});if(gl.__url===STY.light)clayStyle(st);add3D(st,gl.__url!==STY.light);gl.__tuned=gl.__url;}catch(e){}}
+function add3D(st,dark){try{if(gl.getLayer("clay-3d"))return;const bld=st.layers.find(l=>l["source-layer"]==="building");if(!bld)return;const sym=st.layers.find(l=>l.type==="symbol");
+  gl.addLayer({id:"clay-3d",type:"fill-extrusion",source:bld.source,"source-layer":"building",minzoom:14.5,paint:{
+    "fill-extrusion-color":dark?"#2B2F38":["interpolate",["linear"],["coalesce",["get","render_height"],8],0,"#EEF1F6",30,"#E1E7F0",80,"#D3DBE7"],
+    "fill-extrusion-height":["interpolate",["linear"],["zoom"],14.5,0,15.6,["coalesce",["get","render_height"],9]],
+    "fill-extrusion-base":["coalesce",["get","render_min_height"],0],"fill-extrusion-opacity":dark?.9:.96,"fill-extrusion-vertical-gradient":true}},sym?sym.id:undefined);
+  gl.setLight({anchor:"viewport",color:"#ffffff",intensity:dark?.25:.32,position:[1.25,210,35]});}catch(e){}}
 function clayStyle(st){const set=(id,k,v)=>{try{gl.setPaintProperty(id,k,v);}catch(e){}},W=(a,b,c,d)=>["interpolate",["exponential",1.6],["zoom"],12,a,14,b,16,c,18,d];
   const L=st.layers;let firstRoad=null,bld=null;
   L.forEach(l=>{const sl=l["source-layer"]||"",id=l.id;
@@ -2260,22 +2321,9 @@ function clayStyle(st){const set=(id,k,v)=>{try{gl.setPaintProperty(id,k,v);}cat
   try{if(bld&&!gl.getLayer("clay-bsh"))gl.addLayer({id:"clay-bsh",type:"fill",source:bld.source,"source-layer":"building",minzoom:14,paint:{"fill-color":"#BCC6D6","fill-translate":[2,3.5],"fill-opacity":.75}},bld.id);}catch(e){}
   try{if(firstRoad&&!gl.getLayer("clay-rsh"))gl.addLayer({id:"clay-rsh",type:"line",source:firstRoad.source,"source-layer":"transportation",minzoom:12,filter:["match",["get","class"],["motorway","trunk","primary","secondary","tertiary","minor","service","street"],true,false],layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":"rgba(80,105,150,.20)","line-translate":[0,3],"line-blur":2.5,"line-width":W(2,5,13,30)}},L.find(l=>l["source-layer"]==="transportation"&&l.type==="line").id);}catch(e){}
 }
-function initGL(){
-  if(!window.maplibregl){if(initGL.loading)return;initGL.loading=1;const sc=document.createElement("script");sc.src="maplibre-gl.js";sc.async=true;sc.onload=()=>initGL();sc.onerror=()=>useRaster();document.head.appendChild(sc);setTimeout(()=>{if(!window.maplibregl)useRaster();},12000);return;}
-  let ok=false;try{ok=!!(window.maplibregl&&document.createElement("canvas").getContext("webgl"));}catch(e){}
-  if(!ok){useRaster();return;}
-  const box=document.createElement("div");box.id="glmap";box.className="glmap";box.setAttribute("aria-hidden","true");map.getContainer().insertBefore(box,map.getContainer().firstChild);
-  const c=map.getCenter();
-  try{gl=new maplibregl.Map({container:box,style:glStyleURL(),interactive:false,attributionControl:false,center:[c.lng,c.lat],zoom:map.getZoom()-1,fadeDuration:120,pixelRatio:Math.min(window.devicePixelRatio||1,2),maxTileCacheSize:200});gl.__url=glStyleURL();}catch(e){box.remove();gl=null;useRaster();return;}
-  const to=setTimeout(()=>{if(!glOk)useRaster();},10000);
-  gl.on("load",()=>{glOk=true;clearTimeout(to);tuneStyle();});
-  gl.on("idle",tuneStyle);
-  gl.on("webglcontextlost",()=>{useRaster();});
-  map.on("move zoom",syncGL);
-  map.on("zoomanim",e=>{if(gl)gl.easeTo({center:[e.center.lng,e.center.lat],zoom:e.zoom-1,duration:250,easing:t=>1-Math.pow(1-t,3)});});
-  map.on("zoomend",syncGL);map.on("resize",()=>{if(gl)gl.resize();});
-  map.attributionControl.addAttribution('<a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>');
-}
+function initGL(){gl=map._gl;gl.__url=glStyleURL();const to=setTimeout(()=>{if(!glOk)useRaster();},12000);
+  gl.on("load",()=>{glOk=true;clearTimeout(to);tuneStyle();});gl.on("idle",tuneStyle);
+  gl.on("error",ev=>{const m=String(ev&&ev.error&&ev.error.message||"");if(!glOk&&/style|fetch|network|load/i.test(m))useRaster();});}
 
 /* ---------- Foto al valorar ---------- */
 function readRatePhoto(file){const fr=new FileReader();fr.onload=()=>{const img=new Image();img.onload=()=>{const k=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
@@ -2644,7 +2692,9 @@ function start(){
   document.addEventListener("pointerdown",()=>SFX.unlock(),{once:true});
   if(!S.started){$("#startOv").hidden=false;startParade();}
   sheetDrag();
-  if(typeof L==="undefined"){$("#map").innerHTML='<p style="padding:200px 20px;text-align:center;color:#8E8E93">No se ha podido cargar el mapa.</p>';return;}
+  {let ok=false;try{ok=!!(window.maplibregl&&document.createElement("canvas").getContext("webgl"));}catch(e){}
+   if(!ok){$("#map").innerHTML='<p style="padding:200px 20px;text-align:center;color:#8E8E93">Tu navegador no puede mostrar el mapa. Prueba a actualizar el iPhone o abrir Patea en Safari.</p>';return;}}
+  L=makeShim();
   brush=makeBrush();clouds=makeClouds();
   map=L.map("map",{zoomControl:false,zoomAnimation:true,fadeAnimation:true,markerZoomAnimation:true,zoomSnap:.25,zoomDelta:1,wheelPxPerZoomLevel:90,inertia:true,bounceAtZoomLimits:false,attributionControl:true,minZoom:3,maxZoom:19,worldCopyJump:true});
   map.createPane("zone");map.getPane("zone").style.zIndex=460;map.getPane("zone").style.pointerEvents="none";
@@ -2664,7 +2714,8 @@ function start(){
 
   $("#zin").addEventListener("click",()=>{map.zoomIn(1);SFX.tap();});
   $("#zout").addEventListener("click",()=>{map.zoomOut(1);SFX.tap();});
-  $("#zme").addEventListener("click",()=>{const p=W().pos;followMe=true;if(p)map.flyTo(p,Math.max(map.getZoom(),18),{duration:.6});SFX.tap();});
+  $("#zme").addEventListener("click",()=>{const p=W().pos;followMe=true;if(p)map._gl.flyTo({center:[p[1],p[0]],zoom:Math.max(map.getZoom(),18)-1,bearing:0,duration:700,essential:true});SFX.tap();});
+  $("#z3d").addEventListener("click",()=>{const g=map._gl,on=g.getPitch()<5;g.easeTo({pitch:on?50:0,bearing:on?g.getBearing():0,duration:600});$("#z3d").setAttribute("aria-pressed",String(on));SFX.tap();});
   $("#gpsBtn").addEventListener("click",toggleGps);
   void 0;
   $("#playerBtn").addEventListener("click",()=>go("perfil"));
