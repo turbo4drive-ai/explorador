@@ -1441,6 +1441,16 @@ body.scanning .wave{animation:wave 1.8s ease-out infinite}
 @keyframes pinpop{from{transform:scale(.2) translateY(10px);opacity:0}to{transform:none;opacity:1}}
 .mlmk{will-change:transform}
 .maplibregl-ctrl-attrib{font-size:10px;opacity:.7}.maplibregl-ctrl-bottom-left{bottom:calc(150px + env(safe-area-inset-bottom))!important}
+.vote{margin:14px 0 4px;padding:12px;border-radius:18px;background:var(--ios)}
+.vote.vpop{animation:vpop .45s cubic-bezier(.2,1.4,.4,1)}@keyframes vpop{50%{transform:scale(1.03)}}
+.vq{margin:0 0 9px;font-weight:800;font-size:.92rem}
+.vbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vb{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;border:0;border-radius:14px;background:#fff;font:700 .9rem var(--sf);color:#0F1B2D;box-shadow:0 1px 4px rgba(30,40,80,.1);cursor:pointer}
+.vb span{font-size:1.1rem}.vb b{min-width:24px;padding:2px 7px;border-radius:9px;background:rgba(120,130,150,.14);font-size:.8rem}
+.vb.si.on{background:#1E9E48;color:#fff}.vb.no.on{background:#E5484D;color:#fff}.vb.on b{background:rgba(255,255,255,.25)}
+.vbar{height:6px;border-radius:4px;background:#E5484D;overflow:hidden;margin-top:10px}.vbar i{display:block;height:100%;background:#1E9E48}
+.vsum{display:block;margin-top:7px;font-size:.75rem;color:var(--label2)}
+body.mapdark .vb{background:#26304A;color:#fff}
 /* Modo juego: niebla, misterio, reliquias e insignias */
 .fogc{position:absolute;left:0;top:0;pointer-events:none}
 .pin.mys{background:linear-gradient(145deg,#FFFFFF,#E9E4FF)!important;border-color:#fff;box-shadow:0 0 0 2px color-mix(in srgb,var(--pc) 55%,transparent),0 5px 12px rgba(60,50,140,.28)!important}
@@ -1736,7 +1746,7 @@ body.mapdark .hud.bottom>.glass{background:rgba(34,41,58,.94);color:#D5DDEB}
 <script>
 (function(){
 "use strict";
-const APP_VER="26-nov · juego sin niebla";
+const APP_VER="26-nov · votos";
 let L=null;
 /* ---------- Motor de mapa: MapLibre (3D) con una capa que habla como Leaflet ---------- */
 function makeShim(){
@@ -2285,7 +2295,8 @@ function checkVisits(ll){discoverNear(ll);
     if(!S.visits[p.id]){S.visits[p.id]={ts:Date.now(),x:10,c:p.c};}
     const cf=S.confirms[p.id];if(!p.mine&&(!cf||Date.now()-cf.ts>30*864e5)&&askQ.indexOf(p.id)<0&&askCur!==p.id){askQ.push(p.id);nextAsk();}});
 }
-function nextAsk(){if(askCur||!askQ.length)return;const id=askQ.shift(),p=allPois()[id];if(!p)return nextAsk();askCur=id;const c=CATS[p.c],el=$("#ask");
+const ASK_ON=false;
+function nextAsk(){if(!ASK_ON){askQ.length=0;return;}if(askCur||!askQ.length)return;const id=askQ.shift(),p=allPois()[id];if(!p)return nextAsk();askCur=id;const c=CATS[p.c],el=$("#ask");
   el.innerHTML='<b>'+c.e+' '+esc(p.n||c.n)+' · ¿sigue aquí?</b><small>Confirmarlo ayuda a que el mapa sea fiable</small><div class="btnrow"><button type="button" class="btn" data-conf="1">Sí, sigue aquí</button><button type="button" class="btn glassb" data-conf="0">No está</button></div>';
   el.classList.add("show");clearTimeout(askT);askT=setTimeout(()=>{closeAsk();},15000);}
 function closeAsk(){const el=$("#ask");el.classList.remove("show");askCur=null;setTimeout(nextAsk,600);}
@@ -2318,11 +2329,10 @@ function openPOI(id){
   const p0=allPois()[id];if(p0&&!isDisc(p0)){openMystery(p0);return;}
   const p=allPois()[id];if(!p)return;const c=CATS[p.c],d=distM(here(),p.ll),near=d<=radiusOf(p),r=rateOf(p),me=S.rates[id],facts=poiFacts(p);
   rateDraft=near?{id:id,s:me?me.s:0,t:new Set(me?me.t:[]),ph:null}:null;
-  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+(p.by?' · añadido por @'+esc(p.by):'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht"'+(p.n?' translate="no"':'')+'>'+esc(p.n||c.n)+'</div>'+openLabel(p)+weekHTML(p)+actsHTML(p);
+  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+(p.by?' · añadido por @'+esc(p.by):'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht"'+(p.n?' translate="no"':'')+'>'+esc(p.n||c.n)+'</div>'+openLabel(p)+weekHTML(p)+actsHTML(p)+'<div class="vote" id="voteBox" data-vid="'+esc(id)+'">'+voteHTML(id)+'</div>';
   h+='<div class="rate-sum">'+(r.n?'<b class="num">'+fmt(r.avg,1)+'</b>'+starsHTML(r.avg,true)+'<small>'+r.n+(r.n===1?" valoración":" valoraciones")+(r.sample?' (de ejemplo hasta que conectemos el servidor)':'')+'</small>':'<small>'+(sbOn()?'Todavía nadie lo ha valorado. ¡Sé el primero!':'Sin valoraciones todavía. Las de la gente aparecerán al conectar el servidor.')+'</small>')+'</div>';
   h+='<div id="poiInfo"></div>';
   if(facts.length)h+='<div class="facts2">'+facts.map(f=>'<span>'+esc(f)+'</span>').join("")+'</div>';
-  {const cf=S.confirms[id];if(cf)h+='<p class="srcnote">'+(cf.ok?'✓ Confirmaste que sigue aquí':'✗ Avisaste de que no está')+' el '+new Date(cf.ts).toLocaleDateString("es-ES",{day:"numeric",month:"long"})+'.</p>';}
   h+='<div id="poiComm"></div>';
   if(me&&(me.ph||me.photoUrl))h+='<img src="'+esc(me.photoUrl||me.ph)+'" alt="Tu foto" style="display:block;width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-top:10px">';
   if(me)h+='<p class="shp mine">Tu valoración: '+starsHTML(me.s)+(me.t&&me.t.length?' · '+esc(me.t.join(", ")):'')+(me.c?'<br><i>“'+esc(me.c)+'”</i>':'')+'</p>';
@@ -2334,7 +2344,7 @@ function openPOI(id){
       '<button type="button" class="link rep" data-report="'+esc(id)+'">Avisar: está cerrado o ya no existe</button></div>';}
   else h+='<p class="shp">Para valorarlo tienes que estar a menos de <b>'+radiusOf(p)+' m</b>. Ahora estás a <b>'+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</b>.</p><div class="btnrow one">'+(gpsWatch==null&&d<=4000?'<button type="button" class="btn grey" data-walkp="'+esc(id)+'">Ir (demo)</button>':'<button type="button" class="btn grey" data-center="'+esc(id)+'">Ver en el mapa</button>')+'</div>';
   if(!p.demo&&!p.mine&&!p.shared)h+='<p class="srcnote">Dato de OpenStreetMap, el mapa libre que hace la gente.</p>';
-  openSheet(h);loadComments(id);loadInfo(p);
+  openSheet(h);loadComments(id);loadInfo(p);loadVotes(id);
 }
 function openMystery(p){const c=CATS[p.c],d=distM(here(),p.ll);
   openSheet('<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+' · a '+fmtD(d)+'</div><div class="sht">Sitio por descubrir</div>'+openLabel(p)+
@@ -2357,6 +2367,15 @@ function nearestToilet(){
 }
 function openAdd(){openSheet('<div class="shk">Añadir un sitio útil aquí</div><div class="sht">¿Qué has encontrado?</div><p class="shp">Se añade justo donde estás para que otros lo encuentren.</p><div class="addgrid">'+CAT_ORDER.map(c=>'<button type="button" data-addc="'+c+'"><span style="background:'+CATS[c].col+'">'+CATS[c].e+'</span>'+esc(CATS[c].n)+'</button>').join("")+'</div>');}
 function addPOI(c){const h=here();if(!S.added)S.added={};const id="u"+Date.now().toString(36);S.added[id]={id:id,c:c,ll:[+h[0].toFixed(6),+h[1].toFixed(6)],n:"",tg:{},mine:1,ts:Date.now()};sbSendPlace(S.added[id]);S.visits[id]={ts:Date.now(),x:5,c:c};save();closeSheet();renderPOIs();updateHud();SFX.chime();toast(CATS[c].e+" Añadido. ¡Gracias!");setTimeout(()=>openPOI(id),300);}
+const VOTES={};
+function voteHTML(id){const cf=S.confirms[id],mine=cf?!!cf.ok:null,sv=VOTES[id],si=sv?sv.si:(mine===true?1:0),no=sv?sv.no:(mine===false?1:0),tot=si+no;
+  return '<p class="vq">¿Sigue abierto este sitio?</p><div class="vbtns"><button type="button" class="vb si'+(mine===true?" on":"")+'" data-vote="1" aria-pressed="'+(mine===true)+'"><span>👍</span>Sí, sigue<b class="num">'+si+'</b></button><button type="button" class="vb no'+(mine===false?" on":"")+'" data-vote="0" aria-pressed="'+(mine===false)+'"><span>👎</span>Ya no está<b class="num">'+no+'</b></button></div>'+
+    (tot?'<div class="vbar"><i style="width:'+Math.round(si/tot*100)+'%"></i></div>':'')+'<small class="vsum">'+(tot?fmt(si)+(si===1?" voto dice":" votos dicen")+" que sí · "+fmt(no)+(no===1?" voto dice":" votos dicen")+" que no":"Nadie ha votado todavía: sé el primero")+(mine!==null?" · tu voto: "+(mine?"sí":"no"):"")+'</small>';}
+function castVote(id,ok){const prev=S.confirms[id];if(prev&&!!prev.ok===ok){toast("Ya habías votado eso");return;}
+  S.confirms[id]={ok:ok,ts:Date.now(),x:prev?prev.x:3};if(ok){delete S.reports[id];sbSendConfirm(id);}else{S.reports[id]=1;sbSendReport(id);}
+  const sv=VOTES[id];if(sv){if(prev){if(prev.ok)sv.si=Math.max(0,sv.si-1);else sv.no=Math.max(0,sv.no-1);}if(ok)sv.si++;else sv.no++;}
+  save();SFX.pop();buzz(20);toast(ok?"👍 ¡Gracias! Has votado que sigue abierto":"👎 Gracias: has votado que ya no está");const b=$("#voteBox");if(b&&b.dataset.vid===id){b.innerHTML=voteHTML(id);b.classList.remove("vpop");void b.offsetWidth;b.classList.add("vpop");}refreshPOI(id);if(typeof gameAfter==="function")gameAfter();}
+function loadVotes(id){if(!sbOn())return;fetch(SB.url+"/rest/v1/poi_votes?poi_id=eq."+encodeURIComponent(id)+"&select=si,no",{headers:sbH()}).then(r=>r.ok?r.json():null).then(rows=>{if(!rows)return;const r=rows[0]||{si:0,no:0};VOTES[id]={si:+r.si||0,no:+r.no||0};const b=$("#voteBox");if(b&&b.dataset.vid===id)b.innerHTML=voteHTML(id);}).catch(()=>{});}
 function reportPOI(id){S.reports[id]=(S.reports[id]||0)+1;sbSendReport(id);save();closeSheet();toast("Gracias por avisar. Lo revisaremos con más avisos de la gente");}
 function hasTag(p,t){const me=S.rates[p.id];return !!(me&&me.t&&me.t.indexOf(t)>=0);}
 function fxOk(p){const fx=S.fx||{},t=p.tg||{};
@@ -3451,7 +3470,7 @@ function start(){
   void 0;
   $("#playerBtn").addEventListener("click",()=>go("perfil"));
   $("#sheetX").addEventListener("click",closeSheet);
-  $("#sheetBody").addEventListener("click",e=>{if(e.target.closest("[data-closesheet]")){closeSheet();return;}
+  $("#sheetBody").addEventListener("click",e=>{if(e.target.closest("[data-closesheet]")){closeSheet();return;}{const vb=e.target.closest("[data-vote]");if(vb){const bx=vb.closest("#voteBox");if(bx)castVote(bx.dataset.vid,vb.dataset.vote==="1");return;}}
     {const t=e.target;let x;if((x=t.closest("[data-mtfollow]"))){mtFollow(x.dataset.mtfollow);return;}if((x=t.closest("[data-mtshare]"))){mtShare(x.dataset.mtshare);return;}if((x=t.closest("[data-mtr]"))){mtOpenRoute(x.dataset.mtr);return;}}
     if(handleShareClicks(e))return;
     {const fv=e.target.closest("[data-fav]");if(fv){toggleFav(fv.dataset.fav);return;}}

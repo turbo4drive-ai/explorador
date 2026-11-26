@@ -133,3 +133,15 @@ grant select, insert, update on public.plans to anon;
 grant select, insert, delete on public.plan_joins to anon;
 grant insert on public.plan_reports to anon;
 grant select on public.plans_public to anon;
+
+-- Votos «¿sigue abierto?»: cuenta el último voto de cada móvil (sí = confirms, no = reports)
+create or replace view public.poi_votes as
+with v as (
+  select poi_id, device_id, true as ok, created_at from public.confirms
+  union all
+  select poi_id, device_id, false as ok, created_at from public.reports
+), ultimo as (
+  select distinct on (poi_id, device_id) poi_id, device_id, ok from v order by poi_id, device_id, created_at desc
+)
+select poi_id, count(*) filter (where ok) as si, count(*) filter (where not ok) as no from ultimo group by poi_id;
+grant select on public.poi_votes to anon;
