@@ -29,6 +29,17 @@ jobs:
           ls -lh filtrado.osm.pbf sitios.geojsonseq
       - name: Partir en cuadritos de ~1 km
         run: python3 tools/hacer_celdas.py sitios.geojsonseq salida
+      - name: Senderos y puntos del monte (Modo Monte)
+        continue-on-error: true
+        run: |
+          osmium tags-filter region.osm.pbf r/route=hiking,foot -o rutas.osm.pbf --overwrite
+          osmium export rutas.osm.pbf -f geojsonseq -n --geometry-types=linestring --add-unique-id=type_id -o vias.geojsonseq --overwrite
+          osmium cat rutas.osm.pbf -t relation -f opl -o rel.opl --overwrite
+          osmium tags-filter region.osm.pbf n/natural=peak,spring nwr/amenity=drinking_water,shelter nwr/tourism=alpine_hut,wilderness_hut,viewpoint -o monte.osm.pbf --overwrite
+          osmium export monte.osm.pbf -f geojsonseq --add-unique-id=type_id -o monte.geojsonseq --overwrite
+          ls -lh rutas.osm.pbf vias.geojsonseq rel.opl monte.geojsonseq
+          python3 tools/hacer_rutas.py vias.geojsonseq rel.opl monte.geojsonseq salida
+          du -sh salida/datos-*/m salida/datos-*/rt || true
       - name: Publicar cada franja en su rama («datos-NN») y el índice en «datos»
         run: |
           du -sh salida/*
