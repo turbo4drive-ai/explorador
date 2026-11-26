@@ -1454,6 +1454,7 @@ body.scanning .me2 .wave{opacity:1;animation:wave2 3.2s cubic-bezier(.2,.6,.3,1)
 .zrefresh.ok{color:#1E9E48}.zrefresh.ok svg{display:none}.zrefresh.ok span::before{content:"✓ "}
 @keyframes zrspin{to{transform:rotate(360deg)}}
 @keyframes zrin{from{transform:translateY(-8px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.dgrid{margin-top:12px;border-radius:14px;background:var(--ios);overflow:hidden}.drow{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;font-size:.86rem}.drow+.drow{border-top:1px solid rgba(0,0,0,.06)}.drow span{text-align:right;color:var(--label2)}
 </style>
 </head>
 <body>
@@ -1989,6 +1990,20 @@ function runPOI(job){const ll=job.ll,id="j"+Math.random().toString(36).slice(2,7
 let zrAt=null,zrT=0;
 function zrShow(){const b=$("#zoneRefresh");if(!b||!map)return;const c=cellRef();if(zrAt&&distM(zrAt,c)<200)return;b.classList.remove("busy","ok");b.querySelector("span").textContent="Actualizar esta zona";b.hidden=false;}
 function zrDone(ok){const b=$("#zoneRefresh");if(!b)return;b.classList.remove("busy");b.classList.toggle("ok",ok);b.querySelector("span").textContent=ok?"Zona actualizada":"No se ha podido cargar";clearTimeout(zrT);zrT=setTimeout(()=>{b.hidden=true;b.classList.remove("ok");},ok?1400:2600);}
+function runDiag(){const ll=here(),zn=zoneName(ll),nP=Object.keys(POI).length,nC=Object.keys(poiCells).length;
+  const row=(i,t)=>'<div class="drow" id="dg'+i+'"><b>Servidor '+(i+1)+'</b><span>'+t+'</span></div>';
+  openSheet('<div class="shk">Diagnóstico</div><div class="sht">Conexión del mapa</div><p class="desc">Haz una captura de esta pantalla y pásamela si los sitios no cargan.</p>'+
+    '<div class="dgrid">'+OVERPASS.map((u,i)=>row(i,"⏳ probando…")).join("")+
+    '<div class="drow"><b>Tu posición</b><span>'+ll[0].toFixed(4)+", "+ll[1].toFixed(4)+(zn?" · "+esc(zn):"")+'</span></div>'+
+    '<div class="drow"><b>GPS</b><span>'+(gpsWatch!=null?"encendido":"apagado (modo prueba)")+'</span></div>'+
+    '<div class="drow"><b>Sitios en memoria</b><span>'+nP+' · '+nC+' zonas guardadas</span></div>'+
+    '<div class="drow"><b>Cerca de ti (650 m)</b><span id="dgNear">'+Object.values(POI).filter(x=>distM(x.ll,ll)<650).length+'</span></div>'+
+    '<div class="drow"><b>Último error</b><span>'+esc(($("#poiStatus")&&!$("#poiStatus").hidden&&$("#poiStatus").textContent)||"ninguno")+'</span></div></div>'+
+    '<button type="button" class="btn full" id="dgReload">Borrar caché y recargar sitios</button>');
+  const q='[out:json][timeout:15];nwr["amenity"~"^(bar|pub|toilets)$"](around:400,'+ll[0].toFixed(5)+','+ll[1].toFixed(5)+');out center tags;';
+  OVERPASS.forEach((u,i)=>{const t0=Date.now();overpassOne(q,i,15000).then(d=>{const el=$("#dg"+i);if(el)el.querySelector("span").textContent="✓ "+((Date.now()-t0)/1000).toFixed(1)+" s · "+(d.elements||[]).length+" sitios";})
+    .catch(e=>{const el=$("#dg"+i);if(el)el.querySelector("span").textContent="✗ "+(((e&&e.message)||"sin respuesta")+"").slice(0,40)+" · "+((Date.now()-t0)/1000).toFixed(1)+" s";});});
+  setTimeout(()=>{const b=$("#dgReload");if(b)b.onclick=()=>{poiCells={};POI={};try{localStorage.removeItem(POI_KEY);}catch(e){}Object.values(poiMk).forEach(m=>m.remove());poiMk={};closeSheet();go("mapa");fetchPOIs(cellRef(),true);toast("Recargando los sitios de la zona…");};},50);}
 function scanSet(on){document.body.classList.toggle("scanning",!!on);}
 function seedDemo(ll){
   if(Object.values(POI).some(p=>p.demo&&distM(p.ll,ll)<600))return;let s=hash(poiCellKey(ll));const R=()=>{s=(Math.imul(s,16807)>>>0)%2147483647;return s/2147483647;};
@@ -2662,7 +2677,7 @@ function renderPerfil(){
     '<div class="pcard"><div class="pav">'+avatarHTML(62)+'<div style="min-width:0"><h2>@'+esc(prof().name)+'</h2><span class="ptitle">'+(rv.length?rv.length+(rv.length===1?" valoración":" valoraciones"):"Aún sin valoraciones")+'</span></div><button type="button" class="editbtn" id="editProf">Editar</button></div></div>'+
     '<div class="sec"><span>Tus aportaciones</span></div><div class="group kgrid k3"><div><b class="num">'+rv.length+'</b><small>valoraciones</small></div><div><b class="num">'+added+'</b><small>sitios añadidos</small></div><div><b class="num">'+conf+'</b><small>confirmaciones</small></div></div>'+
     '<div class="sec"><span>Tus valoraciones</span></div><div class="group toplist">'+(mine.length?mine.map(o=>'<div class="row" data-poi="'+esc(o.id)+'" style="cursor:pointer"><span class="pos">'+(o.p?CATS[o.p.c].e:"📍")+'</span><div class="nm"><b>'+esc(o.p?(o.p.n||CATS[o.p.c].n):"Sitio")+'</b><small>'+starsHTML(o.r.s)+(o.r.c?' · “'+esc(o.r.c)+'”':'')+'</small></div></div>').join(""):'<p class="empty">Cuando estés en un bar, un baño o cualquier sitio del mapa, ábrelo y dale estrellas. Así ayudas a los demás.</p>')+'</div>'+
-    '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Idioma</b><div class="segset" role="group" aria-label="Idioma">'+[["","Auto"],["es","Español"],["en","English"]].map(o=>'<button type="button" data-lang="'+o[0]+'" aria-pressed="'+((S.lang||"")===o[0])+'" translate="no">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo funciona</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div></div>'+
+    '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Idioma</b><div class="segset" role="group" aria-label="Idioma">'+[["","Auto"],["es","Español"],["en","English"]].map(o=>'<button type="button" data-lang="'+o[0]+'" aria-pressed="'+((S.lang||"")===o[0])+'" translate="no">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo funciona</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div><div class="setrow"><b>Conexión del mapa</b><button type="button" class="link" id="diagBtn">Comprobar</button></div></div>'+
     '<div class="sec"><span>Privacidad</span></div><div class="group"><p class="empty">Tu ubicación no sale de este móvil: solo se usa para enseñarte lo que tienes cerca. <button type="button" class="link" id="resetBtn">Borrar mis datos</button></p></div>';
 }
 
@@ -2729,7 +2744,7 @@ function start(){
   let fogRaf=0;const fogSoon=()=>{if(fogRaf)return;fogRaf=requestAnimationFrame(()=>{fogRaf=0;drawFog();});};
   map.on("move",fogSoon);map.on("zoomend resize viewreset",drawFog);map.on("zoomend",()=>{document.body.classList.toggle("zlab",map.getZoom()>=17.5);});document.body.classList.toggle("zlab",map.getZoom()>=17.5);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
   map.on("dragstart",()=>{setTimeout(zrShow,0);});map.on("moveend",()=>{const b=$("#zoneRefresh");if(b&&!b.hidden&&!b.classList.contains("busy")&&!b.classList.contains("ok")){clearTimeout(zrT);zrT=setTimeout(()=>{if(!b.classList.contains("busy"))b.hidden=true;},12000);}});
-  $("#zoneRefresh").addEventListener("click",()=>{const b=$("#zoneRefresh");if(b.classList.contains("busy"))return;const c=cellRef();zrAt=c;clearTimeout(zrT);b.classList.add("busy");b.querySelector("span").textContent="Buscando sitios…";SFX.tap();buzz(12);fetchPOIs(c,true);});
+  $("#zoneRefresh").addEventListener("click",()=>{const b=$("#zoneRefresh");if(b.classList.contains("busy"))return;const c=cellRef();zrAt=c;clearTimeout(zrT);b.classList.add("busy");b.querySelector("span").textContent="Buscando sitios…";SFX.tap();buzz(12);if(gpsWatch==null){cancelAnimationFrame(walkAnim);W().pos=c;if(meMk)meMk.setLatLng(c);checkVisits(c);updateHud();save();}fetchPOIs(c,true);});
   map.on("click",e=>{if(pickMode)return;closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
   applyMapStyle();drawFog();updateHud();setHint();updateRadar(st.pos);renderFilters();fetchPOIs(st.pos);renderPOIs();openSharedFromHash();sbSyncPending();setInterval(applyMapStyle,600000);setInterval(updateHud,30000);
 
@@ -2777,6 +2792,7 @@ function start(){
   $("#album").addEventListener("click",e=>{{const pl=e.target.closest("[data-plan]");if(pl){openPlan(pl.dataset.plan);return;}if(e.target.closest("[data-pnew]")){planDraft=null;openCreatePlan();return;}}const nc=e.target.closest("[data-near]");if(nc){nearCat=nc.dataset.near;SFX.tap();renderAlbum();return;}if(e.target.closest("[data-nearopen]")){nearOpen=!nearOpen;SFX.tap();renderAlbum();return;}const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
   $("#retos").addEventListener("click",e=>{const b=e.target.closest("[data-lb]");if(b){lbMode=b.dataset.lb;renderRetos();}});
   $("#perfil").addEventListener("click",e=>{
+    if(e.target.closest("#diagBtn")){runDiag();return;}
     {const po=e.target.closest("[data-poi]");if(po){openPOI(po.dataset.poi);return;}}
     if(e.target.closest("#editProf")){openEditProfile();return;}
     const lg=e.target.closest("[data-lang]");if(lg){S.lang=lg.dataset.lang||null;saveNow();location.reload();return;}
