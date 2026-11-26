@@ -1500,6 +1500,22 @@ body.navigating .topbar,body.navigating .hud.right .ctl #z3d{visibility:hidden}
 .rarrow{flex:none;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:1.9rem;font-weight:800}
 .rtx b{display:block;font-size:1.5rem;font-weight:900;letter-spacing:-.02em}.rtx span{display:block;font-size:.95rem;font-weight:600;opacity:.95}
 .rdest{font-size:30px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.3))}
+/* planes más destacados */
+.ppw{width:66px;height:66px}
+.ppin2{border-width:4px;box-shadow:0 14px 24px -6px rgba(30,55,100,.5),0 0 0 4px color-mix(in srgb,var(--pc) 30%,transparent)}
+.ppin2 span{font-size:31px}
+.ppin2::before{inset:-12px;border-width:3px}.ppin2::after{inset:-24px;border-width:2px}
+.ppin2::before,.ppin2::after{animation:pring 2.4s ease-out infinite}.ppin2::after{animation-delay:.8s}
+.ppw .ppin2{animation:pbob 2.6s ease-in-out infinite}
+@keyframes pbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.pcall{left:74px;top:4px;padding:8px 12px 9px;border-radius:16px;max-width:190px;box-shadow:0 10px 22px rgba(30,55,100,.26);border-left:4px solid var(--pc)}
+.pcall em{display:block;font:800 9.5px/1 var(--sf);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--pc);margin-bottom:3px}
+.pcall b{font-size:14.5px}.pcall small{font-size:12px}
+/* burbujas más pequeñas */
+.clu{width:42px;height:42px;border-width:2.5px;box-shadow:0 7px 12px -4px rgba(30,55,100,.34),0 0 0 4px rgba(255,255,255,.45)}
+.clu .ce{font-size:9.5px;letter-spacing:-2.5px}
+.clu b{font-size:13px;margin-top:2px}
+.clu .odot{width:10px;height:10px;right:0;top:0}
 </style>
 </head>
 <body>
@@ -1593,7 +1609,7 @@ body.navigating .topbar,body.navigating .hud.right .ctl #z3d{visibility:hidden}
 <script>
 (function(){
 "use strict";
-const APP_VER="26-nov · rutas 2";
+const APP_VER="26-nov · planes grandes";
 let L=null;
 /* ---------- Motor de mapa: MapLibre (3D) con una capa que habla como Leaflet ---------- */
 function makeShim(){
@@ -1982,7 +1998,7 @@ const CATS={
   wifi:{n:"WiFi",pl:"WiFi",e:"📶",col:"#5E5CE6",tags:["Rápida","Sin registro","Gratis de verdad"]},
   charge:{n:"Cargar el móvil",pl:"Carga",e:"🔌",col:"#30D158",tags:["Funciona","Gratis","USB-C"]},
   bench:{n:"Banco",pl:"Bancos",e:"🪑",col:"#A2845E",tags:["Sombra","Cómodo","Tranquilo"]},
-  aed:{n:"Desfibrilador",pl:"Desfibriladores",e:"❤️",col:"#FF3B30",tags:["Accesible 24 h","Bien señalizado"]},
+  aed:{n:"Desfibrilador",pl:"Desfibriladores",e:"⚡",col:"#FF3B30",tags:["Accesible 24 h","Bien señalizado"]},
   atm:{n:"Cajero",pl:"Cajeros",e:"🏧",col:"#8E8E93",tags:["Sin comisión","Funciona"]},
   vet:{n:"Veterinario",pl:"Veterinarios",e:"🐾",col:"#8E6CEF",tags:["Buen trato","Precio justo","Atienden rápido","Explican bien","Limpio"]},
   vetu:{n:"Urgencias veterinarias",pl:"Vet. urgencias",e:"🚑",col:"#FF3B30",tags:["Atienden rápido","Buen trato","Precio justo","Abren de verdad 24 h"]},
@@ -2112,7 +2128,7 @@ function poiIcon(p){const c=CATS[p.c],r=rateOf(p),vis=S.visits[p.id];
 function renderPOIs(){
   if(!map)return;const ctr=map.getCenter(),cll=[ctr.lat,ctr.lng],z=map.getZoom(),P=allPois(),want={};
   Object.values(P).filter(p=>!p.dup&&filt!=="planes"&&(!filt||p.c===filt||(filt==="favs"&&S.favs&&S.favs[p.id]))&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)&&!(S.openOnly&&ohOpen(p.tg&&p.tg.opening_hours)===false)&&fxOk(p)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).filter((o,i,arr)=>{const cc=arr.__c||(arr.__c={});cc[o.p.c]=(cc[o.p.c]||0)+1;return cc[o.p.c]<=(/^(bar|food)$/.test(o.p.c)?60:o.p.c==="cafe"?45:40);}).slice(0,300).forEach(o=>want[o.p.id]=o.p);
-  const clusters={};{const zl=map.getZoom();if(zl<19){const sc=512*Math.pow(2,zl-1),R=zl>=18.3?42:58,R2=R*R,cs=[];
+  const clusters={};{const zl=map.getZoom();if(zl<19){const sc=512*Math.pow(2,zl-1),R=zl>=18.3?38:52,R2=R*R,cs=[];
     const px=p=>{const sy=Math.sin(p.ll[0]*Math.PI/180);return [(p.ll[1]+180)/360*sc,(.5-Math.log((1+sy)/(1-sy))/(4*Math.PI))*sc];};
     Object.values(want).forEach(p=>{const q=px(p);let best=null,bd=R2;for(const c of cs){const dx=c.x-q[0],dy=c.y-q[1],d=dx*dx+dy*dy;if(d<bd){bd=d;best=c;}}
       if(best){best.g.push(p);best.x=(best.x*(best.g.length-1)+q[0])/best.g.length;best.y=(best.y*(best.g.length-1)+q[1])/best.g.length;}else cs.push({x:q[0],y:q[1],g:[p]});});
@@ -2122,7 +2138,7 @@ function renderPOIs(){
     const lat=g.reduce((a,p)=>a+p.ll[0],0)/g.length,lng=g.reduce((a,p)=>a+p.ll[1],0)/g.length,cnt={};g.forEach(p=>{cnt[p.c]=(cnt[p.c]||0)+1;});
     const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,3),open=g.filter(p=>ohOpen(p.tg&&p.tg.opening_hours)===true).length;
     const html='<div class="clu"><span class="ce">'+top.map(c=>CATS[c].e).join("")+'</span><b>'+g.length+'</b>'+(open?'<i class="odot"></i>':'')+'</div>';
-    const m=L.marker([lat,lng],{icon:L.divIcon({className:"",html:html,iconSize:[54,54],iconAnchor:[27,27]}),title:g.length+" sitios: "+top.map(c=>CATS[c].pl).join(", "),keyboard:true,zIndexOffset:300}).addTo(map);
+    const m=L.marker([lat,lng],{icon:L.divIcon({className:"",html:html,iconSize:[42,42],iconAnchor:[21,21]}),title:g.length+" sitios: "+top.map(c=>CATS[c].pl).join(", "),keyboard:true,zIndexOffset:300}).addTo(map);
     m.on("click",()=>{SFX.tap();followMe=false;map._gl.easeTo({center:[lng,lat],zoom:Math.min(map._gl.getZoom()+1.6,18.6),duration:550});});cluMk[key]=m;});
   Object.keys(poiMk).forEach(id=>{if(!want[id]){poiMk[id].remove();delete poiMk[id];}});
   Object.values(want).forEach(p=>{if(poiMk[p.id])return;const m=L.marker(p.ll,{icon:poiIcon(p),title:CATS[p.c].n,keyboard:true,zIndexOffset:200,riseOnHover:true}).addTo(map);m.on("click",()=>openPOI(p.id));poiMk[p.id]=m;});
@@ -2347,7 +2363,7 @@ function planWhen(p){const s=new Date(p.starts_at),e=new Date(p.ends_at),now=new
 function planSoon(p){const d=new Date(p.starts_at).getTime()-Date.now();if(d<=0)return "";if(d<3600e3)return "Empieza en "+Math.max(1,Math.round(d/6e4))+" min";if(d<12*3600e3)return "Empieza en "+Math.round(d/3600e3)+" h";return "";}
 function planShort(p){const s=new Date(p.starts_at).getTime(),now=Date.now();if(now>=s)return "Ahora";const d=s-now;if(d<3600e3)return "en "+Math.max(1,Math.round(d/6e4))+" min";if(d<6*3600e3)return "en "+Math.round(d/3600e3)+" h";return planWhen(p);}
 function planIcon(p){const k=PKINDS[p.kind]||PKINDS.otro,live=Date.now()>=new Date(p.starts_at).getTime(),n=planCount(p);
-  return L.divIcon({className:"",html:'<div class="ppw'+(live?" live":"")+'" style="--pc:'+k.col+'"><div class="ppin2"><span>'+k.e+'</span></div><div class="pcall"><b translate="no">'+esc(p.title.length>26?p.title.slice(0,25)+"…":p.title)+'</b><small>👥 '+n+' · '+esc(planShort(p))+'</small></div></div>',iconSize:[52,52],iconAnchor:[26,26]});}
+  return L.divIcon({className:"",html:'<div class="ppw'+(live?" live":"")+'" style="--pc:'+k.col+'"><div class="ppin2"><span>'+k.e+'</span></div><div class="pcall"><em>'+esc(k.n)+'</em><b translate="no">'+esc(p.title.length>26?p.title.slice(0,25)+"…":p.title)+'</b><small>👥 '+n+' · '+esc(planShort(p))+'</small></div></div>',iconSize:[66,66],iconAnchor:[33,33]});}
 function renderPlans(){if(!map)return;const P=(filt&&filt!=="planes")?{}:allPlans();
   Object.keys(planMk).forEach(id=>{if(!P[id]){planMk[id].remove();delete planMk[id];}});
   Object.values(P).forEach(p=>{const key=p.starts_at+"|"+planShort(p)+"|"+planCount(p);if(planMk[p.id]){if(planMk[p.id]._k!==key){planMk[p.id].setIcon(planIcon(p));planMk[p.id]._k=key;}return;}
