@@ -7,7 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Patea">
-<meta name="theme-color" content="#0E0E0E">
+<meta name="theme-color" content="#EDF1F7">
+<link rel="manifest" href="manifest.json">
 <meta name="format-detection" content="telephone=no">
 <meta name="robots" content="noindex, nofollow">
 <link rel="apple-touch-icon" href="icon-180.png?v=2">
@@ -1732,6 +1733,7 @@ const EN_EXACT={
 ,"Cargando sitios de la zona…":"Loading places in this area…","El servidor de mapas va lento. Lo reintento en unos segundos…":"The map server is slow. Retrying in a few seconds…","No hay sitios registrados aquí todavía. ¡Añade el primero!":"No places listed here yet. Add the first one!"
 ,"Veterinario":"Vet","Veterinarios":"Vets","Urgencias veterinarias":"Emergency vet","Vet. urgencias":"Emergency vets","Atiende urgencias · llama antes de ir":"Handles emergencies · call before going","Urgencias 24 horas":"Emergencies 24 hours","Buen trato":"Kind staff","Precio justo":"Fair price","Atienden rápido":"Quick service","Explican bien":"Clear explanations","Abren de verdad 24 h":"Really open 24 h"
 ,"Actualizar esta zona":"Refresh this area","Buscando sitios…":"Finding places…","Zona actualizada":"Area updated","No se ha podido cargar":"Couldn't load"
+,"Sin conexión: te enseño lo último que cargaste":"Offline: showing what you loaded last"
 };
 const EN_RX=[
  [/^Hoy · (.+)$/,"Today · $1"],[/^Mañana · (.+)$/,"Tomorrow · $1"],[/^(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo) (\d+) · (.+)$/,(m,d,n,t)=>({Lunes:"Monday",Martes:"Tuesday","Miércoles":"Wednesday",Jueves:"Thursday",Viernes:"Friday","Sábado":"Saturday",Domingo:"Sunday"}[d])+" "+n+" · "+t],
@@ -2726,6 +2728,10 @@ function start(){
   document.addEventListener("pointerdown",()=>SFX.unlock(),{once:true});
   if(!S.started){$("#startOv").hidden=false;startParade();}
   sheetDrag();
+  try{if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
+  window.addEventListener("offline",()=>setPoiStatus("Sin conexión: te enseño lo último que cargaste",true));
+  window.addEventListener("online",()=>{setPoiStatus("");if(map)fetchPOIs(cellRef());});
+  if(navigator.onLine===false)setTimeout(()=>setPoiStatus("Sin conexión: te enseño lo último que cargaste",true),800);
   {let ok=false;try{ok=!!(window.maplibregl&&document.createElement("canvas").getContext("webgl"));}catch(e){}
    if(!ok){$("#map").innerHTML='<p style="padding:200px 20px;text-align:center;color:#8E8E93">Tu navegador no puede mostrar el mapa. Prueba a actualizar el iPhone o abrir Patea en Safari.</p>';return;}}
   L=makeShim();
