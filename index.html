@@ -1593,6 +1593,7 @@ body.navigating .topbar,body.navigating .hud.right .ctl #z3d{visibility:hidden}
 <script>
 (function(){
 "use strict";
+const APP_VER="26-nov · rutas 2";
 let L=null;
 /* ---------- Motor de mapa: MapLibre (3D) con una capa que habla como Leaflet ---------- */
 function makeShim(){
@@ -2082,6 +2083,7 @@ function runDiag(){const ll=here(),zn=zoneName(ll),nP=Object.keys(POI).length,nC
   openSheet('<div class="shk">Diagnóstico</div><div class="sht">Conexión del mapa</div><p class="desc">Haz una captura de esta pantalla y pásamela si los sitios no cargan.</p>'+
     '<div class="dgrid">'+OVERPASS.map((u,i)=>row(i,"⏳ probando…")).join("")+
     '<div class="drow"><b>Tu posición</b><span>'+ll[0].toFixed(4)+", "+ll[1].toFixed(4)+(zn?" · "+esc(zn):"")+'</span></div>'+
+    '<div class="drow"><b>Versión de la app</b><span>'+APP_VER+'</span></div>'+
     '<div class="drow"><b>Datos propios</b><span>'+(DATA.state==="ok"?"✓ "+esc(String(DATA.meta.sitios||""))+" sitios · "+esc(String(DATA.meta.fecha||"").slice(0,10))+(dataCovers(ll)?"":" (fuera de zona)"):DATA.state==="off"?"no disponibles (se usa el servidor)":"comprobando…")+'</span></div>'+
     '<div class="drow"><b>GPS</b><span>'+(gpsWatch!=null?"encendido":"apagado (modo prueba)")+'</span></div>'+
     '<div class="drow"><b>Sitios en memoria</b><span>'+nP+' · '+nC+' zonas guardadas</span></div>'+
@@ -2902,7 +2904,9 @@ function start(){
   document.addEventListener("pointerdown",()=>SFX.unlock(),{once:true});
   if(!S.started){$("#startOv").hidden=false;startParade();}
   sheetDrag();
-  try{if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}
+  try{if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){const had=!!navigator.serviceWorker.controller;let reloaded=false;
+      navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!reloaded){reloaded=true;location.reload();}});
+      navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{reg.update().catch(()=>{});document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{});});}).catch(()=>{});}}catch(e){}
   window.addEventListener("offline",()=>setPoiStatus("Sin conexión: te enseño lo último que cargaste",true));
   window.addEventListener("online",()=>{setPoiStatus("");if(map)fetchPOIs(cellRef());});
   if(navigator.onLine===false)setTimeout(()=>setPoiStatus("Sin conexión: te enseño lo último que cargaste",true),800);

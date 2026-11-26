@@ -1,5 +1,5 @@
 /* Patea · guarda la app y las calles en el móvil para que abra al instante */
-const V="patea-app-9";const TILES="patea-tiles-1";const DATAC="patea-datos-1";const MAXT=2500;
+const V="patea-app-10";const TILES="patea-tiles-1";const DATAC="patea-datos-1";const MAXT=2500;
 const SHELL=["./","./index.html","./maplibre-gl.js","./maplibre-gl.css","./icon-180.png","./icon-512.png","./patea-icono.png","./manifest.json"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!==TILES&&k!==DATAC).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
@@ -10,8 +10,8 @@ self.addEventListener("fetch",e=>{
   // La propia app: primero internet (para tener siempre la última versión), si tarda o no hay, la guardada
   if(u.origin===location.origin&&(r.mode==="navigate"||u.pathname.endsWith("/")||u.pathname.endsWith("index.html"))){
     e.respondWith(new Promise(res=>{let done=false;const cached=()=>caches.match("./index.html").then(m=>m||caches.match("./"));
-      const t=setTimeout(()=>{cached().then(m=>{if(m&&!done){done=true;res(m);}});},2500);
-      fetch(r).then(n=>{if(n&&n.ok){const cp=n.clone();caches.open(V).then(c=>c.put("./index.html",cp));}clearTimeout(t);if(!done){done=true;res(n);}})
+      const t=setTimeout(()=>{cached().then(m=>{if(m&&!done){done=true;res(m);}});},4000);
+      fetch(r,{cache:"no-cache"}).then(n=>{if(n&&n.ok){const cp=n.clone();caches.open(V).then(c=>c.put("./index.html",cp));}clearTimeout(t);if(!done){done=true;res(n);}})
         .catch(()=>{clearTimeout(t);cached().then(m=>{if(!done){done=true;res(m||Response.error());}});});}));return;}
   // Resto de archivos de la app: los guardados, y se actualizan por detrás
   if(u.origin===location.origin){e.respondWith(caches.match(r).then(m=>{const n=fetch(r).then(x=>{if(x&&x.ok){const cp=x.clone();caches.open(V).then(c=>c.put(r,cp));}return x;}).catch(()=>m);return m||n;}));return;}
