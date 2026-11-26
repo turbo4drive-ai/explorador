@@ -1456,6 +1456,7 @@ body.scanning .me2 .wave{opacity:1;animation:wave2 3.2s cubic-bezier(.2,.6,.3,1)
 @keyframes zrspin{to{transform:rotate(360deg)}}
 @keyframes zrin{from{transform:translateY(-8px) scale(.9);opacity:0}to{transform:none;opacity:1}}
 .dgrid{margin-top:12px;border-radius:14px;background:var(--ios);overflow:hidden}.drow{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;font-size:.86rem}.drow+.drow{border-top:1px solid rgba(0,0,0,.06)}.drow span{text-align:right;color:var(--label2)}
+.nback{display:block;margin:-4px 0 10px;font-size:.88rem}
 </style>
 </head>
 <body>
@@ -1735,6 +1736,7 @@ const EN_EXACT={
 ,"Actualizar esta zona":"Refresh this area","Buscando sitios…":"Finding places…","Zona actualizada":"Area updated","No se ha podido cargar":"Couldn't load"
 ,"Sin conexión: te enseño lo último que cargaste":"Offline: showing what you loaded last"
 ,"Cafetería":"Café","Cafeterías":"Cafés","Restaurante":"Restaurant","Restaurantes":"Restaurants","Comer":"Eat","Buen café":"Good coffee","Tranquilo":"Quiet","Para trabajar":"Good to work","Buen precio":"Good price","Se come bien":"Good food","Raciones grandes":"Big portions","Buen servicio":"Good service","Opción vegana":"Vegan option","Opción vegetariana":"Vegetarian option","Para llevar":"Takeaway","A domicilio":"Delivery"
+,"📍 Ver lo que hay cerca de mí":"📍 Show what's near me"
 };
 const EN_RX=[
  [/^Hoy · (.+)$/,"Today · $1"],[/^Mañana · (.+)$/,"Tomorrow · $1"],[/^(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo) (\d+) · (.+)$/,(m,d,n,t)=>({Lunes:"Monday",Martes:"Tuesday","Miércoles":"Wednesday",Jueves:"Thursday",Viernes:"Friday","Sábado":"Saturday",Domingo:"Sunday"}[d])+" "+n+" · "+t],
@@ -2631,12 +2633,12 @@ function stats(){
 let nearCat="",nearOpen=false;
 const NEAR_G={comer:["food","cafe"],salir:["bar","night"],market:["market"],vet:["vetu","vet"],basic:["toilets","wifi","charge","atm","aed"],ver:["monu","odd"]};
 function renderAlbum(){
-  const h0=here(),P=allPois(),zn=zoneName(h0);fetchPOIs(h0);
+  const me=here(),mc=map?cellRef():me,away=distM(mc,me)>600,h0=away?mc:me,P=allPois(),zn=zoneName(h0);fetchPOIs(h0);
   let list=nearCat==="planes"?[]:Object.values(P).filter(p=>!p.dup&&p.c!=="bench"&&!(S.reports[p.id]>=1&&p.mine)&&(!nearCat||NEAR_G[nearCat].indexOf(p.c)>=0)).map(p=>({p:p,d:distM(h0,p.ll),st:ohStatus(p.tg&&p.tg.opening_hours),r:rateOf(p)})).filter(o=>o.d<2000);
   if(nearOpen)list=list.filter(o=>o.st&&o.st.open);
   const rk=o=>nearCat==="vet"?((o.st&&o.st.open)?0:o.p.c==="vetu"?1:2):0;list.sort((a,b)=>rk(a)-rk(b)||a.d-b.d);const total=list.length;list=list.slice(0,60);
   const segs=[["","Todo"],["planes","Planes"],["comer","Comer"],["salir","Para salir"],["market","Mercadillos"],["vet","Veterinarios"],["basic","Básicos"],["ver","Turismo"]];
-  let h='<h1 class="large">Cerca</h1><div class="sub" translate="no">'+(zn?esc(zn)+" · ":"")+(ES?"a menos de 2 km":"within 2 km")+'</div>'+
+  let h='<h1 class="large">Cerca</h1><div class="sub" translate="no">'+(away?(ES?"Zona que miras en el mapa":"Area you're viewing on the map")+(zn?" · "+esc(zn):""):(zn?esc(zn)+" · ":"")+(ES?"a menos de 2 km":"within 2 km"))+'</div>'+(away?'<button type="button" class="link nback" data-nearme="1">📍 Ver lo que hay cerca de mí</button>':'')+
     '<div class="nchips" role="group" aria-label="Tipo">'+segs.map(x=>'<button type="button" data-near="'+x[0]+'" aria-pressed="'+(nearCat===x[0])+'">'+x[1]+'</button>').join("")+'<button type="button" class="nopen" data-nearopen="1" aria-pressed="'+nearOpen+'">Abierto ahora</button></div>';
   if(!nearCat||nearCat==="planes"){sbPlans(h0);h+=plansNearHTML(h0);if(nearCat==="planes"){h+='<button type="button" class="btn full" data-pnew="1" style="margin-top:14px">🎉 Monta un plan</button>';$("#album").innerHTML=h;hydrate($("#album"));return;}h+='<div class="sec"><span>Sitios</span></div>';}
   if(!list.length)h+='<div class="group"><p class="empty">'+(nearOpen?"No hay nada de este tipo abierto ahora mismo (o no consta su horario).":"Todavía no hay sitios cargados aquí. Dale un momento o mueve el mapa.")+'</p></div>';
@@ -2755,7 +2757,7 @@ function start(){
   let fogRaf=0;const fogSoon=()=>{if(fogRaf)return;fogRaf=requestAnimationFrame(()=>{fogRaf=0;drawFog();});};
   map.on("move",fogSoon);map.on("zoomend resize viewreset",drawFog);map.on("zoomend",()=>{document.body.classList.toggle("zlab",map.getZoom()>=17.5);});document.body.classList.toggle("zlab",map.getZoom()>=17.5);map.on("moveend zoomend",()=>{renderPOIs();const c=map.getCenter();fetchPOIs([c.lat,c.lng]);});
   map.on("dragstart",()=>{setTimeout(zrShow,0);});map.on("moveend",()=>{const b=$("#zoneRefresh");if(b&&!b.hidden&&!b.classList.contains("busy")&&!b.classList.contains("ok")){clearTimeout(zrT);zrT=setTimeout(()=>{if(!b.classList.contains("busy"))b.hidden=true;},12000);}});
-  $("#zoneRefresh").addEventListener("click",()=>{const b=$("#zoneRefresh");if(b.classList.contains("busy"))return;const c=cellRef();zrAt=c;clearTimeout(zrT);b.classList.add("busy");b.querySelector("span").textContent="Buscando sitios…";SFX.tap();buzz(12);if(gpsWatch==null){cancelAnimationFrame(walkAnim);W().pos=c;if(meMk)meMk.setLatLng(c);checkVisits(c);updateHud();save();}fetchPOIs(c,true);});
+  $("#zoneRefresh").addEventListener("click",()=>{const b=$("#zoneRefresh");if(b.classList.contains("busy"))return;const c=cellRef();zrAt=c;clearTimeout(zrT);b.classList.add("busy");b.querySelector("span").textContent="Buscando sitios…";SFX.tap();buzz(12);fetchPOIs(c,true);});
   map.on("click",e=>{if(pickMode)return;closeSheet();if(gpsWatch!=null){toast("Con el GPS activo te mueves caminando");return;}walkTo([e.latlng.lat,e.latlng.lng]);});
   applyMapStyle();drawFog();updateHud();setHint();updateRadar(st.pos);renderFilters();fetchPOIs(st.pos);renderPOIs();openSharedFromHash();sbSyncPending();setInterval(applyMapStyle,600000);setInterval(updateHud,30000);
 
@@ -2800,7 +2802,7 @@ function start(){
 
   });
   $("#reveal").addEventListener("click",e=>{if(handleShareClicks(e))return;const rp=e.target.closest("[data-rvpoi]");if(rp){const id=rp.dataset.rvpoi;closeReveal();revealQ.length=0;openPOI(id);return;}if(e.target.closest("[data-rv]"))nextReveal();});
-  $("#album").addEventListener("click",e=>{{const pl=e.target.closest("[data-plan]");if(pl){openPlan(pl.dataset.plan);return;}if(e.target.closest("[data-pnew]")){planDraft=null;openCreatePlan();return;}}const nc=e.target.closest("[data-near]");if(nc){nearCat=nc.dataset.near;SFX.tap();renderAlbum();return;}if(e.target.closest("[data-nearopen]")){nearOpen=!nearOpen;SFX.tap();renderAlbum();return;}const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
+  $("#album").addEventListener("click",e=>{if(e.target.closest("[data-nearme]")){const p=W().pos;followMe=true;if(p&&map)map.setView(p,18,{animate:false});setTimeout(renderAlbum,60);return;}{const pl=e.target.closest("[data-plan]");if(pl){openPlan(pl.dataset.plan);return;}if(e.target.closest("[data-pnew]")){planDraft=null;openCreatePlan();return;}}const nc=e.target.closest("[data-near]");if(nc){nearCat=nc.dataset.near;SFX.tap();renderAlbum();return;}if(e.target.closest("[data-nearopen]")){nearOpen=!nearOpen;SFX.tap();renderAlbum();return;}const a=e.target.closest("[data-alb]");if(a){albMode=a.dataset.alb;renderAlbum();return;}const p=e.target.closest("[data-place]");if(p){openPlace(p.dataset.place);return;}const r=e.target.closest("[data-relic]");if(r){openRelic(r.dataset.relic);return;}const po=e.target.closest("[data-poi]");if(po)openPOI(po.dataset.poi);});
   $("#retos").addEventListener("click",e=>{const b=e.target.closest("[data-lb]");if(b){lbMode=b.dataset.lb;renderRetos();}});
   $("#perfil").addEventListener("click",e=>{
     if(e.target.closest("#diagBtn")){runDiag();return;}
