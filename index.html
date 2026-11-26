@@ -1472,6 +1472,17 @@ body.gpson #zme svg{fill:#0A84FF}body.gpson #zme{background:#EAF3FF}
 .plusb span{grid-row:1/span 2;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem}
 .plusb b{font-size:1.02rem}.plusb small{color:var(--label2);font-size:.82rem;margin-top:2px}
 .plusb:active{transform:scale(.98)}
+.acts{display:flex;gap:2px;margin:14px 0 4px;overflow-x:auto;scrollbar-width:none}.acts::-webkit-scrollbar{display:none}
+.act{flex:1 1 0;min-width:56px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;padding:0;font:600 .74rem/1.1 var(--sf);color:#0A64D6;text-decoration:none;cursor:pointer}
+.act span{width:52px;height:52px;border-radius:50%;background:#EAF3FF;display:grid;place-items:center;transition:transform .2s}
+.act svg{width:22px;height:22px;fill:#0A84FF}
+.act.main span{background:#0A84FF}.act.main svg{fill:#fff}
+.act.fav{color:#FF2D55}.act.fav span{background:#FFEDF1}.act.fav svg{fill:none;stroke:#FF2D55;stroke-width:2}
+.act.fav.on svg{fill:#FF2D55}.act.pop span{animation:favpop .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes favpop{0%{transform:scale(.8)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.act:active span{transform:scale(.92)}
+.btnrow.one{grid-template-columns:1fr}
+.pin .fdot{position:absolute;right:-6px;bottom:-4px;width:16px;height:16px;border-radius:50%;background:#FF2D55;color:#fff;font:700 9px/16px var(--sf);text-align:center;border:2px solid #fff;font-style:normal;box-sizing:content-box}
 </style>
 </head>
 <body>
@@ -1753,6 +1764,7 @@ const EN_EXACT={
 ,"Cafetería":"Café","Cafeterías":"Cafés","Restaurante":"Restaurant","Restaurantes":"Restaurants","Comer":"Eat","Buen café":"Good coffee","Tranquilo":"Quiet","Para trabajar":"Good to work","Buen precio":"Good price","Se come bien":"Good food","Raciones grandes":"Big portions","Buen servicio":"Good service","Opción vegana":"Vegan option","Opción vegetariana":"Vegetarian option","Para llevar":"Takeaway","A domicilio":"Delivery"
 ,"📍 Ver lo que hay cerca de mí":"📍 Show what's near me"
 ,"Crear":"Create","¿Qué quieres hacer?":"What do you want to do?","Montar un plan":"Start a plan","Añadir un sitio":"Add a place","Fiesta, quedada, partido… y que se apunte quien quiera":"Party, meetup, game… and anyone can join","Un baño, un cajero, un bar… que falte en el mapa":"A toilet, an ATM, a bar… missing from the map"
+,"Ir":"Go","Guardar":"Save","Guardado":"Saved","Guardados":"Saved","Tus sitios guardados":"Your saved places","Toca ❤️ Guardar en cualquier sitio y lo tendrás aquí a mano.":"Tap ❤️ Save on any place to keep it here.","❤️ Guardado en tus sitios":"❤️ Saved to your places","Quitado de tus sitios":"Removed from your places","Cargando la zona…":"Loading the area…"
 };
 const EN_RX=[
  [/^Hoy · (.+)$/,"Today · $1"],[/^Mañana · (.+)$/,"Tomorrow · $1"],[/^(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo) (\d+) · (.+)$/,(m,d,n,t)=>({Lunes:"Monday",Martes:"Tuesday","Miércoles":"Wednesday",Jueves:"Thursday",Viernes:"Friday","Sábado":"Saturday",Domingo:"Sunday"}[d])+" "+n+" · "+t],
@@ -2043,10 +2055,10 @@ function rateOf(p){if(sbOn()){const st=SBSTAT[p.id]||{n:0,avg:0},me0=S.rates[p.i
 function starsHTML(v,big){let h='<span class="stars'+(big?" big":"")+'" aria-label="'+fmt(v,1)+' de 5">';for(let i=1;i<=5;i++){const f=Math.max(0,Math.min(1,v-i+1));h+='<i style="--f:'+(f*100).toFixed(0)+'%">★</i>';}return h+'</span>';}
 function poiIcon(p){const c=CATS[p.c],r=rateOf(p),vis=S.visits[p.id];
   const oo=ohOpen(p.tg&&p.tg.opening_hours),cl=oo===false,lab=p.n&&p.c!=="bench"?'<b class="plab" translate="no">'+esc(p.n.length>22?p.n.slice(0,21)+"…":p.n)+'</b>':'';
-  return L.divIcon({className:"",html:'<div class="pinw"><div class="pin'+(vis?" vis":"")+(p.c==="bench"?" sm":"")+(p.c==="monu"||p.c==="odd"?" mon":"")+(cl?" shut":"")+'" style="--pc:'+c.col+'"><span>'+c.e+'</span>'+(r.n&&p.c!=="bench"?'<em>'+fmt(r.avg,1)+'</em>':'')+(oo===true?'<i class="odot"></i>':'')+'</div>'+lab+'</div>',iconSize:[40,48],iconAnchor:[20,47]});}
+  return L.divIcon({className:"",html:'<div class="pinw"><div class="pin'+(vis?" vis":"")+(p.c==="bench"?" sm":"")+(p.c==="monu"||p.c==="odd"?" mon":"")+(cl?" shut":"")+'" style="--pc:'+c.col+'"><span>'+c.e+'</span>'+(r.n&&p.c!=="bench"?'<em>'+fmt(r.avg,1)+'</em>':'')+(oo===true?'<i class="odot"></i>':'')+(S.favs&&S.favs[p.id]?'<i class="fdot">♥</i>':'')+'</div>'+lab+'</div>',iconSize:[40,48],iconAnchor:[20,47]});}
 function renderPOIs(){
   if(!map)return;const ctr=map.getCenter(),cll=[ctr.lat,ctr.lng],z=map.getZoom(),P=allPois(),want={};
-  Object.values(P).filter(p=>!p.dup&&filt!=="planes"&&(!filt||p.c===filt)&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)&&!(S.openOnly&&ohOpen(p.tg&&p.tg.opening_hours)===false)&&fxOk(p)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).filter((o,i,arr)=>{const cc=arr.__c||(arr.__c={});cc[o.p.c]=(cc[o.p.c]||0)+1;return cc[o.p.c]<=(/^(bar|food)$/.test(o.p.c)?60:o.p.c==="cafe"?45:40);}).slice(0,300).forEach(o=>want[o.p.id]=o.p);
+  Object.values(P).filter(p=>!p.dup&&filt!=="planes"&&(!filt||p.c===filt||(filt==="favs"&&S.favs&&S.favs[p.id]))&&(p.c!=="bench"||z>=17||filt==="bench")&&!(S.reports[p.id]>=1&&p.mine)&&!(S.openOnly&&ohOpen(p.tg&&p.tg.opening_hours)===false)&&fxOk(p)).map(p=>({p:p,d:distM(cll,p.ll)})).filter(o=>o.d<1600).sort((a,b)=>a.d-b.d).filter((o,i,arr)=>{const cc=arr.__c||(arr.__c={});cc[o.p.c]=(cc[o.p.c]||0)+1;return cc[o.p.c]<=(/^(bar|food)$/.test(o.p.c)?60:o.p.c==="cafe"?45:40);}).slice(0,300).forEach(o=>want[o.p.id]=o.p);
   const clusters={};{const zl=map.getZoom();if(zl<19){const sc=512*Math.pow(2,zl-1),R=zl>=18.3?42:58,R2=R*R,cs=[];
     const px=p=>{const sy=Math.sin(p.ll[0]*Math.PI/180);return [(p.ll[1]+180)/360*sc,(.5-Math.log((1+sy)/(1-sy))/(4*Math.PI))*sc];};
     Object.values(want).forEach(p=>{const q=px(p);let best=null,bd=R2;for(const c of cs){const dx=c.x-q[0],dy=c.y-q[1],d=dx*dx+dy*dy;if(d<bd){bd=d;best=c;}}
@@ -2087,16 +2099,27 @@ function poiFacts(p){const t=p.tg||{},f=[];
   if(t.opening_hours&&!ohParse(t.opening_hours))f.push("Horario: "+t.opening_hours);if(t.outdoor_seating==="yes")f.push("Terraza");if(t["diet:vegan"]==="yes"||t["diet:vegan"]==="only")f.push("Opción vegana");else if(t["diet:vegetarian"]==="yes"||t["diet:vegetarian"]==="only")f.push("Opción vegetariana");if(t.takeaway==="yes"||t.takeaway==="only")f.push("Para llevar");if(t.delivery==="yes")f.push("A domicilio");if(t.min_age)f.push("+"+t.min_age);if(t.operator)f.push(t.operator);return f;}
 function commTags(p){const c=CATS[p.c],h=hash(p.id+"t");return [c.tags[h%c.tags.length],c.tags[(h>>>4)%c.tags.length]].filter((v,i,a)=>a.indexOf(v)===i).map((t,i)=>[t,55+((h>>>(8+i*5))%40)]);}
 function routeURL(ll){return "https://maps.apple.com/?daddr="+ll[0].toFixed(6)+","+ll[1].toFixed(6)+"&dirflg=w";}
+const AI={go:'<svg viewBox="0 0 24 24"><path d="M12 2.5 20 21l-8-4.2L4 21z"/></svg>',tel:'<svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>',
+  web:'<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-2.9a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4c.8 1.2 1.5 2.5 1.9 4h-3.8c.4-1.5 1.1-2.8 1.9-4zM4.3 14a8.2 8.2 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4zm.8 2h2.9c.3 1.3.8 2.5 1.4 3.6A8 8 0 0 1 5.1 16zM8 8H5.1a8 8 0 0 1 4.3-3.6C8.8 5.5 8.3 6.7 8 8zm4 12c-.8-1.2-1.5-2.5-1.9-4h3.8c-.4 1.5-1.1 2.8-1.9 4zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4zm.3 5.6c.6-1.1 1.1-2.3 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8.2 8.2 0 0 1 0 4z"/></svg>',
+  fav:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.2C.3 8.5 2.2 4.5 6 4.5c2.1 0 3.4 1.1 4.2 2.2.4.5.8.5 1.6 0 .8-1.1 2.1-2.2 4.2-2.2 3.8 0 5.7 4 4 7.3C19.5 16.4 12 21 12 21z"/></svg>',
+  ig:'<svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm5 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM17.5 5.3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>'};
+function actsHTML(p){const t=p.tg||{},web=t.website||t["contact:website"],tel=t.phone||t["contact:phone"],ig=t["contact:instagram"],fav=!!(S.favs&&S.favs[p.id]),a=[];
+  a.push('<a class="act main" href="'+routeURL(p.ll)+'" target="_blank" rel="noopener"><span>'+AI.go+'</span>Ir</a>');
+  if(tel)a.push('<a class="act" href="tel:'+esc(tel.replace(/[^+\d]/g,""))+'"><span>'+AI.tel+'</span>Llamar</a>');
+  if(web&&/^https?:\/\//.test(web))a.push('<a class="act" href="'+esc(web)+'" target="_blank" rel="noopener"><span>'+AI.web+'</span>Web</a>');
+  else if(ig)a.push('<a class="act" href="'+esc(/^https?:/.test(ig)?ig:"https://instagram.com/"+ig.replace(/^@/,""))+'" target="_blank" rel="noopener"><span>'+AI.ig+'</span>Instagram</a>');
+  a.push('<button type="button" class="act fav'+(fav?" on":"")+'" data-fav="'+esc(p.id)+'" aria-pressed="'+fav+'"><span>'+AI.fav+'</span>'+(fav?"Guardado":"Guardar")+'</button>');
+  a.push('<button type="button" class="act" data-share-poi="'+esc(p.id)+'"><span>'+ICON.share+'</span>Compartir</button>');
+  return '<div class="acts">'+a.join("")+'</div>';}
+function toggleFav(id){const p=allPois()[id];if(!S.favs)S.favs={};if(S.favs[id]){delete S.favs[id];toast("Quitado de tus sitios");}else{if(!p)return;S.favs[id]={ts:Date.now(),c:p.c,n:p.n||"",ll:p.ll};toast("❤️ Guardado en tus sitios");SFX.chime();}
+  buzz(20);save();refreshPOI(id);renderFilters();if(filt==="favs")renderPOIs();const b=document.querySelector('[data-fav="'+id+'"]');if(b){const on=!!S.favs[id];b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on));b.lastChild.textContent=on?"Guardado":"Guardar";b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");}}
 function openPOI(id){
   const p=allPois()[id];if(!p)return;const c=CATS[p.c],d=distM(here(),p.ll),near=d<=radiusOf(p),r=rateOf(p),me=S.rates[id],facts=poiFacts(p);
   rateDraft=near?{id:id,s:me?me.s:0,t:new Set(me?me.t:[]),ph:null}:null;
-  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+(p.by?' · añadido por @'+esc(p.by):'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht"'+(p.n?' translate="no"':'')+'>'+esc(p.n||c.n)+'</div>'+openLabel(p)+weekHTML(p);
+  let h='<div class="shk"><span class="cdot" style="--pc:'+c.col+'">'+c.e+'</span>'+esc(c.n)+(p.demo?' · de ejemplo':'')+(p.mine?' · añadido por ti':'')+(p.by?' · añadido por @'+esc(p.by):'')+' · a '+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</div><div class="sht"'+(p.n?' translate="no"':'')+'>'+esc(p.n||c.n)+'</div>'+openLabel(p)+weekHTML(p)+actsHTML(p);
   h+='<div class="rate-sum">'+(r.n?'<b class="num">'+fmt(r.avg,1)+'</b>'+starsHTML(r.avg,true)+'<small>'+r.n+(r.n===1?" valoración":" valoraciones")+(r.sample?' (de ejemplo hasta que conectemos el servidor)':'')+'</small>':'<small>'+(sbOn()?'Todavía nadie lo ha valorado. ¡Sé el primero!':'Sin valoraciones todavía. Las de la gente aparecerán al conectar el servidor.')+'</small>')+'</div>';
   h+='<div id="poiInfo"></div>';
   if(facts.length)h+='<div class="facts2">'+facts.map(f=>'<span>'+esc(f)+'</span>').join("")+'</div>';
-  {const t=p.tg||{},web=t.website||t["contact:website"],tel=t.phone||t["contact:phone"],ig=t["contact:instagram"];const ls=[];
-    if(tel)ls.push('<a class="btn grey" href="tel:'+esc(tel.replace(/[^+\d]/g,""))+'">Llamar</a>');if(web&&/^https?:\/\//.test(web))ls.push('<a class="btn grey" href="'+esc(web)+'" target="_blank" rel="noopener">Web</a>');
-    if(ig)ls.push('<a class="btn grey" href="'+esc(/^https?:/.test(ig)?ig:"https://instagram.com/"+ig.replace(/^@/,""))+'" target="_blank" rel="noopener">Instagram</a>');if(ls.length)h+='<div class="btnrow">'+ls.join("")+'</div>';}
   {const cf=S.confirms[id];if(cf)h+='<p class="srcnote">'+(cf.ok?'✓ Confirmaste que sigue aquí':'✗ Avisaste de que no está')+' el '+new Date(cf.ts).toLocaleDateString("es-ES",{day:"numeric",month:"long"})+'.</p>';}
   h+='<div id="poiComm"></div>';
   if(me&&(me.ph||me.photoUrl))h+='<img src="'+esc(me.photoUrl||me.ph)+'" alt="Tu foto" style="display:block;width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-top:10px">';
@@ -2107,8 +2130,7 @@ function openPOI(id){
       '<label class="sharebtn" for="phIn" id="phLbl">📷 Añadir foto</label><img id="phPrev" alt="Vista previa" hidden>'+
       '<button type="button" class="btn full" data-rate="'+esc(id)+'">Enviar valoración</button>'+
       '<button type="button" class="link rep" data-report="'+esc(id)+'">Avisar: está cerrado o ya no existe</button></div>';}
-  else h+='<p class="shp">Para valorarlo tienes que estar a menos de <b>'+radiusOf(p)+' m</b>. Ahora estás a <b>'+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</b>.</p><div class="btnrow"><a class="btn dark" href="'+routeURL(p.ll)+'" target="_blank" rel="noopener">Cómo llegar</a>'+(gpsWatch==null&&d<=4000?'<button type="button" class="btn grey" data-walkp="'+esc(id)+'">Ir (demo)</button>':'<button type="button" class="btn grey" data-center="'+esc(id)+'">Ver en el mapa</button>')+'</div>';
-  h+='<button type="button" class="sharebtn" data-share-poi="'+esc(id)+'">'+ICON.share+'Compartir</button>';
+  else h+='<p class="shp">Para valorarlo tienes que estar a menos de <b>'+radiusOf(p)+' m</b>. Ahora estás a <b>'+(d<1000?fmt(d)+" m":fmt(d/1000,1)+" km")+'</b>.</p><div class="btnrow one">'+(gpsWatch==null&&d<=4000?'<button type="button" class="btn grey" data-walkp="'+esc(id)+'">Ir (demo)</button>':'<button type="button" class="btn grey" data-center="'+esc(id)+'">Ver en el mapa</button>')+'</div>';
   if(!p.demo&&!p.mine&&!p.shared)h+='<p class="srcnote">Dato de OpenStreetMap, el mapa libre que hace la gente.</p>';
   openSheet(h);loadComments(id);loadInfo(p);
 }
@@ -2142,7 +2164,7 @@ function doSearch(q){q=(q||"").trim();const box=$("#qRes");if(!box)return;if(q.l
   fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language="+(LANG==="en"?"en":"es")+"&q="+encodeURIComponent(q)+"&viewbox="+(h[1]-.5)+","+(h[0]+.5)+","+(h[1]+.5)+","+(h[0]-.5)).then(r=>r.json()).then(rows=>{if(my!==qSeq||!box.isConnected)return;
     box.innerHTML=rows.length?rows.map(r=>{const parts=(r.display_name||"").split(", ");return '<div class="row" translate="no" data-goto="'+(+r.lat).toFixed(6)+','+(+r.lon).toFixed(6)+'"><div><b>'+esc(parts[0])+'</b><small>'+esc(parts.slice(1,4).join(", "))+'</small></div></div>';}).join(""):'<p class="empty">No encuentro nada con ese nombre.</p>';})
     .catch(()=>{if(box.isConnected)box.innerHTML='<p class="empty">Sin conexión para buscar ahora mismo.</p>';});}
-function renderFilters(){const el=$("#filters");if(!el)return;const fx=S.fx||{};el.innerHTML='<button type="button" data-f="" aria-pressed="'+(!filt)+'"><span>🌍</span>Todo</button><button type="button" class="opnchip" data-open="1" aria-pressed="'+(!!S.openOnly)+'"><i class="gdot"></i>Abierto ahora</button><button type="button" data-f="planes" aria-pressed="'+(filt==="planes")+'"><span>🎉</span>Planes</button>'+CAT_ORDER.map(c=>'<button type="button" data-f="'+c+'" aria-pressed="'+(filt===c)+'"><span>'+CATS[c].e+'</span>'+esc(CATS[c].pl)+'</button>').join("")+'<span class="sep"></span>'+[["free","Gratis"],["wheel","♿ Adaptado"],["baby","🚼 Cambiador"]].map(x=>'<button type="button" class="fx" data-fx="'+x[0]+'" aria-pressed="'+(!!fx[x[0]])+'">'+x[1]+'</button>').join("");}
+function renderFilters(){const el=$("#filters");if(!el)return;const fx=S.fx||{};el.innerHTML='<button type="button" data-f="" aria-pressed="'+(!filt)+'"><span>🌍</span>Todo</button><button type="button" class="opnchip" data-open="1" aria-pressed="'+(!!S.openOnly)+'"><i class="gdot"></i>Abierto ahora</button><button type="button" data-f="planes" aria-pressed="'+(filt==="planes")+'"><span>🎉</span>Planes</button>'+(S.favs&&Object.keys(S.favs).length?'<button type="button" data-f="favs" aria-pressed="'+(filt==="favs")+'"><span>❤️</span>Guardados</button>':'')+CAT_ORDER.map(c=>'<button type="button" data-f="'+c+'" aria-pressed="'+(filt===c)+'"><span>'+CATS[c].e+'</span>'+esc(CATS[c].pl)+'</button>').join("")+'<span class="sep"></span>'+[["free","Gratis"],["wheel","♿ Adaptado"],["baby","🚼 Cambiador"]].map(x=>'<button type="button" class="fx" data-fx="'+x[0]+'" aria-pressed="'+(!!fx[x[0]])+'">'+x[1]+'</button>').join("");}
 /* Nombre del barrio (Nominatim, una vez por zona) */
 let znWait={};
 function zoneName(ll){const k=zoneKey(ll);if(!S.zname)S.zname={};if(S.zname[k])return S.zname[k];if(!znWait[k]){znWait[k]=1;fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=es&lat="+ll[0].toFixed(5)+"&lon="+ll[1].toFixed(5))
@@ -2710,12 +2732,15 @@ function renderRetos(){
 }
 
 /* ---------- Perfil ---------- */
+function fmtD(d){return d<1000?fmt(d)+" m":fmt(d/1000,1)+" km";}
 function renderPerfil(){
   const P=allPois(),rv=Object.keys(S.rates||{}),added=Object.keys(S.added||{}).length,conf=Object.keys(S.confirms||{}).length;
   const mine=rv.map(id=>({id:id,r:S.rates[id],p:P[id]})).sort((a,b)=>b.r.ts-a.r.ts).slice(0,12);
   $("#perfil").innerHTML='<h1 class="large">Perfil</h1>'+
     '<div class="pcard"><div class="pav">'+avatarHTML(62)+'<div style="min-width:0"><h2>@'+esc(prof().name)+'</h2><span class="ptitle">'+(rv.length?rv.length+(rv.length===1?" valoración":" valoraciones"):"Aún sin valoraciones")+'</span></div><button type="button" class="editbtn" id="editProf">Editar</button></div></div>'+
     '<div class="sec"><span>Tus aportaciones</span></div><div class="group kgrid k3"><div><b class="num">'+rv.length+'</b><small>valoraciones</small></div><div><b class="num">'+added+'</b><small>sitios añadidos</small></div><div><b class="num">'+conf+'</b><small>confirmaciones</small></div></div>'+
+    (function(){const fv=Object.keys(S.favs||{}).map(id=>Object.assign({id:id},S.favs[id])).sort((a,b)=>b.ts-a.ts);if(!fv.length)return '<div class="sec"><span>Tus sitios guardados</span></div><div class="group"><p class="empty">Toca ❤️ Guardar en cualquier sitio y lo tendrás aquí a mano.</p></div>';
+      return '<div class="sec"><span>Tus sitios guardados</span></div><div class="group toplist nlist">'+fv.map(f=>{const c=CATS[f.c]||CATS.bar,pp=P[f.id],lab=pp?openLabel(pp):"";return '<div class="row nrow" data-favgo="'+esc(f.id)+'"><span class="nic" style="background:'+c.col+'">'+c.e+'</span><div class="nm"><b translate="no">'+esc(f.n||c.n)+'</b><small>'+esc(c.n)+' · '+fmtD(distM(here(),f.ll))+'</small>'+lab+'</div><span class="nr" style="color:#FF2D55">♥</span></div>';}).join("")+'</div>';})()+
     '<div class="sec"><span>Tus valoraciones</span></div><div class="group toplist">'+(mine.length?mine.map(o=>'<div class="row" data-poi="'+esc(o.id)+'" style="cursor:pointer"><span class="pos">'+(o.p?CATS[o.p.c].e:"📍")+'</span><div class="nm"><b>'+esc(o.p?(o.p.n||CATS[o.p.c].n):"Sitio")+'</b><small>'+starsHTML(o.r.s)+(o.r.c?' · “'+esc(o.r.c)+'”':'')+'</small></div></div>').join(""):'<p class="empty">Cuando estés en un bar, un baño o cualquier sitio del mapa, ábrelo y dale estrellas. Así ayudas a los demás.</p>')+'</div>'+
     '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Idioma</b><div class="segset" role="group" aria-label="Idioma">'+[["","Auto"],["es","Español"],["en","English"]].map(o=>'<button type="button" data-lang="'+o[0]+'" aria-pressed="'+((S.lang||"")===o[0])+'" translate="no">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo funciona</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div><div class="setrow"><b>Conexión del mapa</b><button type="button" class="link" id="diagBtn">Comprobar</button></div></div>'+
     '<div class="sec"><span>Privacidad</span></div><div class="group"><p class="empty">Tu ubicación no sale de este móvil: solo se usa para enseñarte lo que tienes cerca. <button type="button" class="link" id="resetBtn">Borrar mis datos</button></p></div>';
@@ -2758,7 +2783,7 @@ function handleShareClicks(e){
 
 /* ---------- Inicio ---------- */
 function start(){
-  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","confirms","daily","zones","bumps","plans","joined","hiddenPlans"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
+  S=load()||fresh();["found","treas","relics","visits","rates","added","reports","confirms","daily","zones","bumps","plans","joined","hiddenPlans","favs"].forEach(k=>{if(!S[k])S[k]={};});if(S.flares==null)S.flares=1;
   fillIcons();
   const afterStart=()=>{SFX.unlock();if(!S.coached)setTimeout(()=>openCoach(0),450);};
   $("#startGps").addEventListener("click",()=>{S.started=true;save();$("#startOv").hidden=true;afterStart();if(map){toast("Buscando tu ubicación");startGps();}});
@@ -2802,6 +2827,7 @@ function start(){
   $("#sheetX").addEventListener("click",closeSheet);
   $("#sheetBody").addEventListener("click",e=>{
     if(handleShareClicks(e))return;
+    {const fv=e.target.closest("[data-fav]");if(fv){toggleFav(fv.dataset.fav);return;}}
     {const pb=e.target.closest("[data-plus]");if(pb){if(pb.dataset.plus==="plan"){planDraft=null;openCreatePlan();}else{closeSheet();setTimeout(openAdd,180);}return;}}
     {const t=e.target;let x;
       if((x=t.closest("[data-pk]"))){readPlanForm();planDraft.kind=x.dataset.pk;if(x.dataset.pk==="fiesta")planDraft.adult=true;openCreatePlan();return;}
@@ -2838,6 +2864,7 @@ function start(){
   $("#retos").addEventListener("click",e=>{const b=e.target.closest("[data-lb]");if(b){lbMode=b.dataset.lb;renderRetos();}});
   $("#perfil").addEventListener("click",e=>{
     if(e.target.closest("#diagBtn")){runDiag();return;}
+    {const fg=e.target.closest("[data-favgo]");if(fg){const id=fg.dataset.favgo,f=S.favs[id];go("mapa");if(allPois()[id]){map.setView(allPois()[id].ll,18,{animate:false});followMe=false;setTimeout(()=>openPOI(id),250);}else if(f){map.setView(f.ll,18,{animate:false});followMe=false;fetchPOIs(f.ll,true);toast("Cargando la zona…");setTimeout(()=>{if(allPois()[id])openPOI(id);},4000);}return;}}
     {const po=e.target.closest("[data-poi]");if(po){openPOI(po.dataset.poi);return;}}
     if(e.target.closest("#editProf")){openEditProfile();return;}
     const lg=e.target.closest("[data-lang]");if(lg){S.lang=lg.dataset.lang||null;saveNow();location.reload();return;}

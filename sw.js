@@ -1,5 +1,5 @@
 /* Patea · guarda la app y las calles en el móvil para que abra al instante */
-const V="patea-app-4";const TILES="patea-tiles-1";const MAXT=2500;
+const V="patea-app-5";const TILES="patea-tiles-1";const MAXT=2500;
 const SHELL=["./","./index.html","./maplibre-gl.js","./maplibre-gl.css","./icon-180.png","./icon-512.png","./patea-icono.png","./manifest.json"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!==TILES).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
