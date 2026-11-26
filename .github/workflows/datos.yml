@@ -29,6 +29,11 @@ jobs:
           ls -lh filtrado.osm.pbf sitios.geojsonseq
       - name: Partir en cuadritos de ~1 km
         run: python3 tools/hacer_celdas.py sitios.geojsonseq salida
+      - name: Agenda de eventos de Barcelona (Open Data BCN)
+        continue-on-error: true
+        run: |
+          curl -L --fail --retry 3 -o agenda.csv "https://opendata-ajuntament.barcelona.cat/data/dataset/a25e60cd-3083-4252-9fce-81f733871cb1/resource/877ccf66-9106-4ae2-be51-95a9f6469e4c/download" && ls -lh agenda.csv
+          python3 tools/hacer_eventos.py agenda.csv salida/datos/eventos.json
       - name: Publicar cada franja en su rama («datos-NN») y el índice en «datos»
         run: |
           du -sh salida/*
