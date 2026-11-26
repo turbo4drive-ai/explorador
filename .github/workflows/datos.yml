@@ -29,11 +29,6 @@ jobs:
           ls -lh filtrado.osm.pbf sitios.geojsonseq
       - name: Partir en cuadritos de ~1 km
         run: python3 tools/hacer_celdas.py sitios.geojsonseq salida
-      - name: Agenda de eventos de Barcelona (Open Data BCN)
-        continue-on-error: true
-        run: |
-          curl -L --fail --retry 3 -o agenda.csv "https://opendata-ajuntament.barcelona.cat/data/dataset/a25e60cd-3083-4252-9fce-81f733871cb1/resource/877ccf66-9106-4ae2-be51-95a9f6469e4c/download" && ls -lh agenda.csv
-          python3 tools/hacer_eventos.py agenda.csv salida/datos/eventos.json
       - name: Publicar cada franja en su rama («datos-NN») y el índice en «datos»
         run: |
           du -sh salida/*
@@ -46,7 +41,7 @@ jobs:
              git config user.email "patea-bot@users.noreply.github.com"
              git add -A
              git commit -qm "Datos $(date -u +%F)"
-             git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "$b")
+             for t in 1 2 3 4; do git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "$b" && break; echo "Reintento $t para $b"; sleep $((t*10)); done)
           done
       - name: Refrescar la caché de jsDelivr
         run: curl -s "https://purge.jsdelivr.net/gh/${{ github.repository }}@datos/meta.json" || true
