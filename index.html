@@ -1973,8 +1973,8 @@ const TITLES={bar:"Experto en bares",night:"Rey de la noche",market:"Cazador de 
 const RATE_M=10,VISIT_M=10,BIG_M=40,POI_KEY="explorador-poi-v9",POI_CELL=0.004,POI_BIG=0.012,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.private.coffee/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
 let cluMk={},POI={},poiMk={},poiCells={},poiLoading={},filt=null,rateDraft=null;
 try{const c=JSON.parse(localStorage.getItem(POI_KEY)||"{}");if(c&&c.cells){poiCells=c.cells;POI=c.poi||{};Object.keys(POI).forEach(id=>{if(POI[id].demo)delete POI[id];});Object.keys(poiCells).forEach(k=>{if(!(poiCells[k].ids||[]).length)delete poiCells[k];});}}catch(e){}
-function savePoiCache(){try{const ks=Object.keys(poiCells);if(ks.length>160){ks.sort((a,b)=>poiCells[a].t-poiCells[b].t).slice(0,ks.length-160).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>delete POI[id]);delete poiCells[k];});}
-  localStorage.setItem(POI_KEY,JSON.stringify({cells:poiCells,poi:POI}));}catch(e){}}
+function savePoiCache(){try{const ks=Object.keys(poiCells);if(ks.length>60){ks.sort((a,b)=>poiCells[a].t-poiCells[b].t).slice(0,ks.length-60).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>delete POI[id]);delete poiCells[k];});}
+  try{localStorage.setItem(POI_KEY,JSON.stringify({cells:poiCells,poi:POI}));}catch(e){const ks2=Object.keys(poiCells).sort((a,b)=>poiCells[a].t-poiCells[b].t);ks2.slice(0,Math.ceil(ks2.length/2)).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>{if(!(S.favs&&S.favs[id]))delete POI[id];});delete poiCells[k];});try{localStorage.setItem(POI_KEY,JSON.stringify({cells:poiCells,poi:POI}));}catch(e2){}}}catch(e){}}
 function here(){return W().pos||START;}
 const CUIS={spanish:"española",regional:"regional",catalan:"catalana",tapas:"tapas",mediterranean:"mediterránea",italian:"italiana",pizza:"pizza",pasta:"pasta",chinese:"china",japanese:"japonesa",sushi:"sushi",asian:"asiática",thai:"tailandesa",vietnamese:"vietnamita",korean:"coreana",indian:"india",pakistani:"pakistaní",kebab:"kebab",turkish:"turca",lebanese:"libanesa",greek:"griega",mexican:"mexicana",argentinian:"argentina",peruvian:"peruana",venezuelan:"venezolana",colombian:"colombiana",american:"americana",burger:"hamburguesas",sandwich:"bocadillos",chicken:"pollo",seafood:"marisco",fish:"pescado",steak_house:"carnes a la brasa",grill:"brasa",vegetarian:"vegetariana",vegan:"vegana",coffee_shop:"cafetería",breakfast:"desayunos",cake:"pasteles",ice_cream:"helados",crepe:"crepes",bubble_tea:"bubble tea",french:"francesa",international:"internacional",fusion:"fusión",galician:"gallega",basque:"vasca",asturian:"asturiana",churros:"churros",bagel:"bagels",donut:"dónuts",juice:"zumos",tea:"té"};
 function cuisineES(c){return String(c).split(/[;,]/).map(x=>x.trim().toLowerCase()).filter(Boolean).slice(0,3).map(x=>(LANG==="es"&&CUIS[x])||x.replace(/_/g," ")).join(", ");}
@@ -2001,7 +2001,29 @@ function smallKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI
 function smallMid(k){const a=k.split(":").map(Number);return [(a[0]+.5)*POI_CELL,(a[1]+.5)*POI_CELL];}
 function cellFresh(k){const c=poiCells[k];return !!(c&&c.t&&Date.now()-c.t<7*864e5);}
 function areaLoaded(ll){const i=Math.floor(ll[0]/POI_CELL),j=Math.floor(ll[1]/POI_CELL);for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++)if(!cellFresh((i+di)+":"+(j+dj)))return false;return true;}
-function fetchPOIs(ll,force){if(!ll||(!force&&areaLoaded(ll)))return;
+/* Datos propios (generados cada noche desde OpenStreetMap) servidos por jsDelivr; si no hay, se pregunta en directo */
+const DATA={bases:["https://cdn.jsdelivr.net/gh/turbo4drive-ai/explorador@datos","https://raw.githubusercontent.com/turbo4drive-ai/explorador/datos"],meta:null,state:"init",p:null};
+let dataLoading=0;const dataWait={};
+function fetchFirst(path,i){i=i||0;const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{if(ac)ac.abort();},9000);
+  return fetch(DATA.bases[i]+path,{signal:ac?ac.signal:undefined}).then(r=>{clearTimeout(tm);if(r.status===404){const e=new Error("404");e.code=404;throw e;}if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .catch(e=>{clearTimeout(tm);if(e&&e.code===404)throw e;if(i+1<DATA.bases.length)return fetchFirst(path,i+1);throw e;});}
+function dataMeta(){if(DATA.p)return DATA.p;DATA.state="loading";DATA.p=fetchFirst("/meta.json").then(m=>{if(m&&m.zona){DATA.meta=m;DATA.state="ok";}else DATA.state="off";}).catch(()=>{DATA.state="off";});return DATA.p;}
+function dataCovers(ll){const z=DATA.meta&&DATA.meta.zona;return !!z&&ll[0]>=z[0]&&ll[0]<=z[2]&&ll[1]>=z[1]&&ll[1]<=z[3];}
+function ingestData(k,arr){const ids=[];(arr||[]).forEach(a=>{const t=a[3]||{},cc=catOf(t);if(!cc||cc==="bench")return;const pid=a[0],tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});
+    POI[pid]={id:pid,c:cc,ll:[a[1],a[2]],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};ids.push(pid);});
+  poiCells["D"+k]={t:Date.now(),ids:ids};}
+function dataFetch(ll,force){const i0=Math.floor(ll[0]*100),j0=Math.floor(ll[1]*100),ks=[];
+  for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){const k=(i0+di)+"_"+(j0+dj),c=poiCells["D"+k];if(force||!(c&&c.t&&Date.now()-c.t<20*3600e3))ks.push([Math.abs(di)+Math.abs(dj),k]);}
+  ks.sort((a,b)=>a[0]-b[0]);if(!ks.length){if(force)zrDone(true);return;}
+  let left=0;ks.forEach(x=>{const k=x[1];if(dataWait[k])return;dataWait[k]=1;dataLoading++;left++;scanSet(true);
+    fetchFirst("/c/"+k+".json").then(arr=>{ingestData(k,arr);dedupePOIs();renderPOIs();if(current==="album")renderAlbum();})
+      .catch(e=>{if(e&&e.code===404)poiCells["D"+k]={t:Date.now(),ids:[]};})
+      .then(()=>{delete dataWait[k];dataLoading--;left--;if(!dataLoading)scanSet(poiActive>0);if(!left&&force)zrDone(true);clearTimeout(poiSaveT);poiSaveT=setTimeout(savePoiCache,1500);});});
+  if(!left&&force)zrDone(true);}
+function fetchPOIs(ll,force){if(!ll)return;
+  if(DATA.state==="init"||DATA.state==="loading"){dataMeta().then(()=>fetchPOIs(ll,force));return;}
+  if(DATA.state==="ok"&&dataCovers(ll)){dataFetch(ll,force);return;}
+  if(!force&&areaLoaded(ll))return;
   if(!force&&Object.keys(poiLoading).some(k=>poiLoading[k]&&poiLoading[k].part==="A"&&distM(poiLoading[k].ll,ll)<300))return;
   poiQ=poiQ.filter(q=>q.part==="B"||distM(q.ll,ll)>=300);poiQ.unshift({ll:ll,part:"A",force:!!force});poiQ=poiQ.slice(0,4);
   pumpPOI();}
@@ -2039,6 +2061,7 @@ function runDiag(){const ll=here(),zn=zoneName(ll),nP=Object.keys(POI).length,nC
   openSheet('<div class="shk">Diagnóstico</div><div class="sht">Conexión del mapa</div><p class="desc">Haz una captura de esta pantalla y pásamela si los sitios no cargan.</p>'+
     '<div class="dgrid">'+OVERPASS.map((u,i)=>row(i,"⏳ probando…")).join("")+
     '<div class="drow"><b>Tu posición</b><span>'+ll[0].toFixed(4)+", "+ll[1].toFixed(4)+(zn?" · "+esc(zn):"")+'</span></div>'+
+    '<div class="drow"><b>Datos propios</b><span>'+(DATA.state==="ok"?"✓ "+esc(String(DATA.meta.sitios||""))+" sitios · "+esc(String(DATA.meta.fecha||"").slice(0,10))+(dataCovers(ll)?"":" (fuera de zona)"):DATA.state==="off"?"no disponibles (se usa el servidor)":"comprobando…")+'</span></div>'+
     '<div class="drow"><b>GPS</b><span>'+(gpsWatch!=null?"encendido":"apagado (modo prueba)")+'</span></div>'+
     '<div class="drow"><b>Sitios en memoria</b><span>'+nP+' · '+nC+' zonas guardadas</span></div>'+
     '<div class="drow"><b>Cerca de ti (650 m)</b><span id="dgNear">'+Object.values(POI).filter(x=>distM(x.ll,ll)<650).length+'</span></div>'+
