@@ -1736,7 +1736,7 @@ body.mapdark .hud.bottom>.glass{background:rgba(34,41,58,.94);color:#D5DDEB}
 <script>
 (function(){
 "use strict";
-const APP_VER="26-nov · juego";
+const APP_VER="26-nov · juego sin niebla";
 let L=null;
 /* ---------- Motor de mapa: MapLibre (3D) con una capa que habla como Leaflet ---------- */
 function makeShim(){
@@ -2840,6 +2840,7 @@ const RELEM={"Chapa de metro":"🚇","Moneda antigua":"🪙","Billete de tranví
   "Brújula de bolsillo":"🧭","Disco de vinilo":"💿","Reloj de cadena":"⏱️","Mapa rasgado":"🗺️","Cámara de carrete":"📷","Medalla de 1929":"🎖️","Estatuilla dorada":"🏆","Diamante urbano":"💎","Corona de neón":"👑","Llave de la ciudad":"🔑"};
 const RCOL={c:"#8FA3BF",r:"#2F9BFF",l:"#FFB800"};
 function gameOn(){return !S||S.game!==false;}
+const FOG_ON=false;
 function fogOn(){return gameOn()&&!MT.on;}
 function isDisc(p){return !gameOn()||!!ALWAYS_C[p.c]||!!p.mine||!!p.shared||!!p.demo||!!(S.visits&&S.visits[p.id])||!!(S.favs&&S.favs[p.id]);}
 /* --- niebla: lienzo encima del mapa y por debajo de los pines --- */
@@ -2855,6 +2856,7 @@ function fogDraw(){const el=FOG.el;if(!el||!gl)return;const on=fogOn();if(el.sty
   const cv=gl.getCanvas(),w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,2);if(!w||!h)return;
   if(el.width!==Math.round(w*dpr)||el.height!==Math.round(h*dpr)){el.width=Math.round(w*dpr);el.height=Math.round(h*dpr);el.style.width=w+"px";el.style.height=h+"px";}
   const g=FOG.ctx,dk=isLightMap()?0:1,T=384;g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.clearRect(0,0,w,h);
+  if(FOG_ON){
   const ctr=gl.getCenter();if(!GAME.ref||Math.abs(GAME.ref[0]-ctr.lng)>.05||Math.abs(GAME.ref[1]-ctr.lat)>.05)GAME.ref=[ctr.lng,ctr.lat];
   const pt=FOG.pat[dk]||(FOG.pat[dk]=g.createPattern(fogTex(dk),"repeat")),o=gl.project(GAME.ref);
   g.globalAlpha=dk?.94:.93;g.save();g.translate((((o.x%T)+T)%T)-T,(((o.y%T)+T)%T)-T);g.fillStyle=pt;g.fillRect(0,0,w+T*2,h+T*2);g.restore();g.globalAlpha=1;
@@ -2866,6 +2868,7 @@ function fogDraw(){const el=FOG.el;if(!el||!gl)return;const on=fogOn();if(el.sty
   const pts=st.pts.filter(p=>p[0]>s0&&p[0]<n0&&p[1]>w0&&p[1]<e0),step=pts.length>2600?Math.ceil(pts.length/2600):1;
   for(let i=0;i<pts.length;i+=step)hole(pts[i][0],pts[i][1],RADIUS_M*1.2);
   st.big.forEach(q=>{if(q[0]>s0-.02&&q[0]<n0+.02&&q[1]>w0-.02&&q[1]<e0+.02)hole(q[0],q[1],q[2]*1.1);});
+  }
   g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";
   const z=GAME.zone;if(z){const P2=[];for(let i=0;i<=40;i++){const a=i/40*Math.PI*2,q=gl.project([z.ll[1]+Math.cos(a)*z.r/(111320*Math.cos(z.ll[0]*Math.PI/180)),z.ll[0]+Math.sin(a)*z.r/110540]);P2.push(q);}
     const t=performance.now()/1000;g.save();g.beginPath();P2.forEach((q,i)=>i?g.lineTo(q.x,q.y):g.moveTo(q.x,q.y));g.closePath();g.fillStyle=z.col+"22";g.fill();g.setLineDash([7,7]);g.lineDashOffset=-t*14;g.lineWidth=3;g.strokeStyle=z.col;g.shadowColor=z.col;g.shadowBlur=12;g.stroke();g.restore();}}
@@ -2899,7 +2902,7 @@ function openRelic(id){const x=S.relics[id];if(!x)return;const rr=RELRAR[x.r];
 /* --- insignias --- */
 const INS=[
   {id:"pasos",n:"Pateador",d:"Camina por tu ciudad",k:"km",t:[1,10,50],u:"km",e:"👟",c:"#FF7A45"},
-  {id:"niebla",n:"Quitanieblas",d:"Despeja la niebla del mapa",k:"area",t:[.05,.5,2],u:"km²",e:"☁️",c:"#4FB3F6"},
+  {id:"niebla",n:"Cartógrafo",d:"Recorre zonas nuevas de tu ciudad",k:"area",t:[.05,.5,2],u:"km²",e:"🗺️",c:"#4FB3F6"},
   {id:"desc",n:"Descubridor",d:"Descubre sitios acercándote a ellos",k:"disc",t:[10,50,200],e:"🧭",c:"#7B61FF"},
   {id:"cafe",n:"Cafetero",d:"Descubre cafeterías",k:"c_cafe",t:[3,10,30],e:"☕",c:"#A0714F"},
   {id:"tapas",n:"De tapeo",d:"Descubre bares",k:"c_bar",t:[5,20,60],e:"🍻",c:"#F2A900"},
@@ -2962,7 +2965,7 @@ function nextReveal(){const it=revealQ.shift();if(!it){closeReveal();return;}clo
   else if(it.k==="badge"){const b=INS.find(x=>x.id===it.id);if(!b){nextReveal();return;}col=b.c;const i={t:it.t,max:b.t.length};
     h='<p class="rv-k">Nueva insignia · '+esc(insLabel(b,i))+'</p><p class="rv-t">'+esc(b.n)+'</p><div class="rv-obj rv-badge">'+badgeSVG(b,it.t,170)+'</div><p class="rv-sub">'+esc(b.d)+(b.t.length>1?' · nivel '+it.t+' de '+b.t.length:'')+'</p><span class="rv-xp num">+'+(b.t.length===1?150:50)+' XP</span>'+
       '<div class="rv-btns"><button type="button" class="btn" data-rv="next">¡Genial!</button><button type="button" class="btn glassb" data-rvins="1">Ver mis insignias</button></div>';SFX.level();}
-  else if(it.k==="level"){h='<p class="rv-k">Subes de nivel</p><p class="rv-t">'+esc(lvName(it.l))+'</p><div class="rv-obj"><div class="rv-lvl"><b class="num">'+it.l+'</b><small>nivel</small></div></div><p class="rv-sub">Sigue descubriendo sitios, quitando niebla y cazando reliquias.</p><div class="rv-btns"><button type="button" class="btn" data-rv="next">Seguir</button></div>';SFX.level();}
+  else if(it.k==="level"){h='<p class="rv-k">Subes de nivel</p><p class="rv-t">'+esc(lvName(it.l))+'</p><div class="rv-obj"><div class="rv-lvl"><b class="num">'+it.l+'</b><small>nivel</small></div></div><p class="rv-sub">Sigue descubriendo sitios y cazando reliquias.</p><div class="rv-btns"><button type="button" class="btn" data-rv="next">Seguir</button></div>';SFX.level();}
   else{nextReveal();return;}
   rv.className="reveal g2";rv.style.setProperty("--rc",col);$("#rvIn").innerHTML='<div class="rv-rays" aria-hidden="true"></div>'+confettiHTML([col,"#FFFFFF","#FFD60A",shade(col,.4)])+'<div class="rv-body">'+h+'</div>';rv.hidden=false;buzz([30,40,30,40,60]);}
 /* --- perfil: partida, insignias y reliquias --- */
@@ -2970,7 +2973,7 @@ function gameProfileHTML(){if(!gameOn())return "";const li=(()=>{const x=gXP(),l
   let tot=0,got=0;INS.forEach(b=>{tot+=b.t.length;got+=Math.min(b.t.length,(S.ins||{})[b.id]||0);});
   const rel=Object.keys(S.relics||{}).map(id=>Object.assign({id:id},S.relics[id])).sort((a,b)=>({l:0,r:1,c:2}[a.r]-{l:0,r:1,c:2}[b.r])||b.ts-a.ts);
   let h='<div class="gcard"><div class="glv" style="--p:'+li.pc.toFixed(1)+'"><div><b class="num">'+li.l+'</b><small>nivel</small></div></div><div class="gtx"><small>Tu partida</small><b>'+esc(lvName(li.l))+'</b><div class="gbar"><i style="width:'+li.pc.toFixed(1)+'%"></i></div><span>'+fmt(li.x)+' XP · faltan '+fmt(li.to)+' para el nivel '+(li.l+1)+'</span></div></div>'+
-    '<div class="gstats"><div><b class="num">'+st.disc+'</b><small>🧭 descubiertos</small></div><div><b class="num">'+fmt(st.km,1)+'</b><small>👟 km</small></div><div><b class="num">'+fmt(st.area,2)+'</b><small>☁️ km² libres</small></div><div><b class="num">'+st.relics+'</b><small>💎 reliquias</small></div></div>';
+    '<div class="gstats"><div><b class="num">'+st.disc+'</b><small>🧭 descubiertos</small></div><div><b class="num">'+fmt(st.km,1)+'</b><small>👟 km</small></div><div><b class="num">'+fmt(st.area,2)+'</b><small>🗺️ km² recorridos</small></div><div><b class="num">'+st.relics+'</b><small>💎 reliquias</small></div></div>';
   h+='<div class="sec" id="insSec"><span>Insignias</span><span>'+got+' / '+tot+'</span></div><div class="bgrid">'+INS.map(b=>{const i=insTier(b,st);return '<button type="button" class="btile'+(i.t?"":" off")+'" data-ins="'+b.id+'">'+badgeSVG(b,i.t,74)+'<b>'+esc(b.n)+'</b><small>'+esc(insLabel(b,i))+'</small>'+(i.t<i.max?'<span class="bpb"><i style="width:'+Math.min(100,i.v/i.next*100).toFixed(0)+'%;background:'+b.c+'"></i></span>':'')+'</button>';}).join("")+'</div>';
   h+='<div class="sec"><span>Reliquias</span><span>'+rel.length+'</span></div><div class="rgrid">'+rel.map(x=>'<button type="button" class="rtile r-'+x.r+'" data-relic="'+esc(x.id)+'">'+relicArt(x,64)+'<b>'+esc(x.n)+'</b><small>'+esc(RELRAR[x.r][0])+'</small></button>').join("")+
     Array.from({length:Math.max(2,6-rel.length)}).map(()=>'<div class="rtile ghost"><span class="rq">?</span><b>Por encontrar</b><small>Sigue el radar</small></div>').join("")+'</div>'+
@@ -2982,7 +2985,7 @@ function openIns(id){const b=INS.find(x=>x.id===id);if(!b)return;const st=gStats
 function setGame(on){S.game=on;save();Object.keys(poiMk).forEach(id=>refreshPOI(id));Object.keys(relicMk).forEach(id=>{relicMk[id].remove();delete relicMk[id];});if(on)Object.keys(S.relics||{}).forEach(id=>{const r=S.relics[id];addRelicMarker({id:id,ll:r.ll,r:r.r,n:r.n},false);});
   updateRadar(here());fogDraw();if(current==="album")renderAlbum();}
 function gameIntro(){if(S.gameIntro||!gameOn())return;S.gameIntro=1;save();
-  openSheet('<div class="coach"><div class="big" style="font-size:2.8rem">☁️</div><h3>Vuelve el modo juego</h3><p>La niebla se despeja por donde pasas. Los sitios con <b>?</b> se desbloquean al acercarte a menos de '+DISC_M+' m, y hay <b>reliquias</b> escondidas: cuando salte el radar, busca en el círculo. Lo urgente (baños, desfibriladores y veterinarios de urgencia) siempre se ve.</p><button type="button" class="btn full" data-closesheet="1">¡A explorar!</button><p class="srcnote" style="text-align:center">Puedes quitarlo en Perfil › Ajustes › Modo juego.</p></div>');}
+  openSheet('<div class="coach"><div class="big" style="font-size:2.8rem">❓</div><h3>Vuelve el modo juego</h3><p>Los sitios con <b>?</b> se desbloquean al acercarte a menos de '+DISC_M+' m, y hay <b>reliquias</b> escondidas: cuando salte el radar, busca en el círculo. Lo urgente (baños, desfibriladores y veterinarios de urgencia) siempre se ve.</p><button type="button" class="btn full" data-closesheet="1">¡A explorar!</button><p class="srcnote" style="text-align:center">Puedes quitarlo en Perfil › Ajustes › Modo juego.</p></div>');}
 
 /* ---------- Compartir un sitio ---------- */
 function shareURL(p){return location.origin+location.pathname+"#s="+encodeURIComponent([p.id,p.c,p.ll[0].toFixed(6),p.ll[1].toFixed(6),(p.n||"").slice(0,40)].join("|"));}
@@ -3361,7 +3364,7 @@ function renderPerfil(){
     (function(){const fv=Object.keys(S.favs||{}).map(id=>Object.assign({id:id},S.favs[id])).sort((a,b)=>b.ts-a.ts);if(!fv.length)return '<div class="sec"><span>Tus sitios guardados</span></div><div class="group"><p class="empty">Toca ❤️ Guardar en cualquier sitio y lo tendrás aquí a mano.</p></div>';
       return '<div class="sec"><span>Tus sitios guardados</span></div><div class="group toplist nlist">'+fv.map(f=>{const c=CATS[f.c]||CATS.bar,pp=P[f.id],lab=pp?openLabel(pp):"";return '<div class="row nrow" data-favgo="'+esc(f.id)+'"><span class="nic" style="background:'+c.col+'">'+c.e+'</span><div class="nm"><b translate="no">'+esc(f.n||c.n)+'</b><small>'+esc(c.n)+' · '+fmtD(distM(here(),f.ll))+'</small>'+lab+'</div><span class="nr" style="color:#FF2D55">♥</span></div>';}).join("")+'</div>';})()+
     '<div class="sec"><span>Tus valoraciones</span></div><div class="group toplist">'+(mine.length?mine.map(o=>'<div class="row" data-poi="'+esc(o.id)+'" style="cursor:pointer"><span class="pos">'+(o.p?CATS[o.p.c].e:"📍")+'</span><div class="nm"><b>'+esc(o.p?(o.p.n||CATS[o.p.c].n):"Sitio")+'</b><small>'+starsHTML(o.r.s)+(o.r.c?' · “'+esc(o.r.c)+'”':'')+'</small></div></div>').join(""):'<p class="empty">Cuando estés en un bar, un baño o cualquier sitio del mapa, ábrelo y dale estrellas. Así ayudas a los demás.</p>')+'</div>'+
-    '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Modo juego</b><div class="segset" role="group" aria-label="Niebla, misterio y reliquias">'+[[1,"Activado"],[0,"Quitado"]].map(o=>'<button type="button" data-game="'+o[0]+'" aria-pressed="'+(gameOn()===!!o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Idioma</b><div class="segset" role="group" aria-label="Idioma">'+[["","Auto"],["es","Español"],["en","English"]].map(o=>'<button type="button" data-lang="'+o[0]+'" aria-pressed="'+((S.lang||"")===o[0])+'" translate="no">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo funciona</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div><div class="setrow"><b>Conexión del mapa</b><button type="button" class="link" id="diagBtn">Comprobar</button></div></div>'+
+    '<div class="sec"><span>Ajustes</span></div><div class="group"><div class="setrow"><b>Modo juego</b><div class="segset" role="group" aria-label="Sitios misterio, reliquias e insignias">'+[[1,"Activado"],[0,"Quitado"]].map(o=>'<button type="button" data-game="'+o[0]+'" aria-pressed="'+(gameOn()===!!o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Mapa</b><div class="segset" role="group" aria-label="Estilo del mapa">'+[["auto","Auto"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button type="button" data-mapst="'+o[0]+'" aria-pressed="'+((S.mapStyle||"auto")===o[0])+'">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Idioma</b><div class="segset" role="group" aria-label="Idioma">'+[["","Auto"],["es","Español"],["en","English"]].map(o=>'<button type="button" data-lang="'+o[0]+'" aria-pressed="'+((S.lang||"")===o[0])+'" translate="no">'+o[1]+'</button>').join("")+'</div></div><div class="setrow"><b>Sonidos</b><button type="button" class="switch" role="switch" id="sndSw" aria-checked="'+(S.sound!==false)+'" aria-label="Sonidos"></button></div><div class="setrow"><b>Cómo funciona</b><button type="button" class="link" id="coachBtn">Ver de nuevo</button></div><div class="setrow"><b>Conexión del mapa</b><button type="button" class="link" id="diagBtn">Comprobar</button></div></div>'+
     '<div class="sec"><span>Privacidad</span></div><div class="group"><p class="empty">Tu ubicación no sale de este móvil: solo se usa para enseñarte lo que tienes cerca. <button type="button" class="link" id="resetBtn">Borrar mis datos</button></p></div>';
 }
 
@@ -3370,7 +3373,7 @@ const COACH=[
   {em:"📍",t:"Lo útil, cerca",d:"Restaurantes, cafeterías, bares, discotecas, baños, veterinarios… todo lo que tienes alrededor, en el mapa y en la pestaña Cerca."},
   {em:"🕒",t:"¿Está abierto?",d:"Cada sitio te dice si está abierto ahora, a qué hora cierra o cuándo vuelve a abrir. Usa «Abierto ahora» para ver solo lo que puedes visitar ya."},
   {em:"🎉",t:"Monta un plan",d:"Crea una fiesta, una quedada, un partido o un paseo. Sale en el mapa y se puede apuntar quien quiera."},
-  {em:"☁️",t:"Descubre tu ciudad",d:"La niebla se despeja por donde pasas. Los sitios con «?» se desbloquean al acercarte y hay reliquias escondidas: cuando salte el radar, busca en el círculo."},
+  {em:"❓",t:"Descubre tu ciudad",d:"Los sitios con «?» se desbloquean al acercarte y hay reliquias escondidas: cuando salte el radar, busca en el círculo. Gana insignias y sube de nivel."},
   {em:"⭐",t:"Valora con estrellas",d:"Cuando estés allí, dale estrellas y un comentario. Solo se puede valorar estando en el sitio, así las notas son de verdad."}];
 let coachStep=0;
 function openCoach(i){coachStep=i||0;const c=COACH[coachStep];
