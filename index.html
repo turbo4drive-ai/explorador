@@ -1516,6 +1516,28 @@ body.navigating .topbar,body.navigating .hud.right .ctl #z3d{visibility:hidden}
 .clu .ce{font-size:9.5px;letter-spacing:-2.5px}
 .clu b{font-size:13px;margin-top:2px}
 .clu .odot{width:10px;height:10px;right:0;top:0}
+/* ===== Modo noche ===== */
+body.mapdark #map{background:#1A2132}
+body.mapdark .clouds{display:block;opacity:.18;filter:brightness(.6) saturate(.6)}
+body.mapdark .ztitle,body.mapdark .ztitle b{color:#F2F5FA}
+body.mapdark .ztitle b{text-shadow:0 0 14px rgba(10,14,24,.95),0 0 4px rgba(10,14,24,.9)}
+body.mapdark .ztitle svg{fill:#F2F5FA;background:rgba(42,50,69,.9)}
+body.mapdark .wxchip{background:rgba(34,41,58,.92);color:#D5DDEB}
+body.mapdark .rbtn{background:#2A3245;border-color:#2A3245}body.mapdark .rbtn.srch svg{fill:#F2F5FA}body.mapdark .rbtn.av{border-color:#3A4560}
+body.mapdark .hud.right .glass{background:#232B3D;color:#F2F5FA;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+body.mapdark .hud.right .ctl button{color:#F2F5FA}body.mapdark .hud.right .ctl svg{fill:#F2F5FA}body.mapdark .hud.right .ctl button+button{border-top-color:#2F384D}
+body.mapdark.gpson #zme{background:#203A63}
+body.mapdark .dock .chips{background:rgba(28,34,48,.95);box-shadow:0 -6px 22px rgba(0,0,0,.35)}
+body.mapdark .dock .chips button{background:#2A3245;color:#DCE3F0}
+body.mapdark .dock .chips button[aria-pressed="true"]{background:#F2F5FA;color:#0F1B2D}
+body.mapdark .dock .chips .sep{background:#3A4560}
+body.mapdark.onmap .tabbar{background:rgba(28,34,48,.97);box-shadow:0 14px 30px rgba(0,0,0,.45)}
+body.mapdark.onmap .tab{color:#7E8AA3}body.mapdark.onmap .tab[aria-current="page"]{color:#fff;background:#2A3245}
+body.mapdark.onmap .tabplus{border-color:#1C2230}
+body.mapdark .zrefresh{background:#232B3D;color:#6FB1FF}
+body.mapdark .plab{background:#232B3D;color:#E6EBF5;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+body.mapdark .pin{border-color:#E9EEF6}body.mapdark .pin::after{background:#E9EEF6}
+body.mapdark .hud.bottom>.glass{background:rgba(34,41,58,.94);color:#D5DDEB}
 </style>
 </head>
 <body>
@@ -1609,7 +1631,7 @@ body.navigating .topbar,body.navigating .hud.right .ctl #z3d{visibility:hidden}
 <script>
 (function(){
 "use strict";
-const APP_VER="26-nov · planes grandes";
+const APP_VER="26-nov · modo noche";
 let L=null;
 /* ---------- Motor de mapa: MapLibre (3D) con una capa que habla como Leaflet ---------- */
 function makeShim(){
@@ -2507,42 +2529,44 @@ function openSharedFromHash(){{const mp=/^#p=(.+)$/.exec(location.hash||"");if(m
   if(!allPois()[id])POI[id]={id:id,c:c,ll:ll,n:a[4]||"",tg:{},shared:1};history.replaceState(null,"",location.pathname);map.setView(ll,18,{animate:false});fetchPOIs(ll);renderPOIs();setTimeout(()=>openPOI(id),400);}catch(e){}}
 
 /* ---------- Mapa claro / oscuro ---------- */
-function isLightMap(){const m=S.mapStyle||"auto";if(m==="dark")return false;if(m==="light"||m==="auto")return true;return true;}
-function applyMapStyle(){document.body.classList.toggle("maplight",isLightMap());if(gl&&!gl.__raster&&gl.__url!==glStyleURL()){gl.__url=glStyleURL();gl.__tuned=null;gl.setStyle(gl.__url);gl.once("idle",tuneStyle);}if(typeof drawFog==="function")drawFog();}
+function isLightMap(){const m=S.mapStyle||"auto";if(m==="dark")return false;if(m==="light")return true;const h=new Date().getHours();return h>=8&&h<20;}
+function applyMapStyle(){const lt=isLightMap();document.body.classList.toggle("maplight",lt);document.body.classList.toggle("mapdark",!lt);if(gl&&!gl.__raster){if(gl.__url!==glStyleURL()){gl.__url=glStyleURL();gl.__tuned=null;gl.setStyle(gl.__url);gl.once("idle",tuneStyle);}else if(gl.__tuned&&gl.__tuned!==gl.__url+(lt?"|l":"|d")){tuneStyle();}}if(typeof drawFog==="function")drawFog();}
 /* ---------- Mapa vectorial minimalista (OpenFreeMap + MapLibre) con plan B ---------- */
 let gl=null,glOk=false,rasterLayer=null;
 const STY={light:"https://tiles.openfreemap.org/styles/positron",dark:"https://tiles.openfreemap.org/styles/dark"};
-function glStyleURL(){return isLightMap()?STY.light:STY.dark;}
+function glStyleURL(){return STY.light;}
 const RASTER_STYLE={version:8,sources:{osm:{type:"raster",tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],tileSize:256,maxzoom:19}},layers:[{id:"bg",type:"background",paint:{"background-color":"#EDF1F7"}},{id:"osm",type:"raster",source:"osm",paint:{"raster-saturation":-0.3}}]};
 function useRaster(){if(!gl||gl.__raster)return;gl.__raster=1;gl.__url="raster";gl.__tuned="raster";document.body.classList.add("raster");try{gl.setStyle(RASTER_STYLE);}catch(e){}setTimeout(()=>{if(!tilesOk)$("#mapNote").hidden=false;},8000);gl.on("data",ev=>{if(ev&&ev.dataType==="source"&&ev.tile)tilesOk++;});}
 function syncGL(){}
-function tuneStyle(){if(!gl||gl.__tuned===gl.__url)return;try{const st=gl.getStyle();if(!st||!st.layers)return;st.layers.forEach(l=>{if(/poi|housenum|aeroway|transit|rail_station|mountain_peak|building-3d/i.test(l.id))gl.setLayoutProperty(l.id,"visibility","none");});if(gl.__url===STY.light)clayStyle(st);add3D(st,gl.__url!==STY.light);gl.__tuned=gl.__url;if(RT.on)setTimeout(rtLayers,0);}catch(e){}}
+function tuneStyle(){const tk=gl&&gl.__url+(isLightMap()?"|l":"|d");if(!gl||gl.__tuned===tk)return;try{const st=gl.getStyle();if(!st||!st.layers)return;st.layers.forEach(l=>{if(/poi|housenum|aeroway|transit|rail_station|mountain_peak|building-3d/i.test(l.id))gl.setLayoutProperty(l.id,"visibility","none");});const dk=!isLightMap();clayStyle(st,dk);try{if(gl.getLayer("clay-3d"))gl.removeLayer("clay-3d");}catch(e){}add3D(st,dk);gl.__tuned=tk;if(RT.on)setTimeout(rtLayers,0);}catch(e){}}
 function add3D(st,dark){try{if(gl.getLayer("clay-3d"))return;const bld=st.layers.find(l=>l["source-layer"]==="building");if(!bld)return;const sym=st.layers.find(l=>l.type==="symbol");
   gl.addLayer({id:"clay-3d",type:"fill-extrusion",source:bld.source,"source-layer":"building",minzoom:14.5,paint:{
-    "fill-extrusion-color":dark?"#2B2F38":["interpolate",["linear"],["coalesce",["get","render_height"],8],0,"#EEF1F6",30,"#E1E7F0",80,"#D3DBE7"],
+    "fill-extrusion-color":dark?["interpolate",["linear"],["coalesce",["get","render_height"],8],0,"#2A3449",40,"#323E57",80,"#3B4866"]:["interpolate",["linear"],["coalesce",["get","render_height"],8],0,"#EEF1F6",30,"#E1E7F0",80,"#D3DBE7"],
     "fill-extrusion-height":["interpolate",["linear"],["zoom"],14.5,0,15.6,["coalesce",["get","render_height"],9]],
     "fill-extrusion-base":["coalesce",["get","render_min_height"],0],"fill-extrusion-opacity":dark?.9:.96,"fill-extrusion-vertical-gradient":true}},sym?sym.id:undefined);
   gl.setLight({anchor:"viewport",color:"#ffffff",intensity:dark?.25:.32,position:[1.25,210,35]});}catch(e){}}
-function clayStyle(st){const set=(id,k,v)=>{try{gl.setPaintProperty(id,k,v);}catch(e){}},W=(a,b,c,d)=>["interpolate",["exponential",1.6],["zoom"],12,a,14,b,16,c,18,d];
+const PAL={l:{bg:"#EDF1F7",water:"#5AAEF6",park:"#A6DC8B",bld:"#E4E9F1",bldO:"#D2D9E4",land:"#E7ECF3",path:"#FFFFFF",casing:"#D6DEEA",road:"#FFFFFF",txt:"#5A6880",halo:"rgba(255,255,255,.95)",wtxt:"#FFFFFF",whalo:"#3F92DD",bsh:"#BCC6D6",rsh:"rgba(80,105,150,.20)"},
+  d:{bg:"#1A2132",water:"#2563B8",park:"#2C5A3D",bld:"#252E42",bldO:"#1D2536",land:"#1E2637",path:"#3A465F",casing:"#141A27",road:"#3B4762",txt:"#A9B5CB",halo:"rgba(20,26,40,.95)",wtxt:"#CFE3FF",whalo:"#1B4D92",bsh:"#0E131D",rsh:"rgba(0,0,0,.35)"}};
+function clayStyle(st,dark){const C=dark?PAL.d:PAL.l,set=(id,k,v)=>{try{gl.setPaintProperty(id,k,v);}catch(e){}},W=(a,b,c,d)=>["interpolate",["exponential",1.6],["zoom"],12,a,14,b,16,c,18,d];
   const L=st.layers;let firstRoad=null,bld=null;
   L.forEach(l=>{const sl=l["source-layer"]||"",id=l.id;
-    if(l.type==="background")set(id,"background-color","#EDF1F7");
+    if(l.type==="background")set(id,"background-color",C.bg);
     else if(l.type==="fill"){
-      if(sl==="water"){set(id,"fill-color","#5AAEF6");set(id,"fill-opacity",1);set(id,"fill-outline-color","#5AAEF6");}
-      else if(sl==="park"||/park|wood|grass|forest|cemetery|pitch|garden|scrub|meadow/.test(id)){set(id,"fill-color","#A6DC8B");set(id,"fill-opacity",.95);}
-      else if(sl==="building"){bld=bld||l;set(id,"fill-color","#E4E9F1");set(id,"fill-outline-color","#D2D9E4");set(id,"fill-opacity",1);}
-      else if(sl==="landuse"||sl==="landcover")set(id,"fill-color","#E7ECF3");}
+      if(sl==="water"){set(id,"fill-color",C.water);set(id,"fill-opacity",1);set(id,"fill-outline-color",C.water);}
+      else if(sl==="park"||/park|wood|grass|forest|cemetery|pitch|garden|scrub|meadow/.test(id)){set(id,"fill-color",C.park);set(id,"fill-opacity",.95);}
+      else if(sl==="building"){bld=bld||l;set(id,"fill-color",C.bld);set(id,"fill-outline-color",C.bldO);set(id,"fill-opacity",1);}
+      else if(sl==="landuse"||sl==="landcover")set(id,"fill-color",C.land);}
     else if(l.type==="line"){
-      if(sl==="waterway"){set(id,"line-color","#5AAEF6");}
+      if(sl==="waterway"){set(id,"line-color",C.water);}
       else if(sl==="transportation"&&!/rail|ferry|aeroway|tunnel/.test(id)){
-        if(/path|track|pedestrian/.test(id)){set(id,"line-color","#FFFFFF");set(id,"line-opacity",.9);}
-        else if(/casing/.test(id)){set(id,"line-color","#D6DEEA");set(id,"line-width",/motorway|major/.test(id)?W(3,6,14,30):W(2,4,10,25));}
-        else if(!/subtle/.test(id)){firstRoad=firstRoad||l;set(id,"line-color","#FFFFFF");set(id,"line-width",/motorway|major/.test(id)?W(2,4.5,12,27):W(1,2.5,8,22));}}
+        if(/path|track|pedestrian/.test(id)){set(id,"line-color",C.path);set(id,"line-opacity",.9);}
+        else if(/casing/.test(id)){set(id,"line-color",C.casing);set(id,"line-width",/motorway|major/.test(id)?W(3,6,14,30):W(2,4,10,25));}
+        else if(!/subtle/.test(id)){firstRoad=firstRoad||l;set(id,"line-color",C.road);set(id,"line-width",/motorway|major/.test(id)?W(2,4.5,12,27):W(1,2.5,8,22));}}
       else if(sl==="boundary")set(id,"line-opacity",.25);}
-    else if(l.type==="symbol"){set(id,"text-color",sl==="water_name"?"#FFFFFF":"#5A6880");set(id,"text-halo-color",sl==="water_name"?"#3F92DD":"rgba(255,255,255,.95)");set(id,"text-halo-width",1.4);}
+    else if(l.type==="symbol"){set(id,"text-color",sl==="water_name"?C.wtxt:C.txt);set(id,"text-halo-color",sl==="water_name"?C.whalo:C.halo);set(id,"text-halo-width",1.4);}
   });
-  try{if(bld&&!gl.getLayer("clay-bsh"))gl.addLayer({id:"clay-bsh",type:"fill",source:bld.source,"source-layer":"building",minzoom:14,paint:{"fill-color":"#BCC6D6","fill-translate":[2,3.5],"fill-opacity":.75}},bld.id);}catch(e){}
-  try{if(firstRoad&&!gl.getLayer("clay-rsh"))gl.addLayer({id:"clay-rsh",type:"line",source:firstRoad.source,"source-layer":"transportation",minzoom:12,filter:["match",["get","class"],["motorway","trunk","primary","secondary","tertiary","minor","service","street"],true,false],layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":"rgba(80,105,150,.20)","line-translate":[0,3],"line-blur":2.5,"line-width":W(2,5,13,30)}},L.find(l=>l["source-layer"]==="transportation"&&l.type==="line").id);}catch(e){}
+  try{if(gl.getLayer("clay-bsh"))gl.removeLayer("clay-bsh");if(bld)gl.addLayer({id:"clay-bsh",type:"fill",source:bld.source,"source-layer":"building",minzoom:14,paint:{"fill-color":C.bsh,"fill-translate":[2,3.5],"fill-opacity":.75}},bld.id);}catch(e){}
+  try{if(gl.getLayer("clay-rsh"))gl.removeLayer("clay-rsh");if(firstRoad)gl.addLayer({id:"clay-rsh",type:"line",source:firstRoad.source,"source-layer":"transportation",minzoom:12,filter:["match",["get","class"],["motorway","trunk","primary","secondary","tertiary","minor","service","street"],true,false],layout:{"line-join":"round","line-cap":"round"},paint:{"line-color":C.rsh,"line-translate":[0,3],"line-blur":2.5,"line-width":W(2,5,13,30)}},L.find(l=>l["source-layer"]==="transportation"&&l.type==="line").id);}catch(e){}
 }
 function initGL(){gl=map._gl;gl.__url=glStyleURL();const to=setTimeout(()=>{if(!glOk)useRaster();},12000);
   gl.on("load",()=>{glOk=true;clearTimeout(to);tuneStyle();});gl.on("idle",tuneStyle);
