@@ -352,7 +352,7 @@ details.more2 summary small{color:var(--mute);font-weight:600;font-size:13px}
 .vcard .vbody .rtxt b{font-size:17px}
 /* ---- capa visual: degradados, barra, gestos y animación ---- */
 body{background:linear-gradient(180deg,#f3eff6 0%,#eceef3 32%,#e9ecf3 100%) fixed}
-#view{touch-action:pan-y;will-change:transform}
+#view{touch-action:pan-y}
 .card{box-shadow:0 1px 2px rgba(16,24,40,.04),0 16px 34px -14px rgba(40,40,90,.18)}
 .gcard{background:linear-gradient(135deg,#5b7cff 0%,#8f6bff 50%,#ff7eb0 100%);color:#fff;box-shadow:0 20px 40px -16px rgba(120,90,255,.55);position:relative;overflow:hidden}
 .gcard::before{content:"";position:absolute;inset:-40% -20% auto auto;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),transparent 65%);pointer-events:none}
@@ -416,7 +416,7 @@ button:active:not(:disabled),.vcard:active{transform:scale(.97)}
 @keyframes vpop{from{transform:translateX(-30%);opacity:0}}
 @keyframes vl{from{transform:translateX(30px);opacity:0}}
 @keyframes vr{from{transform:translateX(-30px);opacity:0}}
-#view.anim>*,#view.anim .wg>*{animation:rise .55s cubic-bezier(.2,.9,.3,1) both}
+#view.anim>*{animation:rise .45s cubic-bezier(.2,.9,.3,1) both}
 #view.anim>*:nth-child(2),#view.anim .wg>*:nth-child(2){animation-delay:.04s}
 #view.anim>*:nth-child(3),#view.anim .wg>*:nth-child(3){animation-delay:.08s}
 #view.anim>*:nth-child(4),#view.anim .wg>*:nth-child(4){animation-delay:.12s}
@@ -431,7 +431,7 @@ button:active:not(:disabled),.vcard:active{transform:scale(.97)}
 @keyframes wid{from{width:0}}
 #view.anim .knob{animation:knob 1s cubic-bezier(.2,1.3,.4,1) .2s both}
 @keyframes knob{from{left:50%}}
-#view.anim .dm i{animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+
 @keyframes pop{from{transform:scale(0)}}
 #view.anim .pin{animation:pinIn .6s cubic-bezier(.2,1.5,.4,1) both}
 @keyframes pinIn{from{transform:translate(-50%,-50%) scale(0)}}
@@ -503,6 +503,25 @@ button:active:not(:disabled),.vcard:active{transform:scale(.97)}
 .hbar .ttl b{text-wrap:balance}
 .tcar.car{width:min(44vw,190px);aspect-ratio:480/1119}
 .tcar .topimg{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 18px rgba(20,24,40,.25)) drop-shadow(0 2px 3px rgba(20,24,40,.15));user-select:none;-webkit-user-drag:none;pointer-events:none}
+
+/* ---- arreglos de ancho y rendimiento en iPhone ---- */
+html{overflow-x:hidden}
+body{background-attachment:scroll}
+#app{overflow-x:clip}
+.stage{overflow-x:clip;overflow-y:visible}
+.stage .spot{width:100%;max-width:460px}
+#tabs{width:calc(100% - 24px);max-width:430px;left:0;right:0;margin:0 auto;transform:none}
+.pill{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.85)}
+.stage .car:has(.pbox.cut) .pbox img,.vpic .pbox.cut img,.pbox.cut img{filter:none}
+.stage .car:has(.pbox.cut)::after{display:block;content:"";position:absolute;left:12%;right:12%;bottom:6%;height:7%;border-radius:50%;background:radial-gradient(closest-side,rgba(20,24,40,.32),transparent);z-index:-1}
+.tcar .topimg{filter:none}
+.br-glow{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--c2) 45%,transparent))}
+.stage .car .cicon{filter:drop-shadow(0 18px 12px rgba(20,24,40,.25))}
+button,.vcard,.card{transition:transform .18s cubic-bezier(.2,.9,.3,1.3)}
+.card{contain:paint}
+.gcard::before{will-change:auto}
+.stage .car .pbox.cut{place-items:end center;padding-bottom:7%}
+.stage .car:has(.pbox.cut)::after{bottom:4%;height:8%}
 /* app instalada en el iPhone: zonas seguras */
 #app{padding-top:env(safe-area-inset-top);padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
 #tabs{bottom:calc(14px + env(safe-area-inset-bottom))}
@@ -1430,12 +1449,12 @@ window.addEventListener('pointermove',e=>{
  if(G.dir!=='h')return;
  if(G.row){const base=G.row.classList.contains('open')?-96:0,x=Math.min(0,Math.max(-140,base+dx));const c=G.row.querySelector('.swc');c.style.transition='none';c.style.transform=`translateX(${x}px)`;return}
  if(G.stage){const c=G.stage.querySelector('.car');if(c){c.style.transition='none';c.style.transform=`translateX(${dx*.7}px) rotate(${dx*.015}deg)`;c.style.opacity=String(1-Math.min(.6,Math.abs(dx)/400))}return}
- const edge=ui.stack.length?Math.max(0,dx):dx;viewEl.style.transition='none';viewEl.style.transform=`translateX(${edge*(ui.stack.length?.55:.25)}px)`;
+ const edge=ui.stack.length?Math.max(0,dx):dx;viewEl.style.willChange='transform';viewEl.style.transition='none';viewEl.style.transform=`translateX(${edge*(ui.stack.length?.55:.25)}px)`;
 });
 function endGesture(e,cancel){
  if(!G||(e&&e.pointerId!==G.id))return;const g=G;G=null;
  const dx=e?e.clientX-g.x:0,fast=Date.now()-g.t<260&&Math.abs(dx)>40;
- const reset=el=>{if(!el)return;el.style.transition='transform .3s cubic-bezier(.2,.9,.3,1.2),opacity .3s';el.style.transform='';el.style.opacity=''};
+ const reset=el=>{if(!el)return;setTimeout(()=>{el.style.willChange=''},320);el.style.transition='transform .3s cubic-bezier(.2,.9,.3,1.2),opacity .3s';el.style.transform='';el.style.opacity=''};
  if(g.dir!=='h'){return}
  noClick=true;setTimeout(()=>noClick=false,350);
  if(cancel){reset(viewEl);if(g.row)reset(g.row.querySelector('.swc'));if(g.stage)reset(g.stage.querySelector('.car'));return}
