@@ -1,0 +1,47 @@
+name: Datos de sitios (cada noche)
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: datos
+  cancel-in-progress: true
+jobs:
+  datos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar osmium
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq osmium-tool
+      - name: Descargar OpenStreetMap de España (Geofabrik)
+        run: curl -L --fail --retry 3 -o region.osm.pbf https://download.geofabrik.de/europe/spain-latest.osm.pbf && ls -lh region.osm.pbf
+      - name: Quedarse solo con los sitios que usa Patea
+        run: |
+          osmium tags-filter region.osm.pbf \
+            nwr/amenity=toilets,bar,pub,biergarten,nightclub,marketplace,veterinary,cafe,restaurant,fast_food,atm,device_charging_station \
+            nwr/emergency=defibrillator nwr/tourism=attraction,museum,viewpoint,artwork \
+            nwr/historic=monument,castle,ruins,city_gate,fort,tower nwr/internet_access=wlan,yes \
+            -o filtrado.osm.pbf --overwrite
+          osmium export filtrado.osm.pbf -f geojsonseq --add-unique-id=type_id -o sitios.geojsonseq --overwrite
+          ls -lh filtrado.osm.pbf sitios.geojsonseq
+      - name: Partir en cuadritos de ~1 km
+        run: python3 tools/hacer_celdas.py sitios.geojsonseq salida
+      - name: Publicar cada franja en su rama («datos-NN») y el índice en «datos»
+        run: |
+          du -sh salida/*
+          for d in salida/datos-* salida/datos; do
+            b=$(basename "$d")
+            (cd "$d"
+             printf 'Datos de Patea generados automáticamente a partir de OpenStreetMap (© colaboradores de OpenStreetMap, licencia ODbL).\n' > LEEME.txt
+             git init -q -b "$b"
+             git config user.name "patea-bot"
+             git config user.email "patea-bot@users.noreply.github.com"
+             git add -A
+             git commit -qm "Datos $(date -u +%F)"
+             git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "$b")
+          done
+      - name: Refrescar la caché de jsDelivr
+        run: curl -s "https://purge.jsdelivr.net/gh/${{ github.repository }}@datos/meta.json" || true

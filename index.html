@@ -2002,13 +2002,13 @@ function smallMid(k){const a=k.split(":").map(Number);return [(a[0]+.5)*POI_CELL
 function cellFresh(k){const c=poiCells[k];return !!(c&&c.t&&Date.now()-c.t<7*864e5);}
 function areaLoaded(ll){const i=Math.floor(ll[0]/POI_CELL),j=Math.floor(ll[1]/POI_CELL);for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++)if(!cellFresh((i+di)+":"+(j+dj)))return false;return true;}
 /* Datos propios (generados cada noche desde OpenStreetMap) servidos por jsDelivr; si no hay, se pregunta en directo */
-const DATA={bases:["https://cdn.jsdelivr.net/gh/turbo4drive-ai/explorador@datos","https://raw.githubusercontent.com/turbo4drive-ai/explorador/datos"],meta:null,state:"init",p:null};
+const DATA={bases:[b=>"https://cdn.jsdelivr.net/gh/turbo4drive-ai/explorador@"+b,b=>"https://raw.githubusercontent.com/turbo4drive-ai/explorador/"+b],meta:null,cov:null,state:"init",p:null};
 let dataLoading=0;const dataWait={};
-function fetchFirst(path,i){i=i||0;const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{if(ac)ac.abort();},9000);
-  return fetch(DATA.bases[i]+path,{signal:ac?ac.signal:undefined}).then(r=>{clearTimeout(tm);if(r.status===404){const e=new Error("404");e.code=404;throw e;}if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
-    .catch(e=>{clearTimeout(tm);if(e&&e.code===404)throw e;if(i+1<DATA.bases.length)return fetchFirst(path,i+1);throw e;});}
-function dataMeta(){if(DATA.p)return DATA.p;DATA.state="loading";DATA.p=fetchFirst("/meta.json").then(m=>{if(m&&m.zona){DATA.meta=m;DATA.state="ok";}else DATA.state="off";}).catch(()=>{DATA.state="off";});return DATA.p;}
-function dataCovers(ll){const z=DATA.meta&&DATA.meta.zona;return !!z&&ll[0]>=z[0]&&ll[0]<=z[2]&&ll[1]>=z[1]&&ll[1]<=z[3];}
+function fetchFirst(br,path,i){i=i||0;const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{if(ac)ac.abort();},9000);
+  return fetch(DATA.bases[i](br)+path,{signal:ac?ac.signal:undefined}).then(r=>{clearTimeout(tm);if(r.status===404){const e=new Error("404");e.code=404;throw e;}if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .catch(e=>{clearTimeout(tm);if(e&&e.code===404)throw e;if(i+1<DATA.bases.length)return fetchFirst(br,path,i+1);throw e;});}
+function dataMeta(){if(DATA.p)return DATA.p;DATA.state="loading";DATA.p=fetchFirst("datos","/meta.json").then(m=>{if(m&&m.zona){DATA.meta=m;DATA.cov=new Set(m.cubre||[]);DATA.state="ok";}else DATA.state="off";}).catch(()=>{DATA.state="off";});return DATA.p;}
+function dataCovers(ll){if(!DATA.cov)return false;const i=Math.floor(ll[0]*100),j=Math.floor(ll[1]*100);return DATA.cov.has(Math.floor(i/25)+"_"+Math.floor(j/25));}
 function ingestData(k,arr){const ids=[];(arr||[]).forEach(a=>{const t=a[3]||{},cc=catOf(t);if(!cc||cc==="bench")return;const pid=a[0],tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});
     POI[pid]={id:pid,c:cc,ll:[a[1],a[2]],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};ids.push(pid);});
   poiCells["D"+k]={t:Date.now(),ids:ids};}
@@ -2016,7 +2016,7 @@ function dataFetch(ll,force){const i0=Math.floor(ll[0]*100),j0=Math.floor(ll[1]*
   for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){const k=(i0+di)+"_"+(j0+dj),c=poiCells["D"+k];if(force||!(c&&c.t&&Date.now()-c.t<20*3600e3))ks.push([Math.abs(di)+Math.abs(dj),k]);}
   ks.sort((a,b)=>a[0]-b[0]);if(!ks.length){if(force)zrDone(true);return;}
   let left=0;ks.forEach(x=>{const k=x[1];if(dataWait[k])return;dataWait[k]=1;dataLoading++;left++;scanSet(true);
-    fetchFirst("/c/"+k+".json").then(arr=>{ingestData(k,arr);dedupePOIs();renderPOIs();if(current==="album")renderAlbum();})
+    fetchFirst("datos-"+Math.floor(+k.split("_")[0]/200),"/c/"+k+".json").then(arr=>{ingestData(k,arr);dedupePOIs();renderPOIs();if(current==="album")renderAlbum();})
       .catch(e=>{if(e&&e.code===404)poiCells["D"+k]={t:Date.now(),ids:[]};})
       .then(()=>{delete dataWait[k];dataLoading--;left--;if(!dataLoading)scanSet(poiActive>0);if(!left&&force)zrDone(true);clearTimeout(poiSaveT);poiSaveT=setTimeout(savePoiCache,1500);});});
   if(!left&&force)zrDone(true);}
