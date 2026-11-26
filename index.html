@@ -1925,7 +1925,7 @@ const CATS={
   odd:{n:"Curiosidad",pl:"Curiosidades",e:"🗿",col:"#BF5AF2",tags:["Sorprendente","Escondido","Buenas fotos"]}};
 const CAT_ORDER=["bar","night","market","toilets","vetu","vet","wifi","charge","atm","monu","odd","aed","bench"];
 const TITLES={bar:"Experto en bares",night:"Rey de la noche",market:"Cazador de mercadillos",toilets:"Inspector de baños",water:"Catador de fuentes",wifi:"Cazador de WiFi",charge:"Señor de los enchufes",bench:"Experto en bancos",aed:"Guardián salvavidas",atm:"Rastreador de cajeros",dog:"Amigo de los perros",play:"Explorador de parques",monu:"Cazador de monumentos",odd:"Coleccionista de rarezas"};
-const RATE_M=10,VISIT_M=10,BIG_M=40,POI_KEY="explorador-poi-v6",POI_CELL=0.004,POI_BIG=0.012,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.private.coffee/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+const RATE_M=10,VISIT_M=10,BIG_M=40,POI_KEY="explorador-poi-v7",POI_CELL=0.004,POI_BIG=0.012,OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.private.coffee/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
 let POI={},poiMk={},poiCells={},poiLoading={},filt=null,rateDraft=null;
 try{const c=JSON.parse(localStorage.getItem(POI_KEY)||"{}");if(c&&c.cells){poiCells=c.cells;POI=c.poi||{};Object.keys(POI).forEach(id=>{if(POI[id].demo)delete POI[id];});Object.keys(poiCells).forEach(k=>{if(!(poiCells[k].ids||[]).length)delete poiCells[k];});}}catch(e){}
 function savePoiCache(){try{const ks=Object.keys(poiCells);if(ks.length>160){ks.sort((a,b)=>poiCells[a].t-poiCells[b].t).slice(0,ks.length-160).forEach(k=>{(poiCells[k].ids||[]).forEach(id=>delete POI[id]);delete poiCells[k];});}
@@ -1945,41 +1945,38 @@ function dedupePOIs(){const g={},sc=p=>{const t=p.tg||{};return (t.wikidata?4:0)
   Object.keys(g).forEach(k=>{const a=g[k];if(a.length<2)return;a.sort((x,y)=>sc(y)-sc(x));const keep=[];a.forEach(p=>{if(p.dup)return;const lim=k.indexOf("wd|")===0?5000:(p.c==="monu"||p.c==="odd")?150:40;if(keep.some(q=>distM(q.ll,p.ll)<lim))p.dup=1;else keep.push(p);});});}
 function poiCellKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI_CELL);}
 function allPois(){return Object.assign({},POI,S.added||{});}
-/* Carga: primero tus 500 m (a dos servidores a la vez), luego la zona en 2 peticiones */
-let poiRR=0,poiQ=[],poiActive=0,poiSaveT=0,poiFailMsg=0,nearAt=null;
+/* Carga: siempre un círculo pequeño (650 m) alrededor de donde estás o miras, pedido a dos servidores a la vez */
+let poiQ=[],poiActive=0,poiSaveT=0,poiFail=0,poiRetryT=0;
+const NEAR_R=650;
 function cellRef(){if(map){const c=map.getCenter();return [c.lat,c.lng];}return here();}
-function cellMid(k,job){if(job&&job.near)return job.ll;const a=k.slice(1).split(":").map(Number);return [(a[0]+.5)*POI_BIG,(a[1]+.5)*POI_BIG];}
-function cellBox(k,m){const a=k.slice(1).split(":").map(Number);return "[bbox:"+(a[0]*POI_BIG-m).toFixed(5)+","+(a[1]*POI_BIG-m).toFixed(5)+","+((a[0]+1)*POI_BIG+m).toFixed(5)+","+((a[1]+1)*POI_BIG+m).toFixed(5)+"]";}
-function cellNeeds(k){const c=poiCells[k];if(c&&c.t&&Date.now()-c.t<7*864e5)return false;if(c&&c.retry&&Date.now()<c.retry)return false;return !poiLoading[k]&&!poiQ.some(q=>q.k===k);}
-function fetchPOIs(ll){if(!ll)return;
-  const bk=Math.floor(ll[0]/POI_BIG)+":"+Math.floor(ll[1]/POI_BIG),A="A"+bk,B="B"+bk,needA=cellNeeds(A);
-  if(needA&&(!nearAt||distM(nearAt,ll)>350)&&!poiLoading.N){nearAt=ll;poiQ=poiQ.filter(q=>!q.near);poiQ.unshift({k:"N",near:true,ll:ll});}
-  if(needA)poiQ.push({k:A});if(cellNeeds(B))poiQ.push({k:B});
+function smallKey(ll){return Math.floor(ll[0]/POI_CELL)+":"+Math.floor(ll[1]/POI_CELL);}
+function smallMid(k){const a=k.split(":").map(Number);return [(a[0]+.5)*POI_CELL,(a[1]+.5)*POI_CELL];}
+function cellFresh(k){const c=poiCells[k];return !!(c&&c.t&&Date.now()-c.t<7*864e5);}
+function areaLoaded(ll){const i=Math.floor(ll[0]/POI_CELL),j=Math.floor(ll[1]/POI_CELL);for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++)if(!cellFresh((i+di)+":"+(j+dj)))return false;return true;}
+function fetchPOIs(ll){if(!ll||areaLoaded(ll))return;
+  if(Object.keys(poiLoading).some(k=>poiLoading[k]&&distM(poiLoading[k],ll)<300))return;
+  poiQ=poiQ.filter(q=>distM(q.ll,ll)>=300);poiQ.unshift({ll:ll});if(poiQ.length>3)poiQ.length=3;
   pumpPOI();}
-function pumpPOI(){const ref=cellRef();
-  poiQ=poiQ.filter(q=>q.near||distM(cellMid(q.k,q),ref)<2500);
-  const pr=q=>q.near?-1:(q.k[0]==="B"?1:0)*1e4+distM(cellMid(q.k,q),ref);
-  poiQ.sort((a,b)=>pr(a)-pr(b));
-  while(poiActive<2&&poiQ.length)runPOI(poiQ.shift());
-  scanSet(poiActive>0);}
-const QA_LIST=['nwr["amenity"~"^(toilets|bar|pub|biergarten|nightclub|marketplace|veterinary)$"]','node["amenity"="atm"]','nwr["emergency"="defibrillator"]'];
-const QB_LIST=['nwr["amenity"="device_charging_station"]','nwr["internet_access"~"^(wlan|yes)$"]','node["amenity"="bench"]','nwr["tourism"~"^(attraction|museum|viewpoint)$"]','nwr["historic"~"^(monument|castle|ruins|archaeological_site|city_gate|fort|tower|church)$"]','nwr["historic"]["wikidata"]','nwr["tourism"="artwork"]["wikidata"]','nwr["man_made"~"^(obelisk|clock)$"]["wikidata"]','nwr["amenity"="place_of_worship"]["wikidata"]'];
-function overpassOne(q,n,ms){const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{if(ac)ac.abort();},ms||14000);
+function pumpPOI(){while(poiActive<2&&poiQ.length)runPOI(poiQ.shift());scanSet(poiActive>0);}
+const QA_LIST=['nwr["amenity"~"^(toilets|bar|pub|biergarten|nightclub|marketplace|veterinary)$"]','node["amenity"="atm"]','nwr["emergency"="defibrillator"]','nwr["amenity"="device_charging_station"]','nwr["internet_access"~"^(wlan|yes)$"]["name"]','node["amenity"="bench"]','nwr["tourism"~"^(attraction|museum|viewpoint)$"]','nwr["historic"~"^(monument|castle|ruins|archaeological_site|city_gate|fort|tower|church)$"]','nwr["historic"]["wikidata"]','nwr["tourism"="artwork"]["wikidata"]','nwr["amenity"="place_of_worship"]["wikidata"]'];
+function overpassOne(q,n,ms){const ac=typeof AbortController!=="undefined"?new AbortController():null,tm=setTimeout(()=>{if(ac)ac.abort();},ms||15000);
   return fetch(OVERPASS[n],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q),signal:ac?ac.signal:undefined})
-    .then(r=>{clearTimeout(tm);if(!r.ok)throw new Error(r.status);return r.json();}).then(d=>{if(d&&d.remark&&/timed out|runtime error/i.test(d.remark)&&!(d.elements||[]).length)throw new Error("remark");return d;})
+    .then(r=>{clearTimeout(tm);if(!r.ok){const e=new Error("HTTP "+r.status);e.code=r.status;throw e;}return r.json();}).then(d=>{if(d&&d.remark&&/timed out|runtime error/i.test(d.remark)&&!(d.elements||[]).length)throw new Error("tiempo agotado");return d;})
     .catch(e=>{clearTimeout(tm);throw e;});}
-function overpassGet(q,n){return overpassOne(q,n).catch(e=>{if(n+1<OVERPASS.length)return overpassGet(q,n+1);throw e;});}
-function overpassRace(q){const ps=[overpassOne(q,0,9000),overpassOne(q,1,9000)];return (Promise.any?Promise.any(ps):ps[0]).catch(()=>overpassGet(q,2));}
-function runPOI(job){const k=job.k,big=!job.near;poiLoading[k]=1;poiActive++;
-  let q;if(job.near){const f="(around:500,"+job.ll[0].toFixed(5)+","+job.ll[1].toFixed(5)+")";q='[out:json][timeout:10];('+QA_LIST.map(x=>x+f+";").join("")+');out center tags;';}
-  else q='[out:json][timeout:20]'+cellBox(k,.0015)+';('+(k[0]==="A"?QA_LIST:QB_LIST).map(x=>x+";").join("")+');out center tags;';
-  (job.near?overpassRace(q):overpassGet(q,(poiRR++)%2)).then(d=>{const ids=[];
+function overpassRace(q){const ps=[overpassOne(q,0,15000),overpassOne(q,1,15000)];return (Promise.any?Promise.any(ps):ps[0]).catch(()=>overpassOne(q,2,20000));}
+function runPOI(job){const ll=job.ll,id="j"+Math.random().toString(36).slice(2,7);poiLoading[id]=ll;poiActive++;
+  const f="(around:"+NEAR_R+","+ll[0].toFixed(5)+","+ll[1].toFixed(5)+")",q='[out:json][timeout:25];('+QA_LIST.map(x=>x+f+";").join("")+');out center tags;';
+  overpassRace(q).then(d=>{
       (d.elements||[]).forEach(e=>{const t=e.tags||{},cc=catOf(t);if(!cc)return;const pll=e.lat!=null?[e.lat,e.lon]:e.center?[e.center.lat,e.center.lon]:null;if(!pll)return;
-        const id=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[id]={id:id,c:cc,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};ids.push(id);});
-      if(!job.near)poiCells[k]={t:Date.now(),ids:ids};dedupePOIs();renderPOIs();if(current==="album")renderAlbum();
-      clearTimeout(poiSaveT);poiSaveT=setTimeout(savePoiCache,1500);if(poiFailMsg){poiFailMsg=0;setPoiStatus("");}})
-    .catch(()=>{if(!job.near)poiCells[k]={t:0,ids:[],retry:Date.now()+20000};else nearAt=null;if(!poiFailMsg){poiFailMsg=1;setPoiStatus("El servidor de mapas va lento. Lo reintento en unos segundos…");}setTimeout(()=>fetchPOIs(cellRef()),21000);})
-    .then(()=>{delete poiLoading[k];poiActive--;pumpPOI();});}
+        const pid=e.type[0]+e.id,tg={};KEEP.forEach(x=>{if(t[x]!=null)tg[x]=String(t[x]).slice(0,80);});POI[pid]={id:pid,c:cc,ll:[+pll[0].toFixed(6),+pll[1].toFixed(6)],n:(t["name:"+LANG]||t.name||"").slice(0,60),tg:tg};});
+      const i0=Math.floor(ll[0]/POI_CELL),j0=Math.floor(ll[1]/POI_CELL),now=Date.now();
+      for(let di=-3;di<=3;di++)for(let dj=-3;dj<=3;dj++){const k=(i0+di)+":"+(j0+dj),m=smallMid(k);if(distM(m,ll)<NEAR_R-260){const ids=Object.values(POI).filter(x=>smallKey(x.ll)===k).map(x=>x.id);poiCells[k]={t:now,ids:ids};}}
+      dedupePOIs();renderPOIs();if(current==="album")renderAlbum();
+      clearTimeout(poiSaveT);poiSaveT=setTimeout(savePoiCache,1500);if(poiFail){poiFail=0;setPoiStatus("");}})
+    .catch(e=>{poiFail++;const why=e&&e.errors?e.errors.map(x=>x&&x.message).join(", "):(e&&e.message)||"";
+      setPoiStatus("No consigo cargar los sitios ("+(why||"sin respuesta").slice(0,40)+"). Lo reintento solo…",true);
+      clearTimeout(poiRetryT);poiRetryT=setTimeout(()=>fetchPOIs(cellRef()),Math.min(60000,8000*poiFail));})
+    .then(()=>{delete poiLoading[id];poiActive--;pumpPOI();});}
 function scanSet(on){document.body.classList.toggle("scanning",!!on);}
 function seedDemo(ll){
   if(Object.values(POI).some(p=>p.demo&&distM(p.ll,ll)<600))return;let s=hash(poiCellKey(ll));const R=()=>{s=(Math.imul(s,16807)>>>0)%2147483647;return s/2147483647;};
