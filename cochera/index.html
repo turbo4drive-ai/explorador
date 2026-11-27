@@ -519,7 +519,7 @@ function addGrid(){
 function remItem(r){
  const tt=T[r.t],[txt,col]=remText(r);
  return `<button class="ri ${r.state}" data-act="${r.last?'rec':'newRec'}" data-v="${esc(r.v.id)}" data-r="${r.last?esc(r.last.id):''}" data-t="${r.t}">
- <span class="rw">${ring(r.state==='none'?0:r.frac,r.state==='late'?'#ff5d6c':tt.c,46,7)}<span class="in">${ic(tt.ic,'#4a5059',18)}</span></span>
+ <span class="rw">${ring(r.state==='none'?0:r.frac,STC[r.state],46,7)}<span class="in">${ic(tt.ic,'#4a5059',18)}</span></span>
  <span class="rtxt"><b>${tt.n}</b><small style="color:${col}">${txt}</small></span><span class="chev">${ic('chev','currentColor',18)}</span></button>`;
 }
 
