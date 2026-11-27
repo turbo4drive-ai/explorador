@@ -1324,42 +1324,150 @@ const segOfV=v=>{const ms=vModels('car',v.make)||[],mm=String(v.model||'').toLow
 function carParams(v){const seg=segOfV(v),p={...SEGP[seg],seg};const bf=BFACE[v.make]||['angular','trap'];p.li=bf[0];p.gr=bf[1];
  const m=String(v.model||'');for(const[re,o]of MOVR)if(re.test(m)){Object.assign(p,o);if(o.f){p.li=o.f[0];p.gr=o.f[1]}}return p}
 const R2=n=>Math.round(n*10)/10;
-function frontMaskSVG(p){
- const cx=130,G=190,W=p.W,by=p.by,bb=p.bb;let rt=p.rt,rh=p.rh;if(p.open){rt=by-24;rh=Math.min(W-30,rh+26)}const sh=Math.min(W-12,rh+(by-rt)*p.sl);
- const half=[[rh,rt],[sh,by],[W-4,by+10],[W,by+30],[W,bb]];
- const pts=[...half.map(([x,y])=>[cx+x,y]),...half.slice().reverse().map(([x,y])=>[cx-x,y])];
- const poly=a=>a.map(([x,y])=>R2(x)+','+R2(y)).join(' ');
- const mir=a=>a.map(([x,y])=>[2*cx-x,y]);
- let wh=[];const tw=W*.26,th=G-bb;wh.push(`<rect x="${R2(cx+W-tw-4)}" y="${bb-4}" width="${R2(tw)}" height="${th+4}" rx="6"/>`,`<rect x="${R2(cx-W+4)}" y="${bb-4}" width="${R2(tw)}" height="${th+4}" rx="6"/>`);
- const mirr=`<ellipse cx="${R2(cx+sh+15)}" cy="${by-6}" rx="15" ry="8" transform="rotate(-14 ${R2(cx+sh+15)} ${by-6})"/><ellipse cx="${R2(cx-sh-15)}" cy="${by-6}" rx="15" ry="8" transform="rotate(14 ${R2(cx-sh-15)} ${by-6})"/>`;
- const cut=[];
+/* ---- frontales detallados por "cara" de marca/modelo ---- */
+const FACE_B={Seat:'seat',Cupra:'cupra',Volkswagen:'vw',Skoda:'skoda',Audi:'audi',Toyota:'toyota',Lexus:'toyota',Peugeot:'peugeot',DS:'peugeot',Citroën:'citroen',Renault:'renault',Dacia:'dacia',Kia:'kia',Hyundai:'hyundai',
+ MG:'mg',Ford:'ford',Opel:'opel',Nissan:'nissan',Mazda:'mazda',Honda:'ford',Volvo:'volvo','Mercedes-Benz':'merc',BMW:'bmw',Tesla:'tesla',BYD:'tesla',Porsche:'porsche',Mini:'mini',Fiat:'fiat',
+ Jeep:'jeep','Land Rover':'rover',Jaguar:'merc','Alfa Romeo':'alfa',Smart:'mini',Suzuki:'toyota',Mitsubishi:'mitsu'};
+const FACE_M=[[/^500( |$)|^500e/i,'fiat500'],[/wrangler/i,'jeep'],[/jimny/i,'round4'],[/defender/i,'defender'],[/^911/,'porsche'],[/^mx-5/i,'mazdamx'],[/model |^seal|dolphin/i,'tesla'],[/^id\.|enyaq|ev6|ioniq 5/i,'evbar'],[/mustang$/i,'mustang'],[/fortwo|forfour/i,'smart'],[/c-hr/i,'chr'],[/panda/i,'panda'],[/duster|bigster/i,'duster']];
+function faceOf(v){const m=String(v.model||'');for(const[re,f]of FACE_M)if(re.test(m))return f;return FACE_B[v.make]||'generic'}
+function frontMaskSVG(p,face){
+ const cx=130,G=190,W=p.W,by=p.by,bb=p.bb;let rt=p.rt,rh=p.rh;if(p.open){rt=by-24;rh=Math.min(W-30,rh+26)}
+ const box=['jeep','round4','defender'].includes(face),sl=box?.06:p.sl,sh=Math.min(W-12,rh+(by-rt)*sl);
+ const X=f=>R2(cx+f*W),Y=d=>R2(by+d),B=d=>R2(bb+d);
+ // carrocería (mitad derecha, se refleja)
+ const top=box?`M${cx-1} ${rt}L${R2(cx+rh-6)} ${rt}Q${R2(cx+rh)} ${rt} ${R2(cx+rh+1)} ${rt+6}`:`M${cx-1} ${rt-2}Q${R2(cx+rh*.6)} ${rt-2} ${R2(cx+rh-4)} ${rt+1}Q${R2(cx+rh+2)} ${rt+3} ${R2(cx+rh+4)} ${rt+9}`;
+ const half=`${top}L${R2(cx+sh-2)} ${by-6}Q${R2(cx+sh+2)} ${by} ${R2(cx+sh+10)} ${by+2}L${R2(cx+W-14)} ${by+6}Q${R2(cx+W-2)} ${by+9} ${R2(cx+W)} ${by+24}L${R2(cx+W+1)} ${bb-14}Q${R2(cx+W+1)} ${bb} ${R2(cx+W-10)} ${bb}L${cx-1} ${bb}Z`;
+ const tw=W*.25,th=G-bb+4;
+ const legs=`<rect x="${R2(cx+W-tw-5)}" y="${bb-6}" width="${R2(tw)}" height="${th}" rx="7"/>`;
+ const mir=`<path d="M${R2(cx+sh+6)} ${by-8}Q${R2(cx+sh+12)} ${by-18} ${R2(cx+sh+24)} ${by-17}Q${R2(cx+sh+33)} ${by-16} ${R2(cx+sh+33)} ${by-10}Q${R2(cx+sh+33)} ${by-3} ${R2(cx+sh+24)} ${by-3}L${R2(cx+sh+8)} ${by-2}Z"/>`;
  // parabrisas
- if(p.open){const wy=by-22;cut.push(`<polygon points="${poly([[cx+rh+6,wy],[cx+sh-8,by-4],[cx-sh+8,by-4],[cx-rh-6,wy]])}" stroke="#000" stroke-width="6" stroke-linejoin="round"/>`)}
- else cut.push(`<polygon points="${poly([[cx+rh-9,rt+10],[cx+sh-11,by-5],[cx-sh+11,by-5],[cx-rh+9,rt+10]])}" stroke="#000" stroke-width="6" stroke-linejoin="round"/>`);
- // faros
- const ly=by+(p.seg==='dep'?14:24),lx0=W*.44,lx1=W-12;
- const L={slim:[[lx1,ly],[lx0,ly+5],[lx0,ly+12],[lx1-4,ly+14]],angular:[[lx1,ly-2],[lx0+6,ly+8],[lx0,ly+17],[lx1-6,ly+14]],fang:[[lx1,ly-2],[lx0,ly+6],[lx0+4,ly+14],[lx1-10,ly+13],[lx1-14,ly+26]],
-  split:[[lx1,ly-2],[lx0,ly+3],[lx0,ly+7],[lx1-2,ly+5]],bar:[[lx1,ly],[6,ly+2],[6,ly+7],[lx1-2,ly+8]],cshape:[[lx1,ly-2],[lx0+4,ly+4],[lx0+4,ly+14],[lx1-4,ly+22],[lx1-8,ly+16],[lx0+12,ly+11],[lx1-6,ly+6]],
-  ybar:[[lx1,ly],[lx0,ly+6],[lx0,ly+11],[lx1-4,ly+15]],tshape:[[lx1,ly-2],[lx0,ly+4],[lx0,ly+18],[lx1-4,ly+20]]}[p.li];
- if(p.li==='round'){const rx=cx+W*.66,rr=Math.min(15,W*.15);cut.push(`<circle cx="${R2(rx)}" cy="${ly+10}" r="${R2(rr)}"/><circle cx="${R2(2*cx-rx)}" cy="${ly+10}" r="${R2(rr)}"/>`)}
- else{const a=L.map(([x,y])=>[cx+x,y]);cut.push(`<polygon points="${poly(a)}" stroke="#000" stroke-width="3" stroke-linejoin="round"/><polygon points="${poly(mir(a))}" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`);
-  if(p.li==='split')cut.push(`<rect x="${R2(cx+lx0)}" y="${ly+14}" width="${R2(lx1-lx0-8)}" height="9" rx="4"/><rect x="${R2(cx-lx1+8)}" y="${ly+14}" width="${R2(lx1-lx0-8)}" height="9" rx="4"/>`)}
- // parrilla
- const gx=W*.34,gy=ly+4;
- const Gr={trap:[[gx,gy+2],[-gx,gy+2],[-gx*.8,gy+26],[gx*.8,gy+26]],big:[[gx*.92,gy],[-gx*.92,gy],[-gx*1.05,gy+20],[-gx*.86,bb-18],[gx*.86,bb-18],[gx*1.05,gy+20]],
-  wide:[[gx*1.05,gy+4],[-gx*1.05,gy+4],[-gx*1.05,gy+20],[gx*1.05,gy+20]],slim:[[gx*.9,gy+2],[-gx*.9,gy+2],[-gx*.9,gy+8],[gx*.9,gy+8]],low:[[gx*1.1,gy+22],[-gx*1.1,gy+22],[-gx*.9,bb-16],[gx*.9,bb-16]],
-  hexl:[[gx*.7,gy+6],[-gx*.7,gy+6],[-gx*.95,gy+20],[-gx*.7,gy+34],[gx*.7,gy+34],[gx*.95,gy+20]],vmo:[[gx*.4,gy+2],[-gx*.4,gy+2],[0,gy+30]],
-  twin:null,bars:null,none:null}[p.gr];
- if(Gr)cut.push(`<polygon points="${poly(Gr.map(([x,y])=>[cx+x,y]))}" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`);
- if(p.gr==='twin')cut.push(`<rect x="${cx-gx*.62}" y="${gy+2}" width="${R2(gx*.54)}" height="22" rx="8"/><rect x="${R2(cx+gx*.08)}" y="${gy+2}" width="${R2(gx*.54)}" height="22" rx="8"/>`);
- if(p.gr==='bars')for(let i=0;i<3;i++)cut.push(`<rect x="${R2(cx-gx)}" y="${gy+2+i*9}" width="${R2(gx*2)}" height="5" rx="2.5"/>`);
- // toma inferior y antinieblas
- if(!['big','low'].includes(p.gr))cut.push(`<rect x="${R2(cx-W*.42)}" y="${bb-22}" width="${R2(W*.84)}" height="9" rx="4.5"/>`);
- const fx=cx+W*.74;cut.push(`<path d="M${R2(fx+10)} ${bb-30}l-14 3l-2 10l16-1z" stroke="#000" stroke-width="3" stroke-linejoin="round"/><path d="M${R2(2*cx-fx-10)} ${bb-30}l14 3l2 10l-16-1z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`);
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 200"><mask id="m"><g fill="#fff"><polygon points="${poly(pts)}" stroke="#fff" stroke-width="16" stroke-linejoin="round"/>${mirr}${wh.join('')}</g><g fill="#000">${cut.join('')}</g></mask><rect width="260" height="200" mask="url(#m)"/></svg>`;
+ const ws=p.open?`<path d="M${R2(cx+rh-4)} ${rt+8}L${R2(cx+sh-10)} ${by-5}Q${cx} ${by-9} ${R2(cx-sh+10)} ${by-5}L${R2(cx-rh+4)} ${rt+8}Q${cx} ${rt+5} ${R2(cx+rh-4)} ${rt+8}Z"/>`
+  :`<path d="M${R2(cx+rh-8)} ${rt+9}L${R2(cx+sh-11)} ${by-6}Q${cx} ${by-10} ${R2(cx-sh+11)} ${by-6}L${R2(cx-rh+8)} ${rt+9}Q${cx} ${rt+5} ${R2(cx+rh-8)} ${rt+9}Z"/>`;
+ let R='',C='',Wt='',CW='';
+ const mesh=(x0,x1,y0,y1,k)=>{let o='';if(k==='v'){for(let x=x0+4;x<x1-2;x+=5.5)o+=`<path d="M${R2(x)} ${R2(y0)}V${R2(y1)}" stroke="#fff" stroke-width="1.3"/>`}else if(k==='hex'){for(let y=y0+4,i=0;y<y1-2;y+=5,i++)o+=`<path d="M${R2(x0)} ${R2(y)}H${R2(x1)}" stroke="#fff" stroke-width="1.4" stroke-dasharray="4 3" stroke-dashoffset="${i%2?3.5:0}"/>`}else{for(let y=y0+4;y<y1-2;y+=5)o+=`<path d="M${R2(x0)} ${R2(y)}H${R2(x1)}" stroke="#fff" stroke-width="1.3"/>`}return o};// R = huecos lado derecho (se reflejan), C = huecos centrales, Wt = detalles en color carrocería (DRL) lado derecho
+ const intake=(w,y0,y1,r=5)=>`<rect x="${X(-w)}" y="${y0}" width="${R2(2*w*W)}" height="${R2(y1-y0)}" rx="${r}"/>`;
+ const tri=(a,b,c)=>`<path d="M${a}L${b}L${c}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;
+ switch(face){
+ case 'seat':case 'cupra':
+  R=`<path d="M${X(.99)} ${Y(14)}L${X(.52)} ${Y(26)}Q${X(.44)} ${Y(28)} ${X(.47)} ${Y(33)}L${X(.93)} ${Y(29)}Q${X(.99)} ${Y(26)} ${X(.99)} ${Y(14)}Z"/>`+tri(`${X(.93)} ${B(-36)}`,`${X(.72)} ${B(-24)}`,`${X(.93)} ${B(-14)}`);
+  C=face==='cupra'?`<path d="M${X(.2)} ${Y(30)}L${X(-.2)} ${Y(30)}L${X(-.12)} ${Y(36)}L${X(.12)} ${Y(36)}Z"/><path d="M${X(.5)} ${B(-44)}L${X(-.5)} ${B(-44)}L${X(-.62)} ${B(-26)}L${X(-.44)} ${B(-10)}L${X(.44)} ${B(-10)}L${X(.62)} ${B(-26)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`
+   :`<path d="M${X(.36)} ${Y(29)}L${X(-.36)} ${Y(29)}Q${X(-.4)} ${Y(29)} ${X(-.36)} ${Y(37)}L${X(-.3)} ${Y(50)}L${X(.3)} ${Y(50)}L${X(.36)} ${Y(37)}Q${X(.4)} ${Y(29)} ${X(.36)} ${Y(29)}Z"/>`+intake(.5,bb-24,bb-13);
+  if(face==='seat')CW=mesh(cx-.36*W,cx+.36*W,by+29,by+50,'hex');
+  Wt=`<path d="M${X(.96)} ${Y(17)}L${X(.56)} ${Y(27)}" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>`;break;
+ case 'vw':case 'evbar':
+  R=`<path d="M${X(.97)} ${Y(16)}L${X(.48)} ${Y(23)}L${X(.46)} ${Y(33)}L${X(.94)} ${Y(31)}Q${X(.99)} ${Y(28)} ${X(.97)} ${Y(16)}Z"/>`+`<path d="M${X(.9)} ${B(-38)}L${X(.74)} ${B(-34)}L${X(.74)} ${B(-22)}L${X(.9)} ${B(-16)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;
+  C=`<rect x="${X(-.47)}" y="${Y(25)}" width="${R2(.94*W)}" height="3" rx="1.5"/>`+(face==='evbar'?'':`<rect x="${X(-.34)}" y="${Y(31)}" width="${R2(.68*W)}" height="7" rx="3"/>`)+`<path d="M${X(.58)} ${B(-40)}L${X(-.58)} ${B(-40)}L${X(-.66)} ${B(-14)}L${X(.66)} ${B(-14)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`;
+  Wt=`<path d="M${X(.9)} ${Y(20)}L${X(.54)} ${Y(25)}" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`;CW=mesh(cx-.6*W,cx+.6*W,bb-40,bb-14,'hex');break;
+ case 'skoda':
+  R=`<path d="M${X(.98)} ${Y(15)}L${X(.5)} ${Y(25)}L${X(.46)} ${Y(34)}L${X(.92)} ${Y(31)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+tri(`${X(.9)} ${B(-34)}`,`${X(.74)} ${B(-26)}`,`${X(.9)} ${B(-16)}`);
+  C=`<path d="M${X(.36)} ${Y(23)}L${X(-.36)} ${Y(23)}L${X(-.32)} ${Y(46)}L${X(.32)} ${Y(46)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`+intake(.5,bb-24,bb-14);
+  for(let i=-3;i<=3;i++)C+=`<rect x="${R2(cx+i*W*.09-1.2)}" y="${Y(25)}" width="2.4" height="20" fill="#fff"/>`;break;
+ case 'audi':
+  R=`<path d="M${X(.98)} ${Y(14)}L${X(.5)} ${Y(24)}L${X(.47)} ${Y(33)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+`<path d="M${X(.92)} ${B(-40)}L${X(.76)} ${B(-36)}L${X(.76)} ${B(-18)}L${X(.92)} ${B(-14)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;
+  C=`<path d="M${X(.34)} ${Y(24)}L${X(-.34)} ${Y(24)}L${X(-.42)} ${Y(38)}L${X(-.36)} ${B(-14)}L${X(.36)} ${B(-14)}L${X(.42)} ${Y(38)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`;
+  Wt=`<path d="M${X(.95)} ${Y(18)}L${X(.74)} ${Y(22)}L${X(.72)} ${Y(28)}L${X(.56)} ${Y(30)}" stroke="#fff" stroke-width="2" fill="none" stroke-linejoin="round"/>`;CW=mesh(cx-.4*W,cx+.4*W,by+25,bb-15,'hex');break;
+ case 'toyota':case 'chr':
+  R=face==='chr'?`<path d="M${X(1)} ${Y(6)}L${X(.6)} ${Y(26)}L${X(.36)} ${Y(32)}L${X(.48)} ${Y(37)}L${X(.94)} ${Y(26)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`
+   :`<path d="M${X(.99)} ${Y(12)}L${X(.55)} ${Y(26)}L${X(.42)} ${Y(30)}L${X(.48)} ${Y(36)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  R+=`<path d="M${X(.96)} ${B(-44)}L${X(.84)} ${B(-36)}L${X(.84)} ${B(-14)}L${X(.96)} ${B(-14)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;
+  C=`<rect x="${X(-.2)}" y="${Y(30)}" width="${R2(.4*W)}" height="5" rx="2.5"/><path d="M${X(.48)} ${B(-46)}L${X(-.48)} ${B(-46)}L${X(-.66)} ${B(-12)}L${X(.66)} ${B(-12)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`;break;
+ case 'peugeot':
+  R=`<path d="M${X(.97)} ${Y(16)}L${X(.56)} ${Y(23)}L${X(.48)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  for(let i=0;i<3;i++)R+=`<path d="M${X(.9-i*.07)} ${Y(37+i*3)}L${X(.86-i*.07)} ${B(-16)}" stroke="#000" stroke-width="4" stroke-linecap="round"/>`;
+  C=`<path d="M${X(.44)} ${Y(24)}L${X(-.44)} ${Y(24)}L${X(-.4)} ${Y(44)}Q${cx} ${Y(48)} ${X(.4)} ${Y(44)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`+intake(.4,bb-22,bb-13);CW=mesh(cx-.44*W,cx+.44*W,by+24,by+46,'v');break;
+ case 'renault':
+  R=`<path d="M${X(.96)} ${Y(17)}L${X(.52)} ${Y(23)}L${X(.5)} ${Y(33)}L${X(.94)} ${Y(32)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M${X(.95)} ${Y(36)}Q${X(.96)} ${B(-14)} ${X(.78)} ${B(-14)}" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  C=`<path d="M${X(.42)} ${Y(24)}L${X(-.42)} ${Y(24)}L${X(-.38)} ${Y(46)}L${X(.38)} ${Y(46)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`+intake(.46,bb-24,bb-14);CW=mesh(cx-.42*W,cx+.42*W,by+24,by+46,'hex');
+  Wt=`<path d="M${X(.92)} ${Y(21)}Q${X(.98)} ${Y(30)} ${X(.86)} ${Y(31)}" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;break;
+ case 'dacia':case 'duster':
+  R=`<rect x="${X(.56)}" y="${Y(17)}" width="${R2(.4*W)}" height="15" rx="4"/>`;
+  C=`<rect x="${X(-.6)}" y="${Y(20)}" width="${R2(1.2*W)}" height="10" rx="3"/>`+intake(.46,bb-26,bb-13)+(face==='duster'?`<rect x="${X(-.56)}" y="${B(-10)}" width="${R2(1.12*W)}" height="6" rx="3"/>`:'');
+  Wt=`<path d="M${X(.66)} ${Y(20)}L${X(.74)} ${Y(25)}L${X(.82)} ${Y(20)}M${X(.74)} ${Y(25)}L${X(.74)} ${Y(30)}" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;break;
+ case 'kia':
+  R=`<path d="M${X(.97)} ${Y(14)}L${X(.6)} ${Y(22)}L${X(.56)} ${Y(32)}L${X(.94)} ${Y(32)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  C=`<path d="M${X(.36)} ${Y(24)}L${X(.1)} ${Y(26)}Q${cx} ${Y(28)} ${X(-.1)} ${Y(26)}L${X(-.36)} ${Y(24)}L${X(-.32)} ${Y(32)}L${X(.32)} ${Y(32)}Z"/>`+`<path d="M${X(.6)} ${B(-40)}L${X(-.6)} ${B(-40)}L${X(-.66)} ${B(-14)}L${X(.66)} ${B(-14)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`;
+  Wt=`<path d="M${X(.92)} ${Y(17)}L${X(.66)} ${Y(23)}L${X(.66)} ${Y(30)}" stroke="#fff" stroke-width="2.2" fill="none" stroke-linejoin="round"/>`;break;
+ case 'hyundai':
+  R=`<path d="M${X(.98)} ${Y(14)}L${X(.8)} ${Y(16)}L${X(.8)} ${Y(20)}L${X(.97)} ${Y(19)}Z"/><rect x="${X(.74)}" y="${B(-40)}" width="${R2(.22*W)}" height="12" rx="4"/>`;
+  C=`<path d="M${X(.62)} ${Y(22)}L${X(-.62)} ${Y(22)}L${X(-.56)} ${B(-14)}L${X(.56)} ${B(-14)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`;
+  for(let i=0;i<4;i++)C+=`<path d="M${X(-.54)} ${R2(by+30+i*10)}L${X(.54)} ${R2(by+30+i*10)}" stroke="#fff" stroke-width="1.6" stroke-dasharray="6 5"/>`;break;
+ case 'citroen':
+  R=`<path d="M${X(.97)} ${Y(14)}L${X(.46)} ${Y(19)}L${X(.46)} ${Y(23)}L${X(.95)} ${Y(20)}Z"/><path d="M${X(.95)} ${Y(30)}L${X(.66)} ${Y(30)}L${X(.66)} ${Y(42)}L${X(.92)} ${Y(42)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;
+  C=`<rect x="${X(-.46)}" y="${Y(19)}" width="${R2(.92*W)}" height="4" rx="2"/><path d="M${X(.42)} ${Y(29)}L${X(-.42)} ${Y(29)}L${X(-.38)} ${Y(44)}L${X(.38)} ${Y(44)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`+intake(.46,bb-24,bb-13);break;
+ case 'mg':case 'mitsu':
+  R=`<path d="M${X(.98)} ${Y(14)}L${X(.56)} ${Y(24)}L${X(.54)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+tri(`${X(.94)} ${B(-36)}`,`${X(.76)} ${B(-24)}`,`${X(.94)} ${B(-14)}`);
+  C=`<path d="M${X(.42)} ${Y(24)}L${X(-.42)} ${Y(24)}L${X(-.48)} ${Y(42)}L${X(-.34)} ${B(-14)}L${X(.34)} ${B(-14)}L${X(.48)} ${Y(42)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`;
+  if(face==='mitsu')Wt=`<path d="M${X(.5)} ${Y(28)}L${X(.36)} ${B(-14)}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`;break;
+ case 'ford':case 'mustang':
+  R=`<path d="M${X(.96)} ${Y(12)}L${X(.56)} ${Y(24)}L${X(.54)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+tri(`${X(.92)} ${B(-34)}`,`${X(.76)} ${B(-26)}`,`${X(.92)} ${B(-16)}`);
+  C=face==='mustang'?`<path d="M${X(.5)} ${Y(22)}L${X(-.5)} ${Y(22)}L${X(-.46)} ${Y(44)}L${X(.46)} ${Y(44)}Z" stroke="#000" stroke-width="5" stroke-linejoin="round"/>`+intake(.5,bb-24,bb-13)
+   :`<path d="M${X(.36)} ${Y(26)}L${X(-.36)} ${Y(26)}L${X(-.44)} ${Y(38)}L${X(-.34)} ${Y(52)}L${X(.34)} ${Y(52)}L${X(.44)} ${Y(38)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`+intake(.44,bb-22,bb-13);CW=mesh(cx-.44*W,cx+.44*W,by+26,by+52,'hex');break;
+ case 'opel':
+  C=`<path d="M${X(.97)} ${Y(16)}L${X(-.97)} ${Y(16)}L${X(-.94)} ${Y(34)}L${X(.94)} ${Y(34)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`+intake(.5,bb-26,bb-13);
+  Wt=`<path d="M${X(.9)} ${Y(22)}L${X(.6)} ${Y(24)}L${X(.56)} ${Y(30)}" stroke="#fff" stroke-width="2.2" fill="none" stroke-linejoin="round"/><path d="M${X(.02)} ${Y(18)}L${X(.02)} ${Y(32)}" stroke="#fff" stroke-width="1.6"/>`;break;
+ case 'nissan':
+  R=`<path d="M${X(.97)} ${Y(14)}L${X(.6)} ${Y(24)}L${X(.58)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M${X(.94)} ${Y(36)}L${X(.8)} ${Y(44)}L${X(.94)} ${Y(52)}" stroke="#000" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
+  C=`<path d="M${X(.44)} ${Y(24)}L${X(-.44)} ${Y(24)}L${X(-.36)} ${Y(44)}L${X(0)} ${B(-14)}L${X(.36)} ${Y(44)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`;
+  Wt=`<path d="M${X(.38)} ${Y(26)}L${X(.06)} ${B(-20)}" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>`;break;
+ case 'mazda':case 'mazdamx':
+  R=`<path d="M${X(.98)} ${Y(face==='mazdamx'?4:12)}L${X(.56)} ${Y(22)}Q${X(.5)} ${Y(24)} ${X(.52)} ${Y(30)}L${X(.93)} ${Y(28)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  C=`<path d="M${X(.36)} ${Y(26)}L${X(-.36)} ${Y(26)}Q${X(-.44)} ${Y(30)} ${X(-.4)} ${Y(40)}Q${X(-.32)} ${B(-14)} ${cx} ${B(-14)}Q${X(.32)} ${B(-14)} ${X(.4)} ${Y(40)}Q${X(.44)} ${Y(30)} ${X(.36)} ${Y(26)}Z"/>`;
+  Wt=`<path d="M${X(.52)} ${Y(29)}Q${X(.46)} ${Y(36)} ${X(.42)} ${Y(44)}" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;CW=mesh(cx-.42*W,cx+.42*W,by+28,bb-16,'hex');break;
+ case 'volvo':
+  R=`<path d="M${X(.97)} ${Y(14)}L${X(.58)} ${Y(20)}L${X(.56)} ${Y(34)}L${X(.94)} ${Y(32)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+`<rect x="${X(.74)}" y="${B(-36)}" width="${R2(.18*W)}" height="18" rx="4"/>`;
+  C=`<path d="M${X(.3)} ${Y(22)}L${X(-.3)} ${Y(22)}Q${X(-.34)} ${Y(22)} ${X(-.34)} ${Y(27)}L${X(-.32)} ${Y(50)}L${X(.32)} ${Y(50)}L${X(.34)} ${Y(27)}Q${X(.34)} ${Y(22)} ${X(.3)} ${Y(22)}Z"/>`+intake(.46,bb-22,bb-13);
+  for(let i=-3;i<=3;i++)C+=`<rect x="${R2(cx+i*W*.08-1)}" y="${Y(24)}" width="2" height="25" fill="#fff"/>`;
+  Wt=`<path d="M${X(.62)} ${Y(27)}L${X(.92)} ${Y(25)}M${X(.77)} ${Y(23)}L${X(.77)} ${Y(32)}" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>`;break;
+ case 'merc':
+  R=`<path d="M${X(.96)} ${Y(14)}L${X(.54)} ${Y(22)}Q${X(.48)} ${Y(24)} ${X(.5)} ${Y(31)}L${X(.93)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/><rect x="${X(.74)}" y="${B(-38)}" width="${R2(.2*W)}" height="20" rx="5"/>`;
+  C=`<path d="M${X(.38)} ${Y(23)}L${X(-.38)} ${Y(23)}Q${X(-.42)} ${Y(23)} ${X(-.41)} ${Y(28)}L${X(-.38)} ${Y(48)}L${X(.38)} ${Y(48)}L${X(.41)} ${Y(28)}Q${X(.42)} ${Y(23)} ${X(.38)} ${Y(23)}Z"/>`+intake(.5,bb-26,bb-14);
+  CW=mesh(cx-.38*W,cx+.38*W,by+23,by+48,'h');Wt=`<rect x="${X(-.38)}" y="${Y(34)}" width="${R2(.76*W)}" height="3" fill="#fff"/><path d="M${X(.92)} ${Y(17)}Q${X(.7)} ${Y(19)} ${X(.56)} ${Y(25)}" stroke="#fff" stroke-width="2" fill="none"/>`;break;
+ case 'bmw':
+  R=`<path d="M${X(.97)} ${Y(14)}L${X(.54)} ${Y(23)}L${X(.5)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+`<path d="M${X(.94)} ${B(-40)}L${X(.78)} ${B(-34)}L${X(.78)} ${B(-16)}L${X(.94)} ${B(-14)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;
+  C=`<path d="M${X(.04)} ${Y(22)}L${X(.27)} ${Y(21)}Q${X(.33)} ${Y(21)} ${X(.33)} ${Y(28)}L${X(.31)} ${Y(46)}Q${X(.3)} ${Y(51)} ${X(.24)} ${Y(51)}L${X(.06)} ${Y(51)}Q${X(.03)} ${Y(51)} ${X(.03)} ${Y(46)}L${X(.03)} ${Y(26)}Q${X(.03)} ${Y(22)} ${X(.04)} ${Y(22)}Z"/><g transform="translate(260 0) scale(-1 1)"><path d="M${X(.04)} ${Y(22)}L${X(.27)} ${Y(21)}Q${X(.33)} ${Y(21)} ${X(.33)} ${Y(28)}L${X(.31)} ${Y(46)}Q${X(.3)} ${Y(51)} ${X(.24)} ${Y(51)}L${X(.06)} ${Y(51)}Q${X(.03)} ${Y(51)} ${X(.03)} ${Y(46)}L${X(.03)} ${Y(26)}Q${X(.03)} ${Y(22)} ${X(.04)} ${Y(22)}Z"/></g>`+intake(.5,bb-22,bb-13);
+  CW=mesh(cx+.03*W,cx+.33*W,by+22,by+51,'v')+mesh(cx-.33*W,cx-.03*W,by+22,by+51,'v')+`<rect x="${X(-.03)}" y="${Y(20)}" width="${R2(.06*W)}" height="32" fill="#fff"/>`;
+  Wt=`<path d="M${X(.68)} ${Y(23)}a5 4 0 1 0 0.1 0M${X(.84)} ${Y(21)}a5 4 0 1 0 0.1 0" stroke="#fff" stroke-width="1.8" fill="none"/>`;break;
+ case 'tesla':
+  R=`<path d="M${X(.98)} ${Y(12)}L${X(.6)} ${Y(22)}Q${X(.54)} ${Y(24)} ${X(.58)} ${Y(29)}L${X(.94)} ${Y(26)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  C=`<path d="M${X(.5)} ${B(-22)}Q${cx} ${B(-26)} ${X(-.5)} ${B(-22)}L${X(-.46)} ${B(-14)}L${X(.46)} ${B(-14)}Z"/>`;break;
+ case 'alfa':
+  R=`<path d="M${X(.97)} ${Y(14)}L${X(.6)} ${Y(24)}L${X(.56)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`+`<rect x="${X(.48)}" y="${B(-30)}" width="${R2(.4*W)}" height="14" rx="5"/>`;
+  C=`<path d="M${X(.12)} ${Y(22)}L${X(-.12)} ${Y(22)}L${X(-.1)} ${Y(42)}L${X(0)} ${B(-14)}L${X(.1)} ${Y(42)}Z" stroke="#000" stroke-width="3" stroke-linejoin="round"/>`;break;
+ case 'fiat':case 'panda':
+  R=face==='panda'?`<rect x="${X(.6)}" y="${Y(18)}" width="${R2(.34*W)}" height="18" rx="8"/>`:`<path d="M${X(.97)} ${Y(16)}L${X(.56)} ${Y(24)}L${X(.54)} ${Y(32)}L${X(.94)} ${Y(31)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  C=`<rect x="${X(-.4)}" y="${Y(26)}" width="${R2(.8*W)}" height="8" rx="4"/>`+intake(.5,bb-24,bb-13);break;
+ case 'fiat500':
+  R=`<circle cx="${X(.68)}" cy="${Y(36)}" r="${R2(W*.15)}"/><path d="M${X(.6)} ${Y(14)}Q${X(.74)} ${Y(8)} ${X(.86)} ${Y(14)}Q${X(.74)} ${Y(18)} ${X(.6)} ${Y(14)}Z"/>`;
+  C=`<path d="M${X(.36)} ${B(-30)}Q${cx} ${B(-36)} ${X(-.36)} ${B(-30)}Q${X(-.38)} ${B(-14)} ${cx} ${B(-12)}Q${X(.38)} ${B(-14)} ${X(.36)} ${B(-30)}Z"/>`;
+  Wt=`<path d="M${X(.36)} ${Y(30)}Q${X(.18)} ${Y(26)} ${cx} ${Y(32)}" stroke="#000" stroke-width="2.4" fill="none"/>`;break;
+ case 'mini':case 'smart':
+  R=face==='smart'?`<path d="M${X(.97)} ${Y(14)}L${X(.6)} ${Y(20)}L${X(.6)} ${Y(32)}L${X(.94)} ${Y(32)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`:`<circle cx="${X(.7)}" cy="${Y(28)}" r="${R2(W*.17)}"/>`;
+  C=face==='smart'?`<path d="M${X(.36)} ${Y(30)}L${X(-.36)} ${Y(30)}L${X(-.3)} ${Y(50)}L${X(.3)} ${Y(50)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`
+   :`<path d="M${X(.36)} ${Y(30)}L${X(-.36)} ${Y(30)}L${X(-.46)} ${Y(44)}L${X(-.36)} ${B(-14)}L${X(.36)} ${B(-14)}L${X(.46)} ${Y(44)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`;
+  if(face==='mini')Wt=`<circle cx="${X(.7)}" cy="${Y(28)}" r="${R2(W*.12)}" stroke="#fff" stroke-width="2" fill="none"/><rect x="${X(-.44)}" y="${Y(41)}" width="${R2(.88*W)}" height="3" fill="#fff"/>`;break;
+ case 'jeep':case 'round4':case 'defender':
+  R=face==='defender'?`<rect x="${X(.64)}" y="${Y(16)}" width="${R2(.28*W)}" height="${R2(.28*W)}" rx="${R2(.12*W)}"/>`:`<circle cx="${X(.72)}" cy="${Y(30)}" r="${R2(W*.15)}"/>`;
+  R+=`<rect x="${X(.7)}" y="${B(-26)}" width="${R2(.22*W)}" height="10" rx="3"/>`;
+  C=face==='defender'?`<rect x="${X(-.44)}" y="${Y(18)}" width="${R2(.88*W)}" height="18" rx="4"/>`+intake(.56,bb-30,bb-14,3)
+   :face==='jeep'?[-3,-2,-1,0,1,2,3].map(i=>`<rect x="${R2(cx+i*W*.085-3.2)}" y="${Y(12)}" width="6.4" height="38" rx="3.2"/>`).join('')+intake(.6,bb-20,bb-12,3)
+   :`<rect x="${X(-.42)}" y="${Y(18)}" width="${R2(.84*W)}" height="24" rx="5"/>`+intake(.58,bb-22,bb-12,3);
+  if(face==='round4')for(let i=0;i<4;i++)C+=`<rect x="${R2(cx-W*.3+i*W*.2-2)}" y="${Y(20)}" width="4" height="20" fill="#fff"/>`;break;
+ case 'porsche':
+  R=`<ellipse cx="${X(.72)}" cy="${Y(22)}" rx="${R2(W*.14)}" ry="${R2(W*.11)}"/>`+`<rect x="${X(.66)}" y="${B(-30)}" width="${R2(.26*W)}" height="14" rx="5"/>`;
+  C=intake(.24,bb-30,bb-16);break;
+ case 'rover':
+  R=`<path d="M${X(.97)} ${Y(16)}L${X(.56)} ${Y(20)}L${X(.56)} ${Y(30)}L${X(.96)} ${Y(30)}Z"/>`;
+  C=`<rect x="${X(-.5)}" y="${Y(20)}" width="${R2(W)}" height="12" rx="4"/>`+intake(.5,bb-28,bb-14);break;
+ default:
+  R=`<path d="M${X(.98)} ${Y(14)}L${X(.5)} ${Y(24)}L${X(.48)} ${Y(32)}L${X(.94)} ${Y(30)}Z" stroke="#000" stroke-width="2" stroke-linejoin="round"/>`;
+  C=`<path d="M${X(.36)} ${Y(26)}L${X(-.36)} ${Y(26)}L${X(-.3)} ${Y(46)}L${X(.3)} ${Y(46)}Z" stroke="#000" stroke-width="4" stroke-linejoin="round"/>`+intake(.46,bb-22,bb-13);
+ }
+ const mirror=s=>`${s}<g transform="translate(260 0) scale(-1 1)">${s}</g>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 200"><mask id="m"><g fill="#fff">${mirror(`<path d="${half}"/>${legs}${mir}`)}</g><g fill="#000">${ws}${mirror(R)}${C}</g><g fill="#fff">${mirror(Wt)}${CW}</g></mask><rect width="260" height="200" mask="url(#m)"/></svg>`;
 }
 const MKC=new Map();
-function carMask(v){const p=carParams(v),k=JSON.stringify(p);if(!MKC.has(k))MKC.set(k,"url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(frontMaskSVG(p))+"')");return MKC.get(k)}
+function carMask(v){const p=carParams(v),f=faceOf(v),k=f+JSON.stringify(p);if(!MKC.has(k))MKC.set(k,"url('data:image/svg+xml;charset=utf-8,"+encodeURIComponent(frontMaskSVG(p,f))+"')");return MKC.get(k)}
+
 function vArt(v){if(vtype(v)!=='car'||!v.make)return carArt(v.color,vtype(v));const c=safeCol(v.color);return `<span class="cicon" style="--c:${c};--m:${carMask(v)};--k:1;aspect-ratio:260/200"><i></i></span>`}
 const TOPS={mini:[300,800,130],urb:[330,820,140],comp:[350,820,150],ber:[400,760,110,1],berg:[410,780,110,1],dep:[470,770,90],suvp:[330,850,150],suvm:[320,860,150],suvg:[300,880,150],mono:[230,900,140],pick:[300,0,0]};
 const shade=(h,t)=>{const n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,f=x=>Math.max(0,Math.min(255,Math.round(t<0?x*(1+t):x+(255-x)*t)));return '#'+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,'0')).join('')};
@@ -1407,7 +1515,6 @@ function topMotoSVG(v){
  <rect x="180" y="790" width="80" height="252" rx="36" fill="#16191e"/><rect x="194" y="806" width="52" height="220" rx="24" fill="none" stroke="#2c313a" stroke-width="4" stroke-dasharray="8 10"/>
  <rect x="262" y="640" width="26" height="170" rx="12" fill="#8b929c"/></svg>`;
 }
-
 function recForm(vid,type,rid,pre){
  const vs=list();if(!vs.length){toast('Primero añade un vehículo');return}
  const v=V[vid]||vs[0],tt=ty(type),old=rid?v.records.find(r=>r.id===rid):null;
@@ -1656,7 +1763,7 @@ function settingsSheet(){
   ${vs.length?`<button class="setrow red" data-act="wipe">${ibox('x','#ef4444',16)}<span>Borrar todos los datos</span></button>`:''}
  </div>
  <p class="status" style="margin:6px 0 2px">${S.col?(S.slow?'Sin conexión con tu cuenta: los datos pueden no estar al día':'Tus datos se guardan en tu cuenta y se ven en cualquier dispositivo'):'Tus datos se guardan en este dispositivo'}</p>
- <p class="status" style="margin:0">Glovebox · versión 1.0 · 27/11 14:02</p>`);
+ <p class="status" style="margin:0">Glovebox · versión 1.0 · 27/11 14:08</p>`);
 }
 /* ---------- copias de seguridad ---------- */
 function restoreText(txt){
